@@ -1,0 +1,110 @@
+import { MediaService } from '../MediaService';
+
+// ─── expo-media-library と expo-sharing のモック ────────────────
+
+jest.mock('expo-media-library', () => ({
+  requestPermissionsAsync: jest.fn(),
+  saveToLibraryAsync: jest.fn(),
+}));
+
+jest.mock('expo-sharing', () => ({
+  isAvailableAsync: jest.fn(),
+  shareAsync: jest.fn(),
+}));
+
+const MediaLibrary = require('expo-media-library') as {
+  requestPermissionsAsync: jest.Mock;
+  saveToLibraryAsync: jest.Mock;
+};
+const Sharing = require('expo-sharing') as {
+  isAvailableAsync: jest.Mock;
+  shareAsync: jest.Mock;
+};
+
+// ─── テストスイート ──────────────────────────────────────────────
+
+describe('MediaService', () => {
+  let onPermissionDenied: jest.Mock;
+  let service: MediaService;
+
+  beforeEach(() => {
+    onPermissionDenied = jest.fn();
+    service = new MediaService(onPermissionDenied);
+    jest.clearAllMocks();
+  });
+
+  // ────────────────────────────
+  // saveToLibrary
+  // ────────────────────────────
+
+  describe('saveToLibrary', () => {
+    it('権限がある場合に saveToLibraryAsync を呼び出す', async () => {
+      MediaLibrary.requestPermissionsAsync.mockResolvedValue({ status: 'granted' });
+      MediaLibrary.saveToLibraryAsync.mockResolvedValue(undefined);
+
+      await service.saveToLibrary('file:///tmp/out.gif');
+
+      expect(MediaLibrary.saveToLibraryAsync).toHaveBeenCalledWith('file:///tmp/out.gif');
+    });
+
+    it('権限拒否の場合は saveToLibraryAsync を呼ばない', async () => {
+      MediaLibrary.requestPermissionsAsync.mockResolvedValue({ status: 'denied' });
+
+      await service.saveToLibrary('file:///tmp/out.gif');
+
+      expect(MediaLibrary.saveToLibraryAsync).not.toHaveBeenCalled();
+    });
+
+    it('権限拒否の場合は onPermissionDenied コールバックを呼ぶ', async () => {
+      MediaLibrary.requestPermissionsAsync.mockResolvedValue({ status: 'denied' });
+
+      await service.saveToLibrary('file:///tmp/out.gif');
+
+      expect(onPermissionDenied).toHaveBeenCalled();
+    });
+
+    it('requestPermissionsAsync が呼ばれる', async () => {
+      MediaLibrary.requestPermissionsAsync.mockResolvedValue({ status: 'granted' });
+      MediaLibrary.saveToLibraryAsync.mockResolvedValue(undefined);
+
+      await service.saveToLibrary('file:///tmp/out.gif');
+
+      expect(MediaLibrary.requestPermissionsAsync).toHaveBeenCalled();
+    });
+  });
+
+  // ────────────────────────────
+  // share
+  // ────────────────────────────
+
+  describe('share', () => {
+    it('共有が利用可能な場合に shareAsync を呼び出す', async () => {
+      Sharing.isAvailableAsync.mockResolvedValue(true);
+      Sharing.shareAsync.mockResolvedValue(undefined);
+
+      await service.share('file:///tmp/out.gif');
+
+      expect(Sharing.shareAsync).toHaveBeenCalledWith(
+        'file:///tmp/out.gif',
+        expect.any(Object),
+      );
+    });
+
+    it('共有が利用不可の場合は shareAsync を呼ばない', async () => {
+      Sharing.isAvailableAsync.mockResolvedValue(false);
+
+      await service.share('file:///tmp/out.gif');
+
+      expect(Sharing.shareAsync).not.toHaveBeenCalled();
+    });
+
+    it('isAvailableAsync が呼ばれる', async () => {
+      Sharing.isAvailableAsync.mockResolvedValue(true);
+      Sharing.shareAsync.mockResolvedValue(undefined);
+
+      await service.share('file:///tmp/out.gif');
+
+      expect(Sharing.isAvailableAsync).toHaveBeenCalled();
+    });
+  });
+});

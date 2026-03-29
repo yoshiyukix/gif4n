@@ -9,7 +9,7 @@ dist/
 web-build/
 expo-env.d.ts
 
-# Native
+# Native (Pods/ and build/ are excluded by ios/.gitignore and android/.gitignore)
 .kotlin/
 *.orig.*
 *.jks
@@ -36,6 +36,4 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# generated native folders
-/ios
-/android
+tmp/
