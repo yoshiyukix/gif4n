@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
+import { useVideoPlayer, VideoView } from 'expo-video';
+import { useEventListener } from 'expo';
 import { TrimRange } from '../types';
 
 interface Props {
@@ -9,37 +10,36 @@ interface Props {
 }
 
 export function VideoPreview({ uri, trimRange }: Props) {
-  const videoRef = useRef<Video>(null);
-  // ref に最新の trimRange を保持することでコールバック内の stale closure を防ぐ
   const trimRangeRef = useRef(trimRange);
   useEffect(() => {
     trimRangeRef.current = trimRange;
   });
 
+  const player = useVideoPlayer(uri, p => {
+    p.loop = false;
+    p.play();
+  });
+
   // 開始位置が変わったら再生位置をリセット
   useEffect(() => {
-    videoRef.current?.setPositionAsync(trimRange.startSec * 1000);
-  }, [trimRange.startSec]);
+    player.currentTime = trimRange.startSec;
+  }, [trimRange.startSec, player]);
 
-  const handlePlaybackStatusUpdate = useCallback(async (status: AVPlaybackStatus) => {
-    if (!status.isLoaded) return;
+  // 終端に達したら開始位置に戻してループ
+  useEventListener(player, 'timeUpdate', ({ currentTime }) => {
     const { startSec, endSec } = trimRangeRef.current;
-    // 終端に達したら開始位置に戻してループ
-    if (status.positionMillis >= endSec * 1000) {
-      await videoRef.current?.setPositionAsync(startSec * 1000);
+    if (currentTime >= endSec) {
+      player.currentTime = startSec;
     }
-  }, []);
+  });
 
   return (
     <View style={styles.container}>
-      <Video
-        ref={videoRef}
-        source={{ uri }}
+      <VideoView
+        player={player}
         style={styles.video}
-        resizeMode={ResizeMode.CONTAIN}
-        shouldPlay
-        isLooping={false}
-        onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+        contentFit="contain"
+        nativeControls={false}
       />
     </View>
   );
