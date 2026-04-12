@@ -11,6 +11,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import * as VideoThumbnails from 'expo-video-thumbnails';
 import { RootStackParamList } from '../navigation/types';
 import { VideoPreview } from '../components/VideoPreview';
 import { TrimSlider } from '../components/TrimSlider';
@@ -46,13 +47,22 @@ export default function TrimScreen({ route, navigation }: Props) {
   const [seekTo, setSeekTo] = useState<number | undefined>(undefined);
   const [isSeekDragging, setIsSeekDragging] = useState(false);
 
-  function handleNext() {
+  async function handleNext() {
     const duration = trimRange.endSec - trimRange.startSec;
     if (duration < MIN_DURATION_SEC) {
       Alert.alert('トリミングエラー', `最低 ${MIN_DURATION_SEC} 秒以上を選択してください。`);
       return;
     }
-    navigation.navigate('Confirm', { source, trimRange });
+    let thumbnailUri: string | null = null;
+    try {
+      const result = await VideoThumbnails.getThumbnailAsync(source.uri, {
+        time: trimRange.startSec * 1000,
+      });
+      thumbnailUri = result.uri;
+    } catch {
+      // サムネイル取得失敗時は null のまま遷移
+    }
+    navigation.navigate('Converting', { source, trimRange, thumbnailUri });
   }
 
   const selectedSec = trimRange.endSec - trimRange.startSec;

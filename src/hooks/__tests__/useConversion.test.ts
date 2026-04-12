@@ -1,7 +1,6 @@
 import { renderHook, act } from '@testing-library/react-native';
 import { useConversion, UseConversionOptions } from '../useConversion';
 import { IConversionUseCase } from '../../usecases/ConversionUseCase';
-import { IMediaService } from '../../infrastructure/MediaService';
 import { VideoSource, TrimRange, QualityPreset } from '../../types';
 
 // ─── テスト用フィクスチャ ────────────────────────────────────────
@@ -27,13 +26,8 @@ function makeOptions(overrides: Partial<UseConversionOptions> = {}): UseConversi
       preset: mockPreset,
     }),
   };
-  const mockMedia: IMediaService = {
-    saveToLibrary: jest.fn().mockResolvedValue(undefined),
-    share: jest.fn().mockResolvedValue(undefined),
-  };
   return {
     useCase: mockUseCase,
-    media: mockMedia,
     outputSizeResolver: jest.fn().mockResolvedValue(1_000_000),
     ...overrides,
   };

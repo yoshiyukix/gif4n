@@ -1,13 +1,23 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Image,
+  SafeAreaView,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as FileSystem from 'expo-file-system/legacy';
+import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../navigation/types';
 import { useConversion } from '../hooks/useConversion';
 import { ConversionUseCase } from '../usecases/ConversionUseCase';
 import { NativeGifService } from '../infrastructure/NativeGifService';
 import { SizeEstimator } from '../usecases/SizeEstimator';
-import { MediaService } from '../infrastructure/MediaService';
+import { QUALITY_PRESETS } from '../types';
+import CircularProgress from '../components/CircularProgress';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Converting'>;
 
@@ -17,7 +27,7 @@ async function outputSizeResolver(uri: string): Promise<number> {
 }
 
 export default function ConvertingScreen({ route, navigation }: Props) {
-  const { source, trimRange } = route.params;
+  const { source, trimRange, thumbnailUri: initialThumbnailUri } = route.params;
 
   const nativeService = useMemo(() => new NativeGifService(), []);
   const estimator = useMemo(() => new SizeEstimator(), []);
@@ -25,10 +35,10 @@ export default function ConvertingScreen({ route, navigation }: Props) {
     () => new ConversionUseCase(nativeService, estimator),
     [nativeService, estimator],
   );
-  const media = useMemo(() => new MediaService(), []);
-
-  const { job, start, cancel } = useConversion({ useCase, media, outputSizeResolver });
+  const { job, start, cancel } = useConversion({ useCase, outputSizeResolver });
   const started = useRef(false);
+
+  const thumbnailUri = initialThumbnailUri;
 
   useEffect(() => {
     if (started.current) return;
@@ -62,47 +72,153 @@ export default function ConvertingScreen({ route, navigation }: Props) {
   }, [job?.status]);
 
   const progress = job?.progressRate ?? 0;
-  const percent = Math.round(progress * 100);
-
-  function handleCancel() {
-    cancel();
-  }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>変換中...</Text>
-      <ActivityIndicator size="large" color="#007AFF" style={styles.spinner} />
-      <View style={styles.progressBar}>
-        <View style={[styles.progressFill, { width: `${percent}%` }]} />
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        {/* 円形プログレス */}
+        <View style={styles.progressSection}>
+          <CircularProgress progress={progress} size={220} />
+        </View>
+
+        {/* ステータステキスト */}
+        <View style={styles.statusSection}>
+          <Text style={styles.heading}>変換中...</Text>
+          <Text style={styles.subHeading}>フレームを最適化しています...</Text>
+          <View style={styles.chip}>
+            <Ionicons name="flash" size={14} color="#2855E7" style={styles.chipIcon} />
+            <Text style={styles.chipText}>高速エンコード実行中</Text>
+          </View>
+        </View>
+
+        {/* ファイル情報カード */}
+        <View style={styles.card}>
+          {thumbnailUri ? (
+            <Image source={{ uri: thumbnailUri }} style={styles.thumbnail} />
+          ) : (
+            <View style={[styles.thumbnail, styles.thumbnailPlaceholder]} />
+          )}
+          <View style={styles.cardInfo}>
+            <Text style={styles.fileName}>出力設定</Text>
+            <Text style={styles.fileMeta}>
+              {job?.preset ? `${job.preset.width}px · ${job.preset.fps} fps` : '–'}
+            </Text>
+            {job?.preset && (() => {
+              const idx = QUALITY_PRESETS.findIndex(
+                (p) => p.width === job.preset.width && p.fps === job.preset.fps,
+              );
+              return idx >= 0 ? (
+                <Text style={styles.fileMeta}>試行 {idx + 1} / {QUALITY_PRESETS.length}</Text>
+              ) : null;
+            })()}
+          </View>
+        </View>
+
+        <View style={styles.spacer} />
+
+        {/* キャンセルボタン */}
+        <TouchableOpacity style={styles.cancelButton} onPress={cancel} activeOpacity={0.8}>
+          <Text style={styles.cancelText}>キャンセル</Text>
+        </TouchableOpacity>
       </View>
-      <Text style={styles.percent}>{percent}%</Text>
-      {job?.preset && (
-        <Text style={styles.presetText}>
-          品質: {job.preset.width}px / {job.preset.fps}fps
-        </Text>
-      )}
-      <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-        <Text style={styles.cancelText}>キャンセル</Text>
-      </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  heading: { fontSize: 24, fontWeight: '700', marginBottom: 32 },
-  spinner: { marginBottom: 24 },
-  progressBar: {
-    width: '100%',
-    height: 8,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: 8,
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#EAECF4',
   },
-  progressFill: { height: '100%', backgroundColor: '#007AFF', borderRadius: 4 },
-  percent: { fontSize: 16, color: '#333', marginBottom: 4 },
-  presetText: { fontSize: 12, color: '#999', marginBottom: 32 },
-  cancelButton: { marginTop: 16 },
-  cancelText: { color: '#FF3B30', fontSize: 16 },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+  },
+  progressSection: {
+    marginTop: 40,
+    marginBottom: 40,
+  },
+  statusSection: {
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 32,
+  },
+  heading: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1C1E2A',
+  },
+  subHeading: {
+    fontSize: 15,
+    color: '#737590',
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#DDE4F8',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginTop: 4,
+  },
+  chipIcon: {
+    marginRight: 4,
+  },
+  chipText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#2855E7',
+  },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 12,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  thumbnail: {
+    width: 64,
+    height: 64,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  thumbnailPlaceholder: {
+    backgroundColor: '#D8DCF0',
+  },
+  cardInfo: {
+    flex: 1,
+    gap: 4,
+  },
+  fileName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1C1E2A',
+  },
+  fileMeta: {
+    fontSize: 13,
+    color: '#737590',
+  },
+  spacer: {
+    flex: 1,
+  },
+  cancelButton: {
+    width: '100%',
+    backgroundColor: '#CDD4EE',
+    borderRadius: 32,
+    paddingVertical: 18,
+    alignItems: 'center',
+  },
+  cancelText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#1C1E2A',
+  },
 });

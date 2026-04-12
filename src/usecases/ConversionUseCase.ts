@@ -1,4 +1,4 @@
-import { VideoSource, TrimRange, ConversionResult, QUALITY_PRESETS } from '../types';
+import { VideoSource, TrimRange, ConversionResult, QualityPreset, QUALITY_PRESETS } from '../types';
 import { INativeGifService } from '../infrastructure/NativeGifService';
 import { ISizeEstimator } from './SizeEstimator';
 
@@ -21,6 +21,7 @@ export interface IConversionUseCase {
     onProgress: (rate: number) => void,
     signal: AbortSignal,
     outputSizeResolver: OutputSizeResolver,
+    onPresetChange?: (preset: QualityPreset) => void,
   ): Promise<ConversionResult>;
 }
 
@@ -36,6 +37,7 @@ export class ConversionUseCase implements IConversionUseCase {
     onProgress: (rate: number) => void,
     signal: AbortSignal,
     outputSizeResolver: OutputSizeResolver,
+    onPresetChange?: (preset: QualityPreset) => void,
   ): Promise<ConversionResult> {
     const startIndex = this.estimator.estimateStartIndex(source, trim);
 
@@ -45,6 +47,7 @@ export class ConversionUseCase implements IConversionUseCase {
       }
 
       const preset = QUALITY_PRESETS[i];
+      onPresetChange?.(preset);
 
       let outputUri: string;
       try {

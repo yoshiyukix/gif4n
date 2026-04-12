@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
 import HomeScreen from '../screens/HomeScreen';
 import TrimScreen from '../screens/TrimScreen';
-import ConfirmScreen from '../screens/ConfirmScreen';
 import ConvertingScreen from '../screens/ConvertingScreen';
 import ResultScreen from '../screens/ResultScreen';
 
@@ -14,7 +13,6 @@ export function AppNavigator() {
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Trim" component={TrimScreen} options={{ headerShown: false, gestureEnabled: false }} />
-      <Stack.Screen name="Confirm" component={ConfirmScreen} options={{ title: '変換確認' }} />
       <Stack.Screen
         name="Converting"
         component={ConvertingScreen}

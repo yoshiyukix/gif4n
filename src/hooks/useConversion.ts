@@ -1,13 +1,11 @@
 import { useState, useCallback, useRef } from 'react';
 import { VideoSource, TrimRange, ConversionJob, ConversionStatus, QUALITY_PRESETS } from '../types';
 import { IConversionUseCase, OutputSizeResolver } from '../usecases/ConversionUseCase';
-import { IMediaService } from '../infrastructure/MediaService';
 
 // ─── 公開型 ────────────────────────────────────────────────────
 
 export interface UseConversionOptions {
   useCase: IConversionUseCase;
-  media: IMediaService;
   outputSizeResolver: OutputSizeResolver;
 }
 
@@ -20,7 +18,7 @@ export interface UseConversionResult {
 // ─── 実装 ──────────────────────────────────────────────────────
 
 export function useConversion(options: UseConversionOptions): UseConversionResult {
-  const { useCase, media, outputSizeResolver } = options;
+  const { useCase, outputSizeResolver } = options;
   const [job, setJob] = useState<ConversionJob | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -47,6 +45,7 @@ export function useConversion(options: UseConversionOptions): UseConversionResul
           (rate) => setJob((prev) => (prev ? { ...prev, progressRate: rate } : null)),
           abort.signal,
           outputSizeResolver,
+          (preset) => setJob((prev) => (prev ? { ...prev, preset } : null)),
         )
         .then((result) => {
           if (result.ok) {
@@ -61,9 +60,6 @@ export function useConversion(options: UseConversionOptions): UseConversionResul
                   }
                 : null,
             );
-            media.saveToLibrary(result.outputUri).catch(() => {
-              /* 保存失敗は無視 */
-            });
           } else if (result.reason === 'cancelled') {
             setJob((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
           } else {
@@ -77,7 +73,7 @@ export function useConversion(options: UseConversionOptions): UseConversionResul
           setJob((prev) => (prev ? { ...prev, status: 'error', errorMessage: message } : null));
         });
     },
-    [useCase, media, outputSizeResolver],
+    [useCase, outputSizeResolver],
   );
 
   const cancel = useCallback(() => {
