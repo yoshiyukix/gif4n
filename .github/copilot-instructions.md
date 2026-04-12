@@ -24,28 +24,34 @@ Infrastructure: src/infrastructure/   ← ネイティブ依存はここのみ
 
 ## ディレクトリ規約
 
-| パス | 役割 |
-|------|------|
-| `src/screens/` | 5 画面（Home / Trim / Confirm / Converting / Result） |
-| `src/components/` | 再利用 UI（VideoPreview / TrimSlider / GifPreview） |
-| `src/usecases/` | ConversionUseCase（品質試行）、SizeEstimator（事前推定） |
-| `src/infrastructure/` | NativeGifService、MediaService |
-| `src/hooks/` | useConversion、useTrim |
-| `src/types/` | 共通型定義 |
-| `ios/` | iOS ネイティブモジュール（Swift） |
-| `android/` | Android ネイティブモジュール（Kotlin） |
-| `docs/` | 要件定義書・設計書（変更不可・参照専用） |
+| パス                  | 役割                                                     |
+| --------------------- | -------------------------------------------------------- |
+| `src/screens/`        | 5 画面（Home / Trim / Confirm / Converting / Result）    |
+| `src/components/`     | 再利用 UI（VideoPreview / TrimSlider / GifPreview）      |
+| `src/usecases/`       | ConversionUseCase（品質試行）、SizeEstimator（事前推定） |
+| `src/infrastructure/` | NativeGifService、MediaService                           |
+| `src/hooks/`          | useConversion、useTrim                                   |
+| `src/types/`          | 共通型定義                                               |
+| `ios/`                | iOS ネイティブモジュール（Swift）                        |
+| `android/`            | Android ネイティブモジュール（Kotlin）                   |
+| `docs/`               | 要件定義書・設計書（変更不可・参照専用）                 |
 
 ## 主要型
 
 ```typescript
-type VideoSource = { uri: string; durationSec: number; width: number; height: number; fileSizeBytes: number };
-type TrimRange   = { startSec: number; endSec: number };
+type VideoSource = {
+  uri: string;
+  durationSec: number;
+  width: number;
+  height: number;
+  fileSizeBytes: number;
+};
+type TrimRange = { startSec: number; endSec: number };
 type QualityPreset = { width: 320 | 480 | 620; fps: 5 | 10 | 15 };
 type ConversionStatus = 'idle' | 'running' | 'checking' | 'done' | 'cancelled' | 'error';
 
 type ConversionResult =
-  | { ok: true;  outputUri: string; sizeBytes: number; preset: QualityPreset }
+  | { ok: true; outputUri: string; sizeBytes: number; preset: QualityPreset }
   | { ok: false; reason: 'too_large' | 'cancelled' | 'native_error'; message: string };
 ```
 
@@ -56,16 +62,16 @@ type ConversionResult =
 - 品質試行順位（最初に 10 MB 以内に収まった設定を採用）:
 
   | 順位 | width | fps |
-  |------|-------|-----|
-  | 1 | 620px | 15 |
-  | 2 | 620px | 10 |
-  | 3 | 480px | 15 |
-  | 4 | 620px | 5  |
-  | 5 | 480px | 10 |
-  | 6 | 320px | 15 |
-  | 7 | 480px | 5  |
-  | 8 | 320px | 10 |
-  | 9 | 320px | 5  |
+  | ---- | ----- | --- |
+  | 1    | 620px | 15  |
+  | 2    | 620px | 10  |
+  | 3    | 480px | 15  |
+  | 4    | 620px | 5   |
+  | 5    | 480px | 10  |
+  | 6    | 320px | 15  |
+  | 7    | 480px | 5   |
+  | 8    | 320px | 10  |
+  | 9    | 320px | 5   |
 
 - 全段階失敗 → `reason: 'too_large'` エラー、トリミングを促す
 

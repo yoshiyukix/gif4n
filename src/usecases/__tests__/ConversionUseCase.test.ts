@@ -27,39 +27,43 @@ function makeTrim(startSec = 0, endSec = 10): TrimRange {
 /** 指定サイズの GIF を返すモック NativeGifService */
 function makeNativeMock(outputSizeBytes: number): jest.Mocked<INativeGifService> {
   return {
-    convert: jest.fn().mockImplementation(
-      async (
-        _source: VideoSource,
-        _trim: TrimRange,
-        _preset: QualityPreset,
-        onProgress: (rate: number) => void,
-        signal: AbortSignal,
-      ): Promise<string> => {
-        if (signal.aborted) throw new Error('cancelled');
-        onProgress(0.5);
-        onProgress(1.0);
-        return `file:///tmp/out_${outputSizeBytes}.gif`;
-      }
-    ),
+    convert: jest
+      .fn()
+      .mockImplementation(
+        async (
+          _source: VideoSource,
+          _trim: TrimRange,
+          _preset: QualityPreset,
+          onProgress: (rate: number) => void,
+          signal: AbortSignal,
+        ): Promise<string> => {
+          if (signal.aborted) throw new Error('cancelled');
+          onProgress(0.5);
+          onProgress(1.0);
+          return `file:///tmp/out_${outputSizeBytes}.gif`;
+        },
+      ),
   };
 }
 
 /** キャンセルをシミュレートするモック */
 function makeCancelMock(): jest.Mocked<INativeGifService> {
   return {
-    convert: jest.fn().mockImplementation(
-      async (
-        _source: VideoSource,
-        _trim: TrimRange,
-        _preset: QualityPreset,
-        _onProgress: (rate: number) => void,
-        signal: AbortSignal,
-      ): Promise<string> => {
-        await new Promise<void>((resolve) => setTimeout(resolve, 0));
-        if (signal.aborted) throw Object.assign(new Error('cancelled'), { name: 'AbortError' });
-        return 'file:///tmp/out.gif';
-      }
-    ),
+    convert: jest
+      .fn()
+      .mockImplementation(
+        async (
+          _source: VideoSource,
+          _trim: TrimRange,
+          _preset: QualityPreset,
+          _onProgress: (rate: number) => void,
+          signal: AbortSignal,
+        ): Promise<string> => {
+          await new Promise<void>((resolve) => setTimeout(resolve, 0));
+          if (signal.aborted) throw Object.assign(new Error('cancelled'), { name: 'AbortError' });
+          return 'file:///tmp/out.gif';
+        },
+      ),
   };
 }
 
@@ -118,7 +122,13 @@ describe('ConversionUseCase', () => {
       const controller = new AbortController();
       const progressValues: number[] = [];
 
-      await useCase.run(source, trim, (r) => progressValues.push(r), controller.signal, () => sizeBytes);
+      await useCase.run(
+        source,
+        trim,
+        (r) => progressValues.push(r),
+        controller.signal,
+        () => sizeBytes,
+      );
 
       expect(progressValues.length).toBeGreaterThan(0);
     });
@@ -132,22 +142,24 @@ describe('ConversionUseCase', () => {
     it('出力が 10MB 超なら次の preset で再試行する', async () => {
       let callCount = 0;
       const mock: jest.Mocked<INativeGifService> = {
-        convert: jest.fn().mockImplementation(
-          async (
-            _source: VideoSource,
-            _trim: TrimRange,
-            _preset: QualityPreset,
-            onProgress: (rate: number) => void,
-            signal: AbortSignal,
-          ): Promise<string> => {
-            if (signal.aborted) throw new Error('cancelled');
-            onProgress(1.0);
-            callCount++;
-            // 2 回目以降は 5MB（成功）
-            const size = callCount === 1 ? MAX_SIZE + 1 : 5 * 1024 * 1024;
-            return `file:///tmp/out_${size}.gif`;
-          }
-        ),
+        convert: jest
+          .fn()
+          .mockImplementation(
+            async (
+              _source: VideoSource,
+              _trim: TrimRange,
+              _preset: QualityPreset,
+              onProgress: (rate: number) => void,
+              signal: AbortSignal,
+            ): Promise<string> => {
+              if (signal.aborted) throw new Error('cancelled');
+              onProgress(1.0);
+              callCount++;
+              // 2 回目以降は 5MB（成功）
+              const size = callCount === 1 ? MAX_SIZE + 1 : 5 * 1024 * 1024;
+              return `file:///tmp/out_${size}.gif`;
+            },
+          ),
       };
       // 変換後にサイズを取得するため、ConversionUseCase がサイズを計算できるよう
       // モックの outputUri からサイズを解釈するかどうかは実装次第。

@@ -1,3 +1,4 @@
+import * as ExpoModulesCore from 'expo-modules-core';
 import { NativeGifService } from '../NativeGifService';
 import { VideoSource, TrimRange, QualityPreset } from '../../types';
 
@@ -7,9 +8,7 @@ jest.mock('expo-modules-core', () => ({
   requireNativeModule: jest.fn(),
 }));
 
-const { requireNativeModule } = require('expo-modules-core') as {
-  requireNativeModule: jest.Mock;
-};
+const { requireNativeModule } = jest.mocked(ExpoModulesCore);
 
 // ─── テスト用ヘルパー ─────────────────────────────────────────────
 
@@ -72,7 +71,7 @@ describe('NativeGifService', () => {
           endSec: trim.endSec,
           outputWidth: preset.width,
           fps: preset.fps,
-        })
+        }),
       );
     });
 
@@ -117,7 +116,7 @@ describe('NativeGifService', () => {
       controller.abort();
 
       await expect(
-        service.convert(makeSource(), makeTrim(), makePreset(), () => {}, controller.signal)
+        service.convert(makeSource(), makeTrim(), makePreset(), () => {}, controller.signal),
       ).rejects.toMatchObject({ name: 'AbortError' });
     });
 
@@ -127,7 +126,7 @@ describe('NativeGifService', () => {
       const controller = new AbortController();
 
       await expect(
-        service.convert(makeSource(), makeTrim(), makePreset(), () => {}, controller.signal)
+        service.convert(makeSource(), makeTrim(), makePreset(), () => {}, controller.signal),
       ).rejects.toThrow('native error');
     });
   });

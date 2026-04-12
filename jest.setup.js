@@ -7,6 +7,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 // - "react-test-renderer is deprecated" : React 19 が出す非推奨通知
 // - "An update to TestComponent inside a test was not wrapped in act" :
 //   非同期フックのステート更新が act() スコープ外になる既知問題
+// eslint-disable-next-line no-console
 const _origConsoleError = console.error;
 beforeAll(() => {
   jest.spyOn(console, 'error').mockImplementation((...args) => {
@@ -14,7 +15,8 @@ beforeAll(() => {
     if (
       msg.includes('react-test-renderer is deprecated') ||
       msg.includes('inside a test was not wrapped in act')
-    ) return;
+    )
+      return;
     _origConsoleError.call(console, ...args);
   });
 });

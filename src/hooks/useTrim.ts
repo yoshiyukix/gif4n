@@ -14,7 +14,7 @@ export function useTrim(durationSec: number): TrimState {
   });
 
   const setStart = useCallback((value: number) => {
-    setTrimRange(prev => ({
+    setTrimRange((prev) => ({
       ...prev,
       startSec: Math.max(0, Math.min(value, prev.endSec)),
     }));
@@ -22,7 +22,7 @@ export function useTrim(durationSec: number): TrimState {
 
   const setEnd = useCallback(
     (value: number) => {
-      setTrimRange(prev => ({
+      setTrimRange((prev) => ({
         ...prev,
         endSec: Math.min(durationSec, Math.max(value, prev.startSec)),
       }));

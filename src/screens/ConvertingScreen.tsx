@@ -21,7 +21,10 @@ export default function ConvertingScreen({ route, navigation }: Props) {
 
   const nativeService = useMemo(() => new NativeGifService(), []);
   const estimator = useMemo(() => new SizeEstimator(), []);
-  const useCase = useMemo(() => new ConversionUseCase(nativeService, estimator), [nativeService, estimator]);
+  const useCase = useMemo(
+    () => new ConversionUseCase(nativeService, estimator),
+    [nativeService, estimator],
+  );
   const media = useMemo(() => new MediaService(), []);
 
   const { job, start, cancel } = useConversion({ useCase, media, outputSizeResolver });
@@ -31,6 +34,7 @@ export default function ConvertingScreen({ route, navigation }: Props) {
     if (started.current) return;
     started.current = true;
     start(source, trimRange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [errorShown, setErrorShown] = useState(false);
@@ -49,12 +53,12 @@ export default function ConvertingScreen({ route, navigation }: Props) {
     }
     if (job?.status === 'error' && !errorShown) {
       setErrorShown(true);
-      Alert.alert(
-        '変換エラー',
-        job.errorMessage ?? '変換中にエラーが発生しました。',
-        [{ text: 'OK', onPress: () => navigation.goBack() }],
-      );
+      Alert.alert('変換エラー', job.errorMessage ?? '変換中にエラーが発生しました。', [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
     }
+    // job.status の変化時のみ遷移処理を実行する（他フィールドの変化で重複実行させない）
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [job?.status]);
 
   const progress = job?.progressRate ?? 0;

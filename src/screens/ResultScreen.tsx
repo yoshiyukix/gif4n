@@ -34,7 +34,9 @@ export default function ResultScreen({ route, navigation }: Props) {
       <GifPreview uri={gifUri} />
       <View style={styles.info}>
         <Text style={styles.infoText}>ファイルサイズ: {sizeMB} MB</Text>
-        <Text style={styles.infoText}>解像度: {preset.width}px / {preset.fps}fps</Text>
+        <Text style={styles.infoText}>
+          解像度: {preset.width}px / {preset.fps}fps
+        </Text>
       </View>
       <View style={styles.actions}>
         <TouchableOpacity style={styles.button} onPress={handleSave}>

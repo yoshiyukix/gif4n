@@ -1,7 +1,7 @@
 import { VideoSource, TrimRange, QualityPreset, QUALITY_PRESETS } from '../types';
 
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
-const ESTIMATION_COEFFICIENT = 0.010;
+const ESTIMATION_COEFFICIENT = 0.01;
 
 export interface ISizeEstimator {
   /**

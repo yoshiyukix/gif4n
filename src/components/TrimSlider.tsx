@@ -22,8 +22,12 @@ export function TrimSlider({ durationSec, trimRange, onStartChange, onEndChange 
   const [localEnd, setLocalEnd] = useState(trimRange.endSec);
 
   // 外部から trimRange が変わったとき（useTrim のクランプ処理後など）に同期
-  useEffect(() => { setLocalStart(trimRange.startSec); }, [trimRange.startSec]);
-  useEffect(() => { setLocalEnd(trimRange.endSec); }, [trimRange.endSec]);
+  useEffect(() => {
+    setLocalStart(trimRange.startSec);
+  }, [trimRange.startSec]);
+  useEffect(() => {
+    setLocalEnd(trimRange.endSec);
+  }, [trimRange.endSec]);
 
   return (
     <View style={styles.container}>
@@ -35,8 +39,8 @@ export function TrimSlider({ durationSec, trimRange, onStartChange, onEndChange 
           maximumValue={durationSec}
           step={0.1}
           value={localStart}
-          onValueChange={setLocalStart}      // ドラッグ中はローカル state だけ更新
-          onSlidingComplete={onStartChange}  // 指を離したときに親へ通知
+          onValueChange={setLocalStart} // ドラッグ中はローカル state だけ更新
+          onSlidingComplete={onStartChange} // 指を離したときに親へ通知
           minimumTrackTintColor="#007AFF"
           maximumTrackTintColor="#ccc"
         />
@@ -50,8 +54,8 @@ export function TrimSlider({ durationSec, trimRange, onStartChange, onEndChange 
           maximumValue={durationSec}
           step={0.1}
           value={localEnd}
-          onValueChange={setLocalEnd}        // ドラッグ中はローカル state だけ更新
-          onSlidingComplete={onEndChange}    // 指を離したときに親へ通知
+          onValueChange={setLocalEnd} // ドラッグ中はローカル state だけ更新
+          onSlidingComplete={onEndChange} // 指を離したときに親へ通知
           minimumTrackTintColor="#007AFF"
           maximumTrackTintColor="#ccc"
         />

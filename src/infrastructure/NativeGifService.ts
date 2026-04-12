@@ -1,9 +1,12 @@
+import { requireNativeModule } from 'expo-modules-core';
 import { VideoSource, TrimRange, QualityPreset } from '../types';
 
 /** Hermes には DOMException がないため独自定義 */
 export class AbortError extends Error {
   readonly name = 'AbortError';
-  constructor() { super('cancelled'); }
+  constructor() {
+    super('cancelled');
+  }
 }
 
 export interface INativeGifService {
@@ -56,11 +59,7 @@ export class NativeGifService implements INativeGifService {
   private getModule(): GifToNoteNativeModule {
     if (!this.native) {
       // requireNativeModule は Expo Modules API のエントリポイント
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { requireNativeModule } = require('expo-modules-core') as {
-        requireNativeModule: (name: string) => GifToNoteNativeModule;
-      };
-      this.native = requireNativeModule('GifToNote');
+      this.native = requireNativeModule<GifToNoteNativeModule>('GifToNote');
     }
     return this.native!;
   }
@@ -80,14 +79,11 @@ export class NativeGifService implements INativeGifService {
     const module = this.getModule();
 
     // Expo イベントで進捗を受け取る（セッション ID でフィルタリング）
-    const subscription = module.addListener(
-      'onProgress',
-      (data: Record<string, unknown>) => {
-        if (data.sessionId === sessionId) {
-          onProgress(data.progress as number);
-        }
-      },
-    );
+    const subscription = module.addListener('onProgress', (data: Record<string, unknown>) => {
+      if (data.sessionId === sessionId) {
+        onProgress(data.progress as number);
+      }
+    });
 
     // キャンセル時にネイティブセッションを中断
     const abortHandler = () => {

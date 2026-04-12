@@ -22,15 +22,15 @@ Home（動画選択）
 
 ## 技術スタック
 
-| 分類 | 内容 |
-|------|------|
-| フレームワーク | React Native (Expo SDK 54) |
-| 言語 | TypeScript |
-| ナビゲーション | React Navigation v7 |
-| 動画選択 | react-native-image-picker / expo-document-picker |
-| GIF 生成（iOS） | AVFoundation + ImageIO（ネイティブモジュール） |
-| GIF 生成（Android） | gifski（ネイティブモジュール） |
-| テスト | Jest + jest-expo |
+| 分類                | 内容                                             |
+| ------------------- | ------------------------------------------------ |
+| フレームワーク      | React Native (Expo SDK 54)                       |
+| 言語                | TypeScript                                       |
+| ナビゲーション      | React Navigation v7                              |
+| 動画選択            | react-native-image-picker / expo-document-picker |
+| GIF 生成（iOS）     | AVFoundation + ImageIO（ネイティブモジュール）   |
+| GIF 生成（Android） | gifski（ネイティブモジュール）                   |
+| テスト              | Jest + jest-expo                                 |
 
 ## 動作要件
 
@@ -125,15 +125,15 @@ npm run typecheck
 変換時は以下の順に試行し、最初に 10 MB 以内に収まった設定を採用します。
 
 | 優先順位 | 解像度 | fps |
-|----------|--------|-----|
-| 1 | 620px | 15 |
-| 2 | 620px | 10 |
-| 3 | 480px | 15 |
-| 4 | 620px | 5  |
-| 5 | 480px | 10 |
-| 6 | 320px | 15 |
-| 7 | 480px | 5  |
-| 8 | 320px | 10 |
-| 9 | 320px | 5  |
+| -------- | ------ | --- |
+| 1        | 620px  | 15  |
+| 2        | 620px  | 10  |
+| 3        | 480px  | 15  |
+| 4        | 620px  | 5   |
+| 5        | 480px  | 10  |
+| 6        | 320px  | 15  |
+| 7        | 480px  | 5   |
+| 8        | 320px  | 10  |
+| 9        | 320px  | 5   |
 
 すべての設定で 10 MB を超える場合は、動画を短くトリミングするよう案内します。

@@ -50,13 +50,17 @@ describe('useConversion', () => {
   it('start() を呼ぶと status が running になる', async () => {
     // useCase.run が非同期に完了するよう制御
     let resolveRun!: (v: unknown) => void;
-    const runPromise = new Promise(resolve => { resolveRun = resolve; });
+    const runPromise = new Promise((resolve) => {
+      resolveRun = resolve;
+    });
     const options = makeOptions({
       useCase: { run: jest.fn().mockReturnValue(runPromise) },
     });
 
     const { result } = renderHook(() => useConversion(options));
-    act(() => { result.current.start(mockSource, mockRange); });
+    act(() => {
+      result.current.start(mockSource, mockRange);
+    });
 
     expect(result.current.job?.status).toBe('running');
     resolveRun({ ok: false, reason: 'cancelled', message: '' });
@@ -82,14 +86,20 @@ describe('useConversion', () => {
       useCase: {
         run: jest.fn().mockImplementation((_src, _trim, _onProgress, signal) => {
           capturedSignal = signal;
-          return new Promise(resolve => { resolveRun = resolve; });
+          return new Promise((resolve) => {
+            resolveRun = resolve;
+          });
         }),
       },
     });
 
     const { result } = renderHook(() => useConversion(options));
-    act(() => { result.current.start(mockSource, mockRange); });
-    act(() => { result.current.cancel(); });
+    act(() => {
+      result.current.start(mockSource, mockRange);
+    });
+    act(() => {
+      result.current.cancel();
+    });
 
     expect(capturedSignal?.aborted).toBe(true);
     resolveRun({ ok: false, reason: 'cancelled', message: '' });

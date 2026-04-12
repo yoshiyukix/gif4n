@@ -1,11 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import {
-  VideoSource,
-  TrimRange,
-  ConversionJob,
-  ConversionStatus,
-  QUALITY_PRESETS,
-} from '../types';
+import { VideoSource, TrimRange, ConversionJob, ConversionStatus, QUALITY_PRESETS } from '../types';
 import { IConversionUseCase, OutputSizeResolver } from '../usecases/ConversionUseCase';
 import { IMediaService } from '../infrastructure/MediaService';
 
@@ -50,13 +44,13 @@ export function useConversion(options: UseConversionOptions): UseConversionResul
         .run(
           source,
           trim,
-          rate => setJob(prev => (prev ? { ...prev, progressRate: rate } : null)),
+          (rate) => setJob((prev) => (prev ? { ...prev, progressRate: rate } : null)),
           abort.signal,
           outputSizeResolver,
         )
-        .then(result => {
+        .then((result) => {
           if (result.ok) {
-            setJob(prev =>
+            setJob((prev) =>
               prev
                 ? {
                     ...prev,
@@ -67,16 +61,20 @@ export function useConversion(options: UseConversionOptions): UseConversionResul
                   }
                 : null,
             );
-            media.saveToLibrary(result.outputUri).catch(() => {/* 保存失敗は無視 */});
+            media.saveToLibrary(result.outputUri).catch(() => {
+              /* 保存失敗は無視 */
+            });
           } else if (result.reason === 'cancelled') {
-            setJob(prev => (prev ? { ...prev, status: 'cancelled' } : null));
+            setJob((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
           } else {
-            setJob(prev => (prev ? { ...prev, status: 'error', errorMessage: result.message } : null));
+            setJob((prev) =>
+              prev ? { ...prev, status: 'error', errorMessage: result.message } : null,
+            );
           }
         })
         .catch((e: unknown) => {
           const message = e instanceof Error ? e.message : String(e);
-          setJob(prev => (prev ? { ...prev, status: 'error', errorMessage: message } : null));
+          setJob((prev) => (prev ? { ...prev, status: 'error', errorMessage: message } : null));
         });
     },
     [useCase, media, outputSizeResolver],

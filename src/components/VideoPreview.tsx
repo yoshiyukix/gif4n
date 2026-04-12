@@ -15,7 +15,7 @@ export function VideoPreview({ uri, trimRange }: Props) {
     trimRangeRef.current = trimRange;
   });
 
-  const player = useVideoPlayer(uri, p => {
+  const player = useVideoPlayer(uri, (p) => {
     p.loop = false;
     p.play();
   });
@@ -35,12 +35,7 @@ export function VideoPreview({ uri, trimRange }: Props) {
 
   return (
     <View style={styles.container}>
-      <VideoView
-        player={player}
-        style={styles.video}
-        contentFit="contain"
-        nativeControls={false}
-      />
+      <VideoView player={player} style={styles.video} contentFit="contain" nativeControls={false} />
     </View>
   );
 }

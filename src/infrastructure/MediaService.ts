@@ -12,14 +12,10 @@ export interface IMediaService {
 function defaultPermissionDenied(): void {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { Alert, Linking } = require('react-native') as typeof import('react-native');
-  Alert.alert(
-    'カメラロールへのアクセスが必要です',
-    '設定からアクセスを許可してください。',
-    [
-      { text: '設定を開く', onPress: () => Linking.openSettings() },
-      { text: 'キャンセル', style: 'cancel' },
-    ],
-  );
+  Alert.alert('カメラロールへのアクセスが必要です', '設定からアクセスを許可してください。', [
+    { text: '設定を開く', onPress: () => Linking.openSettings() },
+    { text: 'キャンセル', style: 'cancel' },
+  ]);
 }
 
 // ─── 実装 ────────────────────────────────────────────────────────

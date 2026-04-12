@@ -50,7 +50,9 @@ const VideoTile = memo(({ asset, onPress }: TileProps) => {
         // サムネイル生成失敗時は黒背景のまま
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [asset]);
 
   return (
@@ -138,16 +140,12 @@ export default function HomeScreen({ navigation }: Props) {
         ListEmptyComponent={
           <View style={styles.empty}>
             <Text style={styles.emptyText}>
-              {!granted
-                ? 'フォトライブラリへのアクセスを許可してください'
-                : '動画がありません'}
+              {!granted ? 'フォトライブラリへのアクセスを許可してください' : '動画がありません'}
             </Text>
           </View>
         }
         ListFooterComponent={
-          videos.length > 0 ? (
-            <Text style={styles.count}>{videos.length}個の動画</Text>
-          ) : null
+          videos.length > 0 ? <Text style={styles.count}>{videos.length}個の動画</Text> : null
         }
       />
 
@@ -273,4 +271,3 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 });
-

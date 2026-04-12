@@ -1,3 +1,5 @@
+import * as MediaLibraryModule from 'expo-media-library';
+import * as SharingModule from 'expo-sharing';
 import { MediaService } from '../MediaService';
 
 // ─── expo-media-library と expo-sharing のモック ────────────────
@@ -12,14 +14,18 @@ jest.mock('expo-sharing', () => ({
   shareAsync: jest.fn(),
 }));
 
-const MediaLibrary = require('expo-media-library') as {
-  requestPermissionsAsync: jest.Mock;
-  saveToLibraryAsync: jest.Mock;
-};
-const Sharing = require('expo-sharing') as {
-  isAvailableAsync: jest.Mock;
-  shareAsync: jest.Mock;
-};
+const MediaLibrary = jest.mocked(
+  MediaLibraryModule as unknown as {
+    requestPermissionsAsync: jest.Mock;
+    saveToLibraryAsync: jest.Mock;
+  },
+);
+const Sharing = jest.mocked(
+  SharingModule as unknown as {
+    isAvailableAsync: jest.Mock;
+    shareAsync: jest.Mock;
+  },
+);
 
 // ─── テストスイート ──────────────────────────────────────────────
 
@@ -84,10 +90,7 @@ describe('MediaService', () => {
 
       await service.share('file:///tmp/out.gif');
 
-      expect(Sharing.shareAsync).toHaveBeenCalledWith(
-        'file:///tmp/out.gif',
-        expect.any(Object),
-      );
+      expect(Sharing.shareAsync).toHaveBeenCalledWith('file:///tmp/out.gif', expect.any(Object));
     });
 
     it('共有が利用不可の場合は shareAsync を呼ばない', async () => {

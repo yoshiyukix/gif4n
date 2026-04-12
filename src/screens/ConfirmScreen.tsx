@@ -29,9 +29,7 @@ export default function ConfirmScreen({ route, navigation }: Props) {
       <View style={styles.infoBox}>
         <Text style={styles.infoRow}>トリミング範囲: {durationSec.toFixed(1)} 秒</Text>
         <Text style={styles.infoRow}>推定 GIF サイズ（最高品質）: 〜{estimatedMB} MB</Text>
-        <Text style={styles.note}>
-          ※ 10 MB を超える場合は自動的に品質を下げて再試行します
-        </Text>
+        <Text style={styles.note}>※ 10 MB を超える場合は自動的に品質を下げて再試行します</Text>
       </View>
       <TouchableOpacity style={styles.button} onPress={handleStart}>
         <Text style={styles.buttonText}>変換開始</Text>
