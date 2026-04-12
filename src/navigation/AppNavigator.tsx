@@ -13,7 +13,7 @@ export function AppNavigator() {
   return (
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Trim" component={TrimScreen} options={{ title: 'トリミング' }} />
+      <Stack.Screen name="Trim" component={TrimScreen} options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="Confirm" component={ConfirmScreen} options={{ title: '変換確認' }} />
       <Stack.Screen
         name="Converting"

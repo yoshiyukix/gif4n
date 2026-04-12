@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
+import { AppTabBar } from '../components/AppTabBar';
 import * as MediaLibrary from 'expo-media-library';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import { RootStackParamList } from '../navigation/types';
@@ -150,20 +150,7 @@ export default function HomeScreen({ navigation }: Props) {
       />
 
       {/* ─── Tab Bar ────────────────── */}
-      <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-        <TouchableOpacity style={styles.studioPill} activeOpacity={0.9}>
-          <Ionicons name="film" size={18} color="#fff" style={{ marginRight: 6 }} />
-          <Text style={styles.pillText}>STUDIO</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} activeOpacity={0.7}>
-          <Ionicons name="albums-outline" size={22} color="#8E8E93" />
-          <Text style={styles.tabLabel}>LIBRARY</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabItem} activeOpacity={0.7}>
-          <Ionicons name="settings-outline" size={22} color="#8E8E93" />
-          <Text style={styles.tabLabel}>SETTINGS</Text>
-        </TouchableOpacity>
-      </View>
+      <AppTabBar activeTab="studio" insetBottom={insets.bottom} />
     </View>
   );
 }
@@ -235,39 +222,5 @@ const styles = StyleSheet.create({
     marginVertical: 24,
   },
 
-  // Tab Bar
-  tabBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingTop: 12,
-    paddingHorizontal: 20,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#E5E5EA',
-  },
-  studioPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: BLUE,
-    borderRadius: 30,
-    paddingVertical: 14,
-    paddingHorizontal: 22,
-  },
-  pillText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 13,
-    letterSpacing: 0.5,
-  },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 3,
-  },
-  tabLabel: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#8E8E93',
-    letterSpacing: 0.5,
-  },
+
 });
