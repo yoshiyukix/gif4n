@@ -6,7 +6,7 @@ import { MediaService } from '../MediaService';
 
 jest.mock('expo-media-library', () => ({
   requestPermissionsAsync: jest.fn(),
-  saveToLibraryAsync: jest.fn(),
+  createAssetAsync: jest.fn(),
 }));
 
 jest.mock('expo-sharing', () => ({
@@ -17,7 +17,7 @@ jest.mock('expo-sharing', () => ({
 const MediaLibrary = jest.mocked(
   MediaLibraryModule as unknown as {
     requestPermissionsAsync: jest.Mock;
-    saveToLibraryAsync: jest.Mock;
+    createAssetAsync: jest.Mock;
   },
 );
 const Sharing = jest.mocked(
@@ -44,34 +44,35 @@ describe('MediaService', () => {
   // ────────────────────────────
 
   describe('saveToLibrary', () => {
-    it('権限がある場合に saveToLibraryAsync を呼び出す', async () => {
+    it('権限がある場合に createAssetAsync を呼び出し、assetId を返す', async () => {
       MediaLibrary.requestPermissionsAsync.mockResolvedValue({ status: 'granted' });
-      MediaLibrary.saveToLibraryAsync.mockResolvedValue(undefined);
+      MediaLibrary.createAssetAsync.mockResolvedValue({ id: 'asset-123' });
 
-      await service.saveToLibrary('file:///tmp/out.gif');
+      const assetId = await service.saveToLibrary('file:///tmp/out.gif');
 
-      expect(MediaLibrary.saveToLibraryAsync).toHaveBeenCalledWith('file:///tmp/out.gif');
+      expect(MediaLibrary.createAssetAsync).toHaveBeenCalledWith('file:///tmp/out.gif');
+      expect(assetId).toBe('asset-123');
     });
 
-    it('権限拒否の場合は saveToLibraryAsync を呼ばない', async () => {
+    it('権限拒否の場合は createAssetAsync を呼ばない', async () => {
       MediaLibrary.requestPermissionsAsync.mockResolvedValue({ status: 'denied' });
 
-      await service.saveToLibrary('file:///tmp/out.gif');
+      await expect(service.saveToLibrary('file:///tmp/out.gif')).rejects.toThrow('permission_denied');
 
-      expect(MediaLibrary.saveToLibraryAsync).not.toHaveBeenCalled();
+      expect(MediaLibrary.createAssetAsync).not.toHaveBeenCalled();
     });
 
-    it('権限拒否の場合は onPermissionDenied コールバックを呼ぶ', async () => {
+    it('権限拒否の場合は onPermissionDenied コールバックを呼び、例外を投げる', async () => {
       MediaLibrary.requestPermissionsAsync.mockResolvedValue({ status: 'denied' });
 
-      await service.saveToLibrary('file:///tmp/out.gif');
+      await expect(service.saveToLibrary('file:///tmp/out.gif')).rejects.toThrow('permission_denied');
 
       expect(onPermissionDenied).toHaveBeenCalled();
     });
 
     it('requestPermissionsAsync が呼ばれる', async () => {
       MediaLibrary.requestPermissionsAsync.mockResolvedValue({ status: 'granted' });
-      MediaLibrary.saveToLibraryAsync.mockResolvedValue(undefined);
+      MediaLibrary.createAssetAsync.mockResolvedValue({ id: 'asset-456' });
 
       await service.saveToLibrary('file:///tmp/out.gif');
 

@@ -10,56 +10,43 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { RootStackParamList } from '../navigation/types';
+import * as Sharing from 'expo-sharing';
+import { LibraryStackParamList } from '../navigation/types';
 import { GifPreview } from '../components/GifPreview';
 import { SaveToast } from '../components/SaveToast';
-import { MediaService } from '../infrastructure/MediaService';
-import { addGifEntry } from '../infrastructure/GifLibraryStore';
-import * as Sharing from 'expo-sharing';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Result'>;
-
-const media = new MediaService();
-
-const BLUE = '#1758F0';
-const GREEN = '#34C759';
+type Props = NativeStackScreenProps<LibraryStackParamList, 'LibraryDetail'>;
 
 type ToastState = { type: 'success' | 'error'; message: string };
 
-export default function ResultScreen({ route, navigation }: Props) {
-  const { gifUri, sizeBytes, preset } = route.params;
+function fmtDate(ms: number): string {
+  const d = new Date(ms);
+  return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+export default function LibraryDetailScreen({ route, navigation }: Props) {
+  const { localUri, sizeBytes, preset, createdAt } = route.params;
   const sizeMB = (sizeBytes / (1024 * 1024)).toFixed(2);
   const insets = useSafeAreaInsets();
 
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
 
-  async function handleSave() {
-    if (isSaving) return;
-    setIsSaving(true);
+  async function handleShare() {
+    if (isSharing) return;
+    setIsSharing(true);
     try {
-      const assetId = await media.saveToLibrary(gifUri);
-      await addGifEntry({ assetId, sizeBytes, preset, createdAt: Date.now() });
-      setToast({ type: 'success', message: 'カメラロールに保存しました' });
-      setToastVisible(true);
+      const available = await Sharing.isAvailableAsync();
+      if (available) {
+        await Sharing.shareAsync(localUri, { mimeType: 'image/gif' });
+      }
     } catch {
-      setToast({ type: 'error', message: '保存に失敗しました' });
+      setToast({ type: 'error', message: '共有に失敗しました' });
       setToastVisible(true);
     } finally {
-      setIsSaving(false);
+      setIsSharing(false);
     }
-  }
-
-  async function handleShare() {
-    const available = await Sharing.isAvailableAsync();
-    if (available) {
-      await Sharing.shareAsync(gifUri, { mimeType: 'image/gif' });
-    }
-  }
-
-  function handleBack() {
-    navigation.popToTop();
   }
 
   return (
@@ -73,6 +60,16 @@ export default function ResultScreen({ route, navigation }: Props) {
           onHide={() => setToastVisible(false)}
         />
       )}
+
+      {/* ─── Header ─────────────────── */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} activeOpacity={0.7}>
+          <Ionicons name="chevron-back" size={24} color="#1C1C1E" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>GIF</Text>
+        <View style={styles.backBtn} />
+      </View>
+
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -80,56 +77,49 @@ export default function ResultScreen({ route, navigation }: Props) {
       >
         {/* カード */}
         <View style={styles.card}>
-          {/* GIF プレビュー + PREVIEW バッジ */}
           <View style={styles.previewWrapper}>
-            <GifPreview uri={gifUri} style={styles.gifPreview} />
+            <GifPreview uri={localUri} style={styles.gifPreview} />
             <View style={styles.previewBadge}>
-              <Text style={styles.previewBadgeText}>PREVIEW</Text>
+              <Text style={styles.previewBadgeText}>GIF</Text>
             </View>
           </View>
 
-          {/* ファイルサイズ行 */}
           <View style={styles.separator} />
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>ファイルサイズ</Text>
             <Text style={styles.infoValue}>{sizeMB} MB</Text>
           </View>
 
-          {/* 解像度 / フレームレート行 */}
           <View style={styles.separator} />
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>解像度 / フレームレート</Text>
             <Text style={styles.infoValue}>{preset.width}px / {preset.fps}fps</Text>
           </View>
+
+          <View style={styles.separator} />
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>作成日時</Text>
+            <Text style={styles.infoValue}>{fmtDate(createdAt)}</Text>
+          </View>
         </View>
 
-        {/* アクションボタン */}
+        {/* アクション */}
         <View style={styles.actions}>
           <TouchableOpacity
-            style={[styles.pill, styles.savePill, isSaving && styles.pillDisabled]}
-            onPress={handleSave}
+            style={[styles.pill, styles.sharePill, isSharing && styles.pillDisabled]}
+            onPress={handleShare}
             activeOpacity={0.85}
-            disabled={isSaving}
+            disabled={isSharing}
           >
-            {isSaving ? (
+            {isSharing ? (
               <ActivityIndicator size="small" color="#fff" style={styles.pillIcon} />
             ) : (
-              <Ionicons name="arrow-down-circle-outline" size={20} color="#fff" style={styles.pillIcon} />
+              <Ionicons name="share-outline" size={20} color="#fff" style={styles.pillIcon} />
             )}
-            <Text style={styles.pillText}>カメラロールに保存</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.pill, styles.sharePill]} onPress={handleShare} activeOpacity={0.85}>
-            <Ionicons name="share-outline" size={20} color="#fff" style={styles.pillIcon} />
             <Text style={styles.pillText}>共有</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.backButton} onPress={handleBack} activeOpacity={0.7}>
-            <Text style={styles.backText}>最初に戻る</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-
     </View>
   );
 }
@@ -139,44 +129,32 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F2F2F7',
   },
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 24,
-  },
-
-  // 成功セクション
-  successSection: {
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 32,
-    paddingBottom: 24,
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    paddingHorizontal: 8,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E5E5EA',
   },
-  checkCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: BLUE,
+  backBtn: {
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
-    // 薄い背景リング
-    shadowColor: BLUE,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 4,
   },
-  successTitle: {
-    fontSize: 24,
-    fontWeight: '700',
+  headerTitle: {
+    fontSize: 17,
+    fontWeight: '600',
     color: '#1C1C1E',
-    marginBottom: 6,
   },
-  successSubtitle: {
-    fontSize: 14,
-    color: '#8E8E93',
+  scroll: { flex: 1 },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 24,
   },
 
   // カード
@@ -191,9 +169,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     marginBottom: 20,
   },
-  previewWrapper: {
-    position: 'relative',
-  },
+  previewWrapper: { position: 'relative' },
   gifPreview: {
     width: '100%',
     aspectRatio: undefined,
@@ -227,20 +203,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
   },
-  infoLabel: {
-    fontSize: 14,
-    color: '#3C3C43',
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1C1C1E',
-  },
+  infoLabel: { fontSize: 14, color: '#3C3C43' },
+  infoValue: { fontSize: 14, fontWeight: '600', color: '#1C1C1E' },
 
   // アクション
-  actions: {
-    gap: 12,
-  },
+  actions: { gap: 12 },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -248,34 +215,8 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     paddingVertical: 17,
   },
-  pillDisabled: {
-    opacity: 0.6,
-  },
-  savePill: {
-    backgroundColor: BLUE,
-  },
-  sharePill: {
-    backgroundColor: GREEN,
-  },
-  pillIcon: {
-    marginRight: 8,
-  },
-  pillText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  backButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: '#C7C7CC',
-    paddingVertical: 17,
-  },
-  backText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#3C3C43',
-  },
+  pillDisabled: { opacity: 0.6 },
+  sharePill: { backgroundColor: '#34C759' },
+  pillIcon: { marginRight: 8 },
+  pillText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });

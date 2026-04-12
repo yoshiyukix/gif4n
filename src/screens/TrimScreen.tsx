@@ -15,7 +15,6 @@ import * as VideoThumbnails from 'expo-video-thumbnails';
 import { RootStackParamList } from '../navigation/types';
 import { VideoPreview } from '../components/VideoPreview';
 import { TrimSlider } from '../components/TrimSlider';
-import { AppTabBar } from '../components/AppTabBar';
 import { useTrim } from '../hooks/useTrim';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Trim'>;
@@ -174,8 +173,6 @@ export default function TrimScreen({ route, navigation }: Props) {
         <View style={{ height: 16 }} />
       </ScrollView>
 
-      {/* ─── タブバー ─── */}
-      <AppTabBar activeTab="studio" insetBottom={insets.bottom} />
     </View>
   );
 }

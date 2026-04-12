@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AppTabBar } from '../components/AppTabBar';
 import * as MediaLibrary from 'expo-media-library';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import { RootStackParamList } from '../navigation/types';
@@ -149,8 +148,6 @@ export default function HomeScreen({ navigation }: Props) {
         }
       />
 
-      {/* ─── Tab Bar ────────────────── */}
-      <AppTabBar activeTab="studio" insetBottom={insets.bottom} />
     </View>
   );
 }

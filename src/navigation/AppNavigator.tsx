@@ -1,28 +1,6 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { RootStackParamList } from './types';
-import HomeScreen from '../screens/HomeScreen';
-import TrimScreen from '../screens/TrimScreen';
-import ConvertingScreen from '../screens/ConvertingScreen';
-import ResultScreen from '../screens/ResultScreen';
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
+import { TabNavigator } from './TabNavigator';
 
 export function AppNavigator() {
-  return (
-    <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Trim" component={TrimScreen} options={{ headerShown: false, gestureEnabled: false }} />
-      <Stack.Screen
-        name="Converting"
-        component={ConvertingScreen}
-        options={{ title: '変換中', headerBackVisible: false }}
-      />
-      <Stack.Screen
-        name="Result"
-        component={ResultScreen}
-        options={{ title: 'Done', headerBackVisible: false }}
-      />
-    </Stack.Navigator>
-  );
+  return <TabNavigator />;
 }

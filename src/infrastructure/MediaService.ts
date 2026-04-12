@@ -4,7 +4,8 @@ import * as Sharing from 'expo-sharing';
 // ─── インターフェース ────────────────────────────────────────────
 
 export interface IMediaService {
-  saveToLibrary(uri: string): Promise<void>;
+  /** GIF をカメラロールに保存し、MediaLibrary の assetId を返す */
+  saveToLibrary(uri: string): Promise<string>;
   share(uri: string): Promise<void>;
 }
 
@@ -27,13 +28,14 @@ export class MediaService implements IMediaService {
     this.onPermissionDenied = onPermissionDenied ?? defaultPermissionDenied;
   }
 
-  async saveToLibrary(uri: string): Promise<void> {
+  async saveToLibrary(uri: string): Promise<string> {
     const { status } = await MediaLibrary.requestPermissionsAsync();
     if (status !== 'granted') {
       this.onPermissionDenied();
-      return;
+      throw new Error('permission_denied');
     }
-    await MediaLibrary.saveToLibraryAsync(uri);
+    const asset = await MediaLibrary.createAssetAsync(uri);
+    return asset.id;
   }
 
   async share(uri: string): Promise<void> {
