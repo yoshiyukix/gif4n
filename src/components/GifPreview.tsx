@@ -1,13 +1,14 @@
 import React from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View, ViewStyle } from 'react-native';
 
 interface Props {
   uri: string;
+  style?: ViewStyle;
 }
 
-export function GifPreview({ uri }: Props) {
+export function GifPreview({ uri, style }: Props) {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       <Image
         source={{ uri }}
         style={styles.image}

@@ -21,7 +21,7 @@ export function AppNavigator() {
       <Stack.Screen
         name="Result"
         component={ResultScreen}
-        options={{ title: '完了', headerBackVisible: false }}
+        options={{ title: 'Done', headerBackVisible: false }}
       />
     </Stack.Navigator>
   );

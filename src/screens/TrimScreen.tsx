@@ -131,7 +131,7 @@ export default function TrimScreen({ route, navigation }: Props) {
 
         {/* ─── 再生速度セクション ─── */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>再生速度</Text>
+          <Text style={styles.sectionTitleStandalone}>再生速度</Text>
           <View style={styles.speedRow}>
             {SPEED_OPTIONS.map((opt) => {
               const active = playbackSpeed === opt.value;
@@ -227,6 +227,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1C1C1E',
     marginBottom: 2,
+  },
+  sectionTitleStandalone: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#1C1C1E',
+    paddingHorizontal: 16,
+    marginBottom: 12,
   },
   sectionSubtitle: {
     fontSize: 13,
