@@ -1,101 +1,276 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import {
-  launchImageLibrary,
-  type Asset,
-} from 'react-native-image-picker';
-import * as DocumentPicker from 'expo-document-picker';
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  StatusBar,
+  ListRenderItemInfo,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
+import * as MediaLibrary from 'expo-media-library';
+import * as VideoThumbnails from 'expo-video-thumbnails';
 import { RootStackParamList } from '../navigation/types';
 import { VideoSource } from '../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-const ALLOWED_MIME = ['video/mp4', 'video/quicktime', 'video/x-m4v'];
-const ALLOWED_EXT = /\.(mp4|mov|m4v)$/i;
+const NUM_COLS = 3;
+const GAP = 3;
+const BLUE = '#1758F0';
 
-export default function HomeScreen({ navigation }: Props) {
+function fmtDuration(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
 
-  function navigateWithSource(source: VideoSource) {
-    navigation.navigate('Trim', { source });
-  }
+// ─── サムネイル遅延生成タイル ──────────────────────────────────────────────
+type TileProps = {
+  asset: MediaLibrary.Asset;
+  onPress: (asset: MediaLibrary.Asset) => void;
+};
 
-  function showFormatError() {
-    Alert.alert('形式エラー', 'MP4 または MOV ファイルを選択してください。');
-  }
+const VideoTile = memo(({ asset, onPress }: TileProps) => {
+  const [thumbUri, setThumbUri] = useState<string | null>(null);
 
-  async function pickFromLibrary() {
-    const result = await launchImageLibrary({ mediaType: 'video', includeExtra: true });
-    if (result.didCancel || !result.assets?.length) return;
-
-    const asset: Asset = result.assets[0];
-    if (!asset.uri) return;
-
-    const type = asset.type ?? '';
-    if (!ALLOWED_MIME.includes(type)) {
-      if (!ALLOWED_EXT.test(asset.fileName ?? asset.uri)) {
-        showFormatError();
-        return;
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const info = await MediaLibrary.getAssetInfoAsync(asset);
+        const localUri = info.localUri ?? asset.uri;
+        const { uri } = await VideoThumbnails.getThumbnailAsync(localUri, { time: 0 });
+        if (!cancelled) setThumbUri(uri);
+      } catch {
+        // サムネイル生成失敗時は黒背景のまま
       }
-    }
-
-    navigateWithSource({
-      uri: asset.uri,
-      durationSec: asset.duration ?? 0,
-      width: asset.width ?? 1920,
-      height: asset.height ?? 1080,
-      fileSizeBytes: asset.fileSize ?? 0,
-    });
-  }
-
-  async function pickFromFiles() {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: ['video/mp4', 'video/quicktime'],
-      copyToCacheDirectory: true,
-    });
-    if (result.canceled || !result.assets?.length) return;
-
-    const asset = result.assets[0];
-    if (!ALLOWED_EXT.test(asset.name ?? asset.uri)) {
-      showFormatError();
-      return;
-    }
-
-    navigateWithSource({
-      uri: asset.uri,
-      durationSec: 0, // ドキュメントピッカーは duration 不明のため 0（TrimScreen で更新）
-      width: 1920,
-      height: 1080,
-      fileSizeBytes: asset.size ?? 0,
-    });
-  }
+    })();
+    return () => { cancelled = true; };
+  }, [asset]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>GIF に変換する動画を選択</Text>
-      <TouchableOpacity style={styles.button} onPress={pickFromLibrary}>
-        <Text style={styles.buttonText}>カメラロールから選択</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.button, styles.secondaryButton]} onPress={pickFromFiles}>
-        <Text style={styles.buttonText}>ファイルから選択</Text>
-      </TouchableOpacity>
+    <TouchableOpacity style={styles.tile} onPress={() => onPress(asset)} activeOpacity={0.8}>
+      {thumbUri ? (
+        <Image source={{ uri: thumbUri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+      ) : (
+        <View style={[StyleSheet.absoluteFill, styles.tilePlaceholder]} />
+      )}
+      <View style={styles.badge}>
+        <Text style={styles.badgeText}>{fmtDuration(asset.duration)}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+});
+
+export default function HomeScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
+  const [videos, setVideos] = useState<MediaLibrary.Asset[]>([]);
+  const [granted, setGranted] = useState(false);
+
+  useEffect(() => {
+    MediaLibrary.requestPermissionsAsync().then((perm) => {
+      setGranted(perm.granted);
+      if (perm.granted) loadVideos();
+    });
+  }, []);
+
+  async function loadVideos() {
+    const { assets } = await MediaLibrary.getAssetsAsync({
+      mediaType: MediaLibrary.MediaType.video,
+      first: 200,
+      sortBy: MediaLibrary.SortBy.creationTime,
+    });
+    setVideos(assets);
+  }
+
+  const onPressVideo = useCallback(
+    async (asset: MediaLibrary.Asset) => {
+      const info = await MediaLibrary.getAssetInfoAsync(asset);
+      const source: VideoSource = {
+        uri: info.localUri ?? asset.uri,
+        durationSec: asset.duration,
+        width: asset.width,
+        height: asset.height,
+        fileSizeBytes: 0,
+      };
+      navigation.navigate('Trim', { source });
+    },
+    [navigation],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: ListRenderItemInfo<MediaLibrary.Asset>) => (
+      <VideoTile asset={item} onPress={onPressVideo} />
+    ),
+    [onPressVideo],
+  );
+
+  return (
+    <View style={[styles.root, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+
+      {/* ─── Header ─────────────────── */}
+      <View style={styles.header}>
+        <View style={styles.logo}>
+          {[0, 1, 2, 3].map((i) => (
+            <View key={i} style={styles.logoDot} />
+          ))}
+        </View>
+        <Text style={styles.appName}>GIF to Note</Text>
+      </View>
+
+      {/* ─── Video Grid ─────────────── */}
+      <FlatList
+        data={videos}
+        renderItem={renderItem}
+        keyExtractor={(a) => a.id}
+        numColumns={NUM_COLS}
+        columnWrapperStyle={styles.row}
+        ItemSeparatorComponent={() => <View style={{ height: GAP }} />}
+        contentContainerStyle={styles.gridContent}
+        removeClippedSubviews
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Text style={styles.emptyText}>
+              {!granted
+                ? 'フォトライブラリへのアクセスを許可してください'
+                : '動画がありません'}
+            </Text>
+          </View>
+        }
+        ListFooterComponent={
+          videos.length > 0 ? (
+            <Text style={styles.count}>{videos.length}個の動画</Text>
+          ) : null
+        }
+      />
+
+      {/* ─── Tab Bar ────────────────── */}
+      <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+        <TouchableOpacity style={styles.studioPill} activeOpacity={0.9}>
+          <Ionicons name="film" size={18} color="#fff" style={{ marginRight: 6 }} />
+          <Text style={styles.pillText}>STUDIO</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tabItem} activeOpacity={0.7}>
+          <Ionicons name="albums-outline" size={22} color="#8E8E93" />
+          <Text style={styles.tabLabel}>LIBRARY</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tabItem} activeOpacity={0.7}>
+          <Ionicons name="settings-outline" size={22} color="#8E8E93" />
+          <Text style={styles.tabLabel}>SETTINGS</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  heading: { fontSize: 18, fontWeight: '600', marginBottom: 32, textAlign: 'center' },
-  button: {
-    backgroundColor: '#007AFF',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    marginBottom: 16,
-    width: '100%',
+  root: { flex: 1, backgroundColor: '#F2F2F7' },
+
+  // Header
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
-  secondaryButton: { backgroundColor: '#34C759' },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  logo: {
+    width: 26,
+    height: 26,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignContent: 'space-between',
+    marginRight: 10,
+  },
+  logoDot: {
+    width: 11,
+    height: 11,
+    borderRadius: 2,
+    backgroundColor: BLUE,
+  },
+  appName: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1C1C1E',
+    letterSpacing: -0.3,
+  },
+
+  // Grid
+  gridContent: {},
+  row: { gap: GAP },
+  tile: {
+    flex: 1,
+    aspectRatio: 1,
+    backgroundColor: '#1C1C1E',
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  tilePlaceholder: {
+    backgroundColor: '#2C2C2E',
+  },
+  badge: {
+    position: 'absolute',
+    bottom: 5,
+    right: 5,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },
+  badgeText: { color: '#fff', fontSize: 11, fontWeight: '500' },
+
+  // Empty / Count
+  empty: { alignItems: 'center', paddingVertical: 80 },
+  emptyText: { color: '#8E8E93', fontSize: 15, textAlign: 'center', paddingHorizontal: 40 },
+  count: {
+    textAlign: 'center',
+    color: '#8E8E93',
+    fontSize: 14,
+    marginVertical: 24,
+  },
+
+  // Tab Bar
+  tabBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingTop: 12,
+    paddingHorizontal: 20,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#E5E5EA',
+  },
+  studioPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: BLUE,
+    borderRadius: 30,
+    paddingVertical: 14,
+    paddingHorizontal: 22,
+  },
+  pillText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 13,
+    letterSpacing: 0.5,
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 3,
+  },
+  tabLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#8E8E93',
+    letterSpacing: 0.5,
+  },
 });
 
