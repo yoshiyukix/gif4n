@@ -26,7 +26,7 @@ export type LibraryStackParamList = {
 // ─── Settings スタック ──────────────────────────────────────────────
 
 export type SettingsStackParamList = {
-  Settings: undefined;
+  SettingsMain: undefined;
   Licenses: undefined;
 };
 

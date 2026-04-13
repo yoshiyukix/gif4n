@@ -4,17 +4,17 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { SettingsStackParamList } from '../navigation/types';
 import { useSettings } from '../hooks/useSettings';
 import { AppSettings } from '../types';
 
-type Props = NativeStackScreenProps<SettingsStackParamList, 'Settings'>;
+type Props = NativeStackScreenProps<SettingsStackParamList, 'SettingsMain'>;
 
 const APP_VERSION = '1.0.0';
 
