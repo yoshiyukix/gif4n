@@ -8,8 +8,8 @@ const Stack = createNativeStackNavigator<LibraryStackParamList>();
 
 export function LibraryNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Library">
-      <Stack.Screen name="Library" component={LibraryScreen} options={{ headerShown: false }} />
+    <Stack.Navigator initialRouteName="LibraryList">
+      <Stack.Screen name="LibraryList" component={LibraryScreen} options={{ headerShown: false }} />
       <Stack.Screen
         name="LibraryDetail"
         component={LibraryDetailScreen}

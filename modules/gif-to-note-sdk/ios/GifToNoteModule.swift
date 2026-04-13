@@ -1,14 +1,14 @@
 import ExpoModulesCore
 import AVFoundation
-import ImageIO
-import UniformTypeIdentifiers
+@_implementationOnly import gifski
 
 // ─────────────────────────────────────────────────────────────
 // GifToNote Expo Native Module (iOS)
 //
 // 機能:
 //   - AVAssetImageGenerator で指定範囲のフレームを抽出
-//   - ImageIO で GIF アニメーションを生成
+//   - gifski C API で高品質 GIF アニメーションを生成
+//     (Floyd-Steinberg ディザリング + フレームごとカラーパレット最適化)
 //   - 進捗イベントを "onProgress" として JS へ送信
 //   - キャンセル対応（activeSessions で管理）
 // ─────────────────────────────────────────────────────────────
@@ -83,38 +83,52 @@ public class GifToNoteModule: Module {
     let frameCount = max(1, Int(duration * Double(params.fps)))
 
     // アスペクト比を保持した出力サイズ
-    var outputHeight = params.outputWidth
+    var outputWidth = UInt32(params.outputWidth)
+    var outputHeight = outputWidth
     if let videoTrack = asset.tracks(withMediaType: .video).first {
       let natural = videoTrack.naturalSize.applying(videoTrack.preferredTransform)
       let w = abs(natural.width), h = abs(natural.height)
       if w > 0 {
-        outputHeight = Int(h / w * CGFloat(params.outputWidth))
+        outputHeight = UInt32(h / w * CGFloat(outputWidth))
       }
     }
 
     // 出力先の一時ファイル
     let outputURL = FileManager.default.temporaryDirectory
       .appendingPathComponent("gif_\(UUID().uuidString).gif")
+    let outputPath = outputURL.path
 
-    guard let destination = CGImageDestinationCreateWithURL(
-      outputURL as CFURL,
-      UTType.gif.identifier as CFString,
-      frameCount,
-      nil
-    ) else {
+    // gifski インスタンス生成
+    var settings = GifskiSettings(
+      width: 0,   // 0 = フレームサイズをそのまま使用
+      height: 0,
+      quality: 90,
+      fast: false,
+      repeat: 0   // 無限ループ
+    )
+    guard let handle = gifski_new(&settings) else {
       throw NSError(domain: "GifToNote", code: 1,
-                    userInfo: [NSLocalizedDescriptionKey: "GIF destination の作成に失敗しました"])
+                    userInfo: [NSLocalizedDescriptionKey: "gifski の初期化に失敗しました"])
     }
 
-    CGImageDestinationSetProperties(
-      destination,
-      [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 0]] as CFDictionary
-    )
+    // gifski_finish は必ずハンドルを解放するため、エラー・キャンセル時も呼ぶ
+    var thrownError: Error? = nil
+    var cancelled = false
+
+    // 出力ファイルを gifski に設定（frames 追加前に呼ぶ必要がある）
+    let setOutputResult = outputPath.withCString { cPath in
+      gifski_set_file_output(handle, cPath)
+    }
+    if setOutputResult != GIFSKI_OK {
+      gifski_finish(handle)
+      throw NSError(domain: "GifToNote", code: 2,
+                    userInfo: [NSLocalizedDescriptionKey: "gifski 出力先の設定に失敗しました (code=\(setOutputResult.rawValue))"])
+    }
 
     // フレーム抽出器
     let generator = AVAssetImageGenerator(asset: asset)
     generator.appliesPreferredTrackTransform = true
-    generator.maximumSize = CGSize(width: params.outputWidth, height: outputHeight)
+    generator.maximumSize = CGSize(width: Int(outputWidth), height: Int(outputHeight))
     generator.requestedTimeToleranceBefore = .zero
     generator.requestedTimeToleranceAfter = CMTime(
       seconds: 1.0 / Double(params.fps),
@@ -122,38 +136,96 @@ public class GifToNoteModule: Module {
     )
 
     let frameDuration = duration / Double(frameCount)
-    let delayTime = 1.0 / Double(params.fps)
-    let frameProps: [CFString: Any] = [
-      kCGImagePropertyGIFDelayTime: NSNumber(value: delayTime),
-      kCGImagePropertyGIFUnclampedDelayTime: NSNumber(value: delayTime),
-    ]
 
     for i in 0..<frameCount {
       // キャンセル確認
       guard isActive(params.sessionId) else {
-        throw NSError(domain: "AbortError", code: 0,
-                      userInfo: [NSLocalizedDescriptionKey: "cancelled"])
+        cancelled = true
+        break
       }
 
       let timeSec = params.startSec + Double(i) * frameDuration
       let time = CMTime(seconds: timeSec, preferredTimescale: 600)
       var actualTime = CMTime.zero
-      let cgImage = try generator.copyCGImage(at: time, actualTime: &actualTime)
 
-      CGImageDestinationAddImage(
-        destination,
-        cgImage,
-        [kCGImagePropertyGIFDictionary: frameProps] as CFDictionary
-      )
+      let cgImage: CGImage
+      do {
+        cgImage = try generator.copyCGImage(at: time, actualTime: &actualTime)
+      } catch {
+        thrownError = error
+        break
+      }
+
+      // CGImage → RGBA バイト列（gifski は uncorrelated RGBA/sRGB を期待）
+      let w = Int(outputWidth)
+      let h = Int(outputHeight)
+      let bytesPerRow = w * 4
+      var pixelBuffer = [UInt8](repeating: 0, count: h * bytesPerRow)
+
+      let colorSpace = CGColorSpaceCreateDeviceRGB()
+      guard let ctx = CGContext(
+        data: &pixelBuffer,
+        width: w,
+        height: h,
+        bitsPerComponent: 8,
+        bytesPerRow: bytesPerRow,
+        space: colorSpace,
+        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+      ) else {
+        thrownError = NSError(domain: "GifToNote", code: 3,
+                              userInfo: [NSLocalizedDescriptionKey: "CGContext の作成に失敗しました"])
+        break
+      }
+      ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: w, height: h))
+
+      // premultiplied alpha → straight alpha（gifski は uncorrelated RGBA を期待）
+      // 動画フレームは alpha=255 が大半なので実質 no-op
+      for px in stride(from: 0, to: pixelBuffer.count, by: 4) {
+        let a = pixelBuffer[px + 3]
+        if a > 0 && a < 255 {
+          let af = Float(a) / 255.0
+          pixelBuffer[px]     = UInt8(min(255, Int((Float(pixelBuffer[px]) / af).rounded())))
+          pixelBuffer[px + 1] = UInt8(min(255, Int((Float(pixelBuffer[px + 1]) / af).rounded())))
+          pixelBuffer[px + 2] = UInt8(min(255, Int((Float(pixelBuffer[px + 2]) / af).rounded())))
+        }
+      }
+
+      let pts = Double(i) / Double(params.fps)
+      let addResult = pixelBuffer.withUnsafeBytes { ptr in
+        gifski_add_frame_rgba(
+          handle,
+          UInt32(i),
+          outputWidth,
+          outputHeight,
+          ptr.bindMemory(to: UInt8.self).baseAddress!,
+          pts
+        )
+      }
+
+      if addResult != GIFSKI_OK {
+        thrownError = NSError(domain: "GifToNote", code: 4,
+                              userInfo: [NSLocalizedDescriptionKey: "gifski フレーム追加に失敗しました (code=\(addResult.rawValue))"])
+        break
+      }
 
       // 進捗イベントを JS へ送信
       let progress = Double(i + 1) / Double(frameCount)
       sendEvent("onProgress", ["sessionId": params.sessionId, "progress": progress])
     }
 
-    guard CGImageDestinationFinalize(destination) else {
-      throw NSError(domain: "GifToNote", code: 2,
-                    userInfo: [NSLocalizedDescriptionKey: "GIF の書き出しに失敗しました"])
+    // エンコード完了待ち（必ず呼ぶ。ハンドルがここで解放される）
+    let finishResult = gifski_finish(handle)
+
+    if cancelled {
+      throw NSError(domain: "AbortError", code: 0,
+                    userInfo: [NSLocalizedDescriptionKey: "cancelled"])
+    }
+    if let err = thrownError {
+      throw err
+    }
+    if finishResult != GIFSKI_OK {
+      throw NSError(domain: "GifToNote", code: 5,
+                    userInfo: [NSLocalizedDescriptionKey: "gifski エンコード完了に失敗しました (code=\(finishResult.rawValue))"])
     }
 
     return outputURL.absoluteString

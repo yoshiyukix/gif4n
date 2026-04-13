@@ -10,5 +10,15 @@ Pod::Spec.new do |s|
   s.source_files   = '*.swift'
   s.swift_version  = '5.9'
 
+  # gifski static library (XCFramework)
+  s.vendored_frameworks = 'vendor/gifski.xcframework'
+
+  # Expose the gifski C header as a clang module so Swift can import it
+  s.preserve_paths      = 'vendor/gifski.h', 'vendor/gifski.modulemap'
+  s.pod_target_xcconfig = {
+    'SWIFT_INCLUDE_PATHS'             => '$(PODS_TARGET_SRCROOT)/vendor',
+    'OTHER_SWIFT_FLAGS'               => '-Xcc -fmodule-map-file=$(PODS_TARGET_SRCROOT)/vendor/gifski.modulemap',
+  }
+
   s.dependency 'ExpoModulesCore'
 end

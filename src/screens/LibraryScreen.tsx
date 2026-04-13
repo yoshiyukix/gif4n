@@ -15,7 +15,7 @@ import * as MediaLibrary from 'expo-media-library';
 import { LibraryStackParamList } from '../navigation/types';
 import { getGifEntries, LibraryGifEntry } from '../infrastructure/GifLibraryStore';
 
-type Props = NativeStackScreenProps<LibraryStackParamList, 'Library'>;
+type Props = NativeStackScreenProps<LibraryStackParamList, 'LibraryList'>;
 
 const NUM_COLS = 3;
 const GAP = 3;

@@ -13,7 +13,7 @@ export type StudioStackParamList = {
 // ─── Library（保存済みGIF一覧）スタック ────────────────────────────
 
 export type LibraryStackParamList = {
-  Library: undefined;
+  LibraryList: undefined;
   LibraryDetail: {
     assetId: string;
     localUri: string;

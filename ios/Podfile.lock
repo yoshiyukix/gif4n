@@ -3191,7 +3191,7 @@ SPEC CHECKSUMS:
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FBLazyVector: 82d1d7996af4c5850242966eb81e73f9a6dfab1e
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
-  gif-to-note-sdk: 7bbd193e201a6558a21488da5701ef70dd477f81
+  gif-to-note-sdk: 4a342e2507404d94ed5c0b78743ef3518b747f98
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: d13712e92f5f5c7f1ca6e5e7422324fb034f3041
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
