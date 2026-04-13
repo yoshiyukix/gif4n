@@ -7,6 +7,7 @@ import { IConversionUseCase, OutputSizeResolver } from '../usecases/ConversionUs
 export interface UseConversionOptions {
   useCase: IConversionUseCase;
   outputSizeResolver: OutputSizeResolver;
+  maxSizeBytes?: number;
 }
 
 export interface UseConversionResult {
@@ -18,7 +19,7 @@ export interface UseConversionResult {
 // ─── 実装 ──────────────────────────────────────────────────────
 
 export function useConversion(options: UseConversionOptions): UseConversionResult {
-  const { useCase, outputSizeResolver } = options;
+  const { useCase, outputSizeResolver, maxSizeBytes } = options;
   const [job, setJob] = useState<ConversionJob | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -46,6 +47,7 @@ export function useConversion(options: UseConversionOptions): UseConversionResul
           abort.signal,
           outputSizeResolver,
           (preset) => setJob((prev) => (prev ? { ...prev, preset } : null)),
+          maxSizeBytes,
         )
         .then((result) => {
           if (result.ok) {
@@ -73,7 +75,7 @@ export function useConversion(options: UseConversionOptions): UseConversionResul
           setJob((prev) => (prev ? { ...prev, status: 'error', errorMessage: message } : null));
         });
     },
-    [useCase, outputSizeResolver],
+    [useCase, outputSizeResolver, maxSizeBytes],
   );
 
   const cancel = useCallback(() => {

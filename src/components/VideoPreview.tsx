@@ -21,7 +21,15 @@ function formatTime(sec: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-export function VideoPreview({ uri, trimRange, playbackSpeed = 1, loop = true, onTimeUpdate, seekTo, externalPaused }: Props) {
+export function VideoPreview({
+  uri,
+  trimRange,
+  playbackSpeed = 1,
+  loop = true,
+  onTimeUpdate,
+  seekTo,
+  externalPaused,
+}: Props) {
   const trimRangeRef = useRef(trimRange);
   const seekToRef = useRef(seekTo);
   const [isPlaying, setIsPlaying] = useState(true);

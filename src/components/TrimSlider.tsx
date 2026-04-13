@@ -1,12 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  PanResponder,
-  Image,
-  LayoutChangeEvent,
-} from 'react-native';
+import { View, Text, StyleSheet, PanResponder, Image, LayoutChangeEvent } from 'react-native';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import { TrimRange } from '../types';
 
@@ -72,14 +65,30 @@ export function TrimSlider({
   const [localPlayheadSec, setLocalPlayheadSec] = useState<number | null>(null);
   const localPlayheadSecRef = useRef(currentTimeSec);
 
-  useEffect(() => { durationRef.current = durationSec; }, [durationSec]);
-  useEffect(() => { onStartChangeRef.current = onStartChange; }, [onStartChange]);
-  useEffect(() => { onEndChangeRef.current = onEndChange; }, [onEndChange]);
-  useEffect(() => { onDragStartRef.current = onDragStart; }, [onDragStart]);
-  useEffect(() => { onDragEndRef.current = onDragEnd; }, [onDragEnd]);
-  useEffect(() => { onSeekRef.current = onSeek; }, [onSeek]);
-  useEffect(() => { onSeekStartRef.current = onSeekStart; }, [onSeekStart]);
-  useEffect(() => { onSeekEndRef.current = onSeekEnd; }, [onSeekEnd]);
+  useEffect(() => {
+    durationRef.current = durationSec;
+  }, [durationSec]);
+  useEffect(() => {
+    onStartChangeRef.current = onStartChange;
+  }, [onStartChange]);
+  useEffect(() => {
+    onEndChangeRef.current = onEndChange;
+  }, [onEndChange]);
+  useEffect(() => {
+    onDragStartRef.current = onDragStart;
+  }, [onDragStart]);
+  useEffect(() => {
+    onDragEndRef.current = onDragEnd;
+  }, [onDragEnd]);
+  useEffect(() => {
+    onSeekRef.current = onSeek;
+  }, [onSeek]);
+  useEffect(() => {
+    onSeekStartRef.current = onSeekStart;
+  }, [onSeekStart]);
+  useEffect(() => {
+    onSeekEndRef.current = onSeekEnd;
+  }, [onSeekEnd]);
 
   // ドラッグ中でないとき ref を currentTimeSec に追随させる
   useEffect(() => {
@@ -117,7 +126,9 @@ export function TrimSlider({
       }
       if (!cancelled) setThumbUris(uris);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [uri, durationSec]);
 
   function secToPx(sec: number): number {
@@ -139,10 +150,10 @@ export function TrimSlider({
         const dur = durationRef.current;
         if (bw <= 0 || dur <= 0) return;
         const deltaSec = (gs.dx / bw) * dur;
-        const newSec = Math.max(0, Math.min(
-          startDragRef.current + deltaSec,
-          localEndRef.current - 0.1,
-        ));
+        const newSec = Math.max(
+          0,
+          Math.min(startDragRef.current + deltaSec, localEndRef.current - 0.1),
+        );
         localStartRef.current = newSec;
         setLocalStart(newSec);
       },
@@ -150,7 +161,7 @@ export function TrimSlider({
         onStartChangeRef.current(localStartRef.current);
         onDragEndRef.current?.();
       },
-    })
+    }),
   ).current;
 
   // 右ハンドル
@@ -167,10 +178,10 @@ export function TrimSlider({
         const dur = durationRef.current;
         if (bw <= 0 || dur <= 0) return;
         const deltaSec = (gs.dx / bw) * dur;
-        const newSec = Math.min(dur, Math.max(
-          endDragRef.current + deltaSec,
-          localStartRef.current + 0.1,
-        ));
+        const newSec = Math.min(
+          dur,
+          Math.max(endDragRef.current + deltaSec, localStartRef.current + 0.1),
+        );
         localEndRef.current = newSec;
         setLocalEnd(newSec);
       },
@@ -178,7 +189,7 @@ export function TrimSlider({
         onEndChangeRef.current(localEndRef.current);
         onDragEndRef.current?.();
       },
-    })
+    }),
   ).current;
 
   function onBarLayout(e: LayoutChangeEvent) {
@@ -213,7 +224,7 @@ export function TrimSlider({
         onDragEndRef.current?.();
         onSeekEndRef.current?.();
       },
-    })
+    }),
   ).current;
 
   const startX = secToPx(localStart);
@@ -235,7 +246,11 @@ export function TrimSlider({
               ? thumbUris.map((t, i) => (
                   <View key={i} style={styles.thumbCell}>
                     {t ? (
-                      <Image source={{ uri: t }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+                      <Image
+                        source={{ uri: t }}
+                        style={StyleSheet.absoluteFill}
+                        resizeMode="cover"
+                      />
                     ) : (
                       <View style={[StyleSheet.absoluteFill, { backgroundColor: '#C7C7CC' }]} />
                     )}
@@ -257,17 +272,12 @@ export function TrimSlider({
           {/* 選択範囲ハイライト枠 */}
           {barWidth > 0 && (
             <View
-              style={[
-                styles.rangeHighlight,
-                { left: startX, width: Math.max(0, endX - startX) },
-              ]}
+              style={[styles.rangeHighlight, { left: startX, width: Math.max(0, endX - startX) }]}
             />
           )}
 
           {/* プレイヘッド（barInner 内の視覚的な線） */}
-          {barWidth > 0 && (
-            <View style={[styles.playheadLine, { left: playheadX }]} />
-          )}
+          {barWidth > 0 && <View style={[styles.playheadLine, { left: playheadX }]} />}
         </View>
 
         {/* プレイヘッドのドラッグハンドル（barOuter に配置 → 見切れなし） */}

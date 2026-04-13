@@ -2,7 +2,7 @@ import { VideoSource, TrimRange, ConversionResult, QualityPreset, QUALITY_PRESET
 import { INativeGifService } from '../infrastructure/NativeGifService';
 import { ISizeEstimator } from './SizeEstimator';
 
-const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 /**
  * 出力 GIF の URI からファイルサイズ（バイト）を返す関数。
@@ -13,7 +13,7 @@ export type OutputSizeResolver = (uri: string) => Promise<number> | number;
 export interface IConversionUseCase {
   /**
    * 品質を自動調整しながら GIF を生成する。
-   * 10 MB 以内に収まる最高品質の preset を試行順に探索する。
+   * maxSizeBytes 以内に収まる最高品質の preset を試行順に探索する。
    */
   run(
     source: VideoSource,
@@ -22,6 +22,7 @@ export interface IConversionUseCase {
     signal: AbortSignal,
     outputSizeResolver: OutputSizeResolver,
     onPresetChange?: (preset: QualityPreset) => void,
+    maxSizeBytes?: number,
   ): Promise<ConversionResult>;
 }
 
@@ -38,6 +39,7 @@ export class ConversionUseCase implements IConversionUseCase {
     signal: AbortSignal,
     outputSizeResolver: OutputSizeResolver,
     onPresetChange?: (preset: QualityPreset) => void,
+    maxSizeBytes: number = DEFAULT_MAX_SIZE_BYTES,
   ): Promise<ConversionResult> {
     const startIndex = this.estimator.estimateStartIndex(source, trim);
 
@@ -62,16 +64,17 @@ export class ConversionUseCase implements IConversionUseCase {
 
       const sizeBytes = await outputSizeResolver(outputUri);
 
-      if (sizeBytes <= MAX_SIZE_BYTES) {
+      if (sizeBytes <= maxSizeBytes) {
         return { ok: true, outputUri, sizeBytes, preset };
       }
-      // 10MB 超 → 次の preset で再試行
+      // maxSizeBytes 超 → 次の preset で再試行
     }
 
+    const limitMb = Math.round(maxSizeBytes / (1024 * 1024));
     return {
       ok: false,
       reason: 'too_large',
-      message: '全品質設定で 10MB を超えました。動画を短くトリミングしてください。',
+      message: `全品質設定で ${limitMb}MB を超えました。動画を短くトリミングしてください。`,
     };
   }
 }

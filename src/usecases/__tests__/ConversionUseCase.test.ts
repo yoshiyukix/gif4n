@@ -208,6 +208,71 @@ describe('ConversionUseCase', () => {
   });
 
   // ────────────────────────────
+  // maxSizeBytes カスタム上限
+  // ────────────────────────────
+
+  describe('maxSizeBytes カスタム上限', () => {
+    it('maxSizeBytes=5MB を指定すると 5MB 超で再試行する', async () => {
+      const LIMIT = 5 * 1024 * 1024;
+      const mock = makeNativeMock(LIMIT + 1);
+      const useCase = new ConversionUseCase(mock, new SizeEstimator());
+      const controller = new AbortController();
+
+      // 最初は 5MB 超、2 回目から LIMIT 以内
+      let callCount = 0;
+      const result = await useCase.run(
+        source,
+        trim,
+        noop,
+        controller.signal,
+        (_uri) => {
+          callCount++;
+          return callCount === 1 ? LIMIT + 1 : LIMIT - 1;
+        },
+        undefined,
+        LIMIT,
+      );
+
+      expect(result.ok).toBe(true);
+      expect(mock.convert).toHaveBeenCalledTimes(2);
+    });
+
+    it('maxSizeBytes が省略されたとき 10MB がデフォルト上限になる', async () => {
+      const sizeBytes = 5 * 1024 * 1024;
+      const mock = makeNativeMock(sizeBytes);
+      const useCase = new ConversionUseCase(mock, new SizeEstimator());
+      const controller = new AbortController();
+
+      const result = await useCase.run(source, trim, noop, controller.signal, () => sizeBytes);
+
+      expect(result.ok).toBe(true);
+    });
+
+    it('too_large メッセージに上限 MB が含まれる', async () => {
+      const LIMIT = 5 * 1024 * 1024;
+      const mock = makeNativeMock(LIMIT + 1);
+      const useCase = new ConversionUseCase(mock, new SizeEstimator());
+      const controller = new AbortController();
+
+      const result = await useCase.run(
+        source,
+        trim,
+        noop,
+        controller.signal,
+        () => LIMIT + 1,
+        undefined,
+        LIMIT,
+      );
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.reason).toBe('too_large');
+        expect(result.message).toContain('5MB');
+      }
+    });
+  });
+
+  // ────────────────────────────
   // キャンセル
   // ────────────────────────────
 

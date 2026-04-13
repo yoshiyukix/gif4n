@@ -109,7 +109,9 @@ export default function ResultScreen({ route, navigation }: Props) {
           <View style={styles.separator} />
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>解像度 / フレームレート</Text>
-            <Text style={styles.infoValue}>{preset.width}px / {preset.fps}fps</Text>
+            <Text style={styles.infoValue}>
+              {preset.width}px / {preset.fps}fps
+            </Text>
           </View>
         </View>
 
@@ -124,12 +126,21 @@ export default function ResultScreen({ route, navigation }: Props) {
             {isSaving ? (
               <ActivityIndicator size="small" color="#fff" style={styles.pillIcon} />
             ) : (
-              <Ionicons name="arrow-down-circle-outline" size={20} color="#fff" style={styles.pillIcon} />
+              <Ionicons
+                name="arrow-down-circle-outline"
+                size={20}
+                color="#fff"
+                style={styles.pillIcon}
+              />
             )}
             <Text style={styles.pillText}>カメラロールに保存</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.pill, styles.sharePill]} onPress={handleShare} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={[styles.pill, styles.sharePill]}
+            onPress={handleShare}
+            activeOpacity={0.85}
+          >
             <Ionicons name="share-outline" size={20} color="#fff" style={styles.pillIcon} />
             <Text style={styles.pillText}>共有</Text>
           </TouchableOpacity>
@@ -139,7 +150,6 @@ export default function ResultScreen({ route, navigation }: Props) {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
     </View>
   );
 }

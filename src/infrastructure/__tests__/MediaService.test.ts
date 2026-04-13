@@ -57,7 +57,9 @@ describe('MediaService', () => {
     it('権限拒否の場合は createAssetAsync を呼ばない', async () => {
       MediaLibrary.requestPermissionsAsync.mockResolvedValue({ status: 'denied' });
 
-      await expect(service.saveToLibrary('file:///tmp/out.gif')).rejects.toThrow('permission_denied');
+      await expect(service.saveToLibrary('file:///tmp/out.gif')).rejects.toThrow(
+        'permission_denied',
+      );
 
       expect(MediaLibrary.createAssetAsync).not.toHaveBeenCalled();
     });
@@ -65,7 +67,9 @@ describe('MediaService', () => {
     it('権限拒否の場合は onPermissionDenied コールバックを呼び、例外を投げる', async () => {
       MediaLibrary.requestPermissionsAsync.mockResolvedValue({ status: 'denied' });
 
-      await expect(service.saveToLibrary('file:///tmp/out.gif')).rejects.toThrow('permission_denied');
+      await expect(service.saveToLibrary('file:///tmp/out.gif')).rejects.toThrow(
+        'permission_denied',
+      );
 
       expect(onPermissionDenied).toHaveBeenCalled();
     });

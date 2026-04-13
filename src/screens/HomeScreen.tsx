@@ -147,7 +147,6 @@ export default function HomeScreen({ navigation }: Props) {
           videos.length > 0 ? <Text style={styles.count}>{videos.length}個の動画</Text> : null
         }
       />
-
     </View>
   );
 }
@@ -218,6 +217,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginVertical: 24,
   },
-
-
 });

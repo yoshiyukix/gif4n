@@ -96,6 +96,25 @@ export interface ConversionJob {
 // ConversionResult
 // ────────────────────────────────────────────────
 
+// ────────────────────────────────────────────────
+// AppSettings
+// ────────────────────────────────────────────────
+
+/** アプリ設定 */
+export interface AppSettings {
+  /** GIF 変換の最大ファイルサイズ（MB） */
+  maxSizeMb: 5 | 7 | 10;
+}
+
+/** アプリ設定のデフォルト値 */
+export const DEFAULT_SETTINGS: AppSettings = {
+  maxSizeMb: 10,
+};
+
+// ────────────────────────────────────────────────
+// ConversionResult
+// ────────────────────────────────────────────────
+
 /** GIF 変換の結果（判別共用体） */
 export type ConversionResult =
   | {

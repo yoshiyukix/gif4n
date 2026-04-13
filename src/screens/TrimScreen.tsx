@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ScrollView,
-  Switch,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -123,8 +115,14 @@ export default function TrimScreen({ route, navigation }: Props) {
             onDragStart={() => setScrollEnabled(false)}
             onDragEnd={() => setScrollEnabled(true)}
             onSeek={setSeekTo}
-            onSeekStart={() => { setScrollEnabled(false); setIsSeekDragging(true); }}
-            onSeekEnd={() => { setScrollEnabled(true); setIsSeekDragging(false); }}
+            onSeekStart={() => {
+              setScrollEnabled(false);
+              setIsSeekDragging(true);
+            }}
+            onSeekEnd={() => {
+              setScrollEnabled(true);
+              setIsSeekDragging(false);
+            }}
           />
         </View>
 
@@ -172,7 +170,6 @@ export default function TrimScreen({ route, navigation }: Props) {
 
         <View style={{ height: 16 }} />
       </ScrollView>
-
     </View>
   );
 }

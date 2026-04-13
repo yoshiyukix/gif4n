@@ -63,7 +63,11 @@ export default function LibraryDetailScreen({ route, navigation }: Props) {
 
       {/* ─── Header ─────────────────── */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} activeOpacity={0.7}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backBtn}
+          activeOpacity={0.7}
+        >
           <Ionicons name="chevron-back" size={24} color="#1C1C1E" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>GIF</Text>
@@ -93,7 +97,9 @@ export default function LibraryDetailScreen({ route, navigation }: Props) {
           <View style={styles.separator} />
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>解像度 / フレームレート</Text>
-            <Text style={styles.infoValue}>{preset.width}px / {preset.fps}fps</Text>
+            <Text style={styles.infoValue}>
+              {preset.width}px / {preset.fps}fps
+            </Text>
           </View>
 
           <View style={styles.separator} />

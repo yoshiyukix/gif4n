@@ -1,13 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  Image,
-  SafeAreaView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, Image, SafeAreaView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +9,7 @@ import { ConversionUseCase } from '../usecases/ConversionUseCase';
 import { NativeGifService } from '../infrastructure/NativeGifService';
 import { SizeEstimator } from '../usecases/SizeEstimator';
 import { QUALITY_PRESETS } from '../types';
+import { useSettings } from '../hooks/useSettings';
 import CircularProgress from '../components/CircularProgress';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Converting'>;
@@ -35,7 +28,12 @@ export default function ConvertingScreen({ route, navigation }: Props) {
     () => new ConversionUseCase(nativeService, estimator),
     [nativeService, estimator],
   );
-  const { job, start, cancel } = useConversion({ useCase, outputSizeResolver });
+  const { settings } = useSettings();
+  const { job, start, cancel } = useConversion({
+    useCase,
+    outputSizeResolver,
+    maxSizeBytes: settings.maxSizeMb * 1024 * 1024,
+  });
   const started = useRef(false);
 
   const thumbnailUri = initialThumbnailUri;
@@ -103,14 +101,17 @@ export default function ConvertingScreen({ route, navigation }: Props) {
             <Text style={styles.fileMeta}>
               {job?.preset ? `${job.preset.width}px · ${job.preset.fps} fps` : '–'}
             </Text>
-            {job?.preset && (() => {
-              const idx = QUALITY_PRESETS.findIndex(
-                (p) => p.width === job.preset.width && p.fps === job.preset.fps,
-              );
-              return idx >= 0 ? (
-                <Text style={styles.fileMeta}>試行 {idx + 1} / {QUALITY_PRESETS.length}</Text>
-              ) : null;
-            })()}
+            {job?.preset &&
+              (() => {
+                const idx = QUALITY_PRESETS.findIndex(
+                  (p) => p.width === job.preset.width && p.fps === job.preset.fps,
+                );
+                return idx >= 0 ? (
+                  <Text style={styles.fileMeta}>
+                    試行 {idx + 1} / {QUALITY_PRESETS.length}
+                  </Text>
+                ) : null;
+              })()}
           </View>
         </View>
 

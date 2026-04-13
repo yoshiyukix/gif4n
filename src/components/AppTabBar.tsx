@@ -65,6 +65,23 @@ export function AppTabBar({ state, navigation }: BottomTabBarProps) {
           <Text style={styles.tabLabel}>LIBRARY</Text>
         </TouchableOpacity>
       )}
+
+      {/* Settings タブ */}
+      {activeIndex === 2 ? (
+        <TouchableOpacity style={styles.settingsPill} activeOpacity={0.9}>
+          <Ionicons name="settings" size={18} color="#fff" style={{ marginRight: 6 }} />
+          <Text style={styles.pillText}>SETTINGS</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={styles.tabItem}
+          activeOpacity={0.7}
+          onPress={() => navigation.navigate('Settings')}
+        >
+          <Ionicons name="settings-outline" size={22} color="#8E8E93" />
+          <Text style={styles.tabLabel}>SETTINGS</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -95,6 +112,14 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 22,
   },
+  settingsPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: BLUE,
+    borderRadius: 30,
+    paddingVertical: 14,
+    paddingHorizontal: 22,
+  },
   pillText: {
     color: '#fff',
     fontWeight: '700',
@@ -113,4 +138,3 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 });
-

@@ -52,7 +52,7 @@ export function SaveToast({ visible, type, message, insetTop = 0, onHide }: Save
         }).start(() => onHide());
       }, DISPLAY_DURATION_MS);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   if (!visible) return null;
