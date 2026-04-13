@@ -25,7 +25,7 @@ export function StudioNavigator() {
       <Stack.Screen
         name="Result"
         component={ResultScreen}
-        options={{ title: 'Done', headerBackVisible: false }}
+        options={{ title: 'Done', headerBackVisible: false, headerLeft: () => null }}
       />
     </Stack.Navigator>
   );

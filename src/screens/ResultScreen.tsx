@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -34,6 +34,16 @@ export default function ResultScreen({ route, navigation }: Props) {
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.pop(1)} hitSlop={8}>
+          <Ionicons name="chevron-back" size={28} color={BLUE} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   async function handleSave() {
     if (isSaving) return;
