@@ -35,7 +35,7 @@ export interface INativeGifService {
    * 25%・50%・75% 地点の各 PILOT_SAMPLE_DURATION_SEC 秒を中間品質 preset (480px/10fps) で変換し、
    * 1 秒あたりのバイト数の平均を返す。
    * 変換に使用した一時ファイルは内部で削除する。
-   * キャンセル・失敗時は AbortError をスローする。
+   * キャンセル時は AbortError をスローする。ネイティブエラー時は例外をそのまま伝播する。
    */
   convertPilot(source: VideoSource, signal: AbortSignal): Promise<number>;
 }

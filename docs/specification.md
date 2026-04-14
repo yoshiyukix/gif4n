@@ -81,6 +81,7 @@ gif-to-note-app/
 │   │   └── PilotEstimationUseCase.ts
 │   ├── infrastructure/
 │   │   ├── NativeGifService.ts
+│   │   ├── VideoImportService.ts
 │   │   ├── MediaService.ts
 │   │   └── GifLibraryStore.ts
 │   ├── hooks/
@@ -246,8 +247,11 @@ interface INativeGifService {
   ): Promise<string>;
 
   /**
-   * 動画中間付近の 1 秒を QUALITY_PRESETS[0] で変換し、1 秒あたりのバイト数を返す。
-   * 変換後の一時ファイルは内部で削除する。
+   * 25%・50%・75% 地点の各 PILOT_SAMPLE_DURATION_SEC 秒を
+   * QUALITY_PRESETS[PILOT_PRESET_INDEX]（中間品質: 480px/10fps）で変換し、
+   * 1 秒あたりのバイト数の平均を返す。
+   * 変換に使用した一時ファイルは内部で削除する。
+   * キャンセル時は AbortError をスローする。ネイティブエラー時は例外をそのまま伝播する。
    */
   convertPilot(source: VideoSource, signal: AbortSignal): Promise<number>;
 }
@@ -280,7 +284,8 @@ interface IPilotEstimationUseCase {
 
   /**
    * パイロット変換で得た bytes/sec から最適な開始プリセットインデックスを返す。
-   * 推定式: bytesPerSec × trimDuration × (width_i² × fps_i) / (width_0² × fps_0)
+   * 推定式: bytesPerSec × trimDuration × (width_i² × fps_i) / (pilot_w² × pilot_fps)
+   * ここで pilot_w・pilot_fps は QUALITY_PRESETS[PILOT_PRESET_INDEX]（480px/10fps）の値
    * @returns 0〜8 のインデックス（QUALITY_PRESETS の添字）
    */
   estimateStartIndex(bytesPerSec: number, trimDurationSec: number, maxSizeBytes: number): number;
