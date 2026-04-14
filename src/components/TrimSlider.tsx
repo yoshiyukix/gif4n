@@ -120,7 +120,8 @@ export function TrimSlider({
             time: Math.floor(timeSec * 1000),
           });
           if (!cancelled) uris.push(tUri);
-        } catch {
+        } catch (e) {
+          console.warn('[TrimSlider] thumbnail failed', { uri, timeSec }, e);
           if (!cancelled) uris.push('');
         }
       }

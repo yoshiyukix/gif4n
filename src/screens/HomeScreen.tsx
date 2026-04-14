@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
+  Alert,
   FlatList,
   TouchableOpacity,
   StyleSheet,
@@ -13,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as MediaLibrary from 'expo-media-library';
 import * as VideoThumbnails from 'expo-video-thumbnails';
+import * as FileSystem from 'expo-file-system/legacy';
 import { RootStackParamList } from '../navigation/types';
 import { VideoImportService, normalizeMediaLibraryUri } from '../infrastructure/VideoImportService';
 
@@ -40,13 +42,30 @@ const VideoTile = memo(({ asset, onPress }: TileProps) => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      let tempUri: string | null = null;
       try {
         const info = await MediaLibrary.getAssetInfoAsync(asset);
-        const localUri = normalizeMediaLibraryUri(info.localUri ?? asset.uri);
+        let localUri = normalizeMediaLibraryUri(info.localUri ?? '');
+        if (!localUri) {
+          console.warn('[VideoTile] no localUri', asset.uri);
+          return;
+        }
+        // PhotoData/CPLAssets はアプリから直接読めないのでキャッシュへコピー
+        if (localUri.includes('/PhotoData/')) {
+          const ext = localUri.split('.').pop() ?? 'MOV';
+          const safeId = asset.id.replace(/\//g, '_');
+          tempUri = `${FileSystem.cacheDirectory}thumb-${safeId}.${ext}`;
+          await FileSystem.copyAsync({ from: localUri, to: tempUri });
+          localUri = tempUri;
+        }
         const { uri } = await VideoThumbnails.getThumbnailAsync(localUri, { time: 0 });
         if (!cancelled) setThumbUri(uri);
-      } catch {
-        // サムネイル生成失敗時は黒背景のまま
+      } catch (e) {
+        console.warn('[VideoTile] thumbnail failed', asset.uri, e);
+      } finally {
+        if (tempUri) {
+          FileSystem.deleteAsync(tempUri, { idempotent: true }).catch(() => {});
+        }
       }
     })();
     return () => {
@@ -92,8 +111,16 @@ export default function HomeScreen({ navigation }: Props) {
 
   const onPressVideo = useCallback(
     async (asset: MediaLibrary.Asset) => {
-      const source = await videoImportService.importAsset(asset);
-      navigation.navigate('Trim', { source });
+      try {
+        const source = await videoImportService.importAsset(asset);
+        navigation.navigate('Trim', { source });
+      } catch (e) {
+        console.warn('[HomeScreen] importAsset failed', asset.uri, e);
+        Alert.alert(
+          'この動画は変換できません',
+          'シネマティックモード・スパーシャルビデオなど一部の形式には対応していません。別の動画をお試しください。',
+        );
+      }
     },
     [navigation, videoImportService],
   );

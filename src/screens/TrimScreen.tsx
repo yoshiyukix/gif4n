@@ -68,8 +68,8 @@ export default function TrimScreen({ route, navigation }: Props) {
         time: trimRange.startSec * 1000,
       });
       thumbnailUri = result.uri;
-    } catch {
-      // サムネイル取得失敗時は null のまま遷移
+    } catch (e) {
+      console.warn('[TrimScreen] thumbnail failed', source.uri, e);
     }
     const estimatedStartIndex =
       bytesPerSec != null

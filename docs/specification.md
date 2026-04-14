@@ -1,7 +1,7 @@
 # 設計書: gif-to-note
 
-**バージョン**: 1.2  
-**更新日**: 2026-04-13（パイロット変換による品質プリセット最適化）  
+**バージョン**: 1.3  
+**更新日**: 2026-04-15（HomeScreen サムネイル生成・非対応フォーマットエラーハンドリング追加）  
 **作成日**: 2026-03-29  
 **対応要件定義書**: `docs/requirements.md`
 
@@ -410,7 +410,7 @@ SettingsScreen
 
 | 画面                | 使用 Hook / Service                         | 主な状態                                            |
 | ------------------- | ------------------------------------------- | --------------------------------------------------- |
-| HomeScreen          | react-native-image-picker / document-picker | 選択中の VideoSource                                |
+| HomeScreen          | expo-media-library, VideoImportService      | 選択中の VideoSource                                |
 | TrimScreen          | useTrim, usePilotEstimation, useSettings    | TrimRange, bytesPerSec（パイロット変換結果）         |
 | ConvertingScreen    | useConversion, useSettings                  | progressRate / status / maxSizeBytes                |
 | ResultScreen        | MediaService, GifLibraryStore               | outputUri / outputSizeBytes / preset                |
@@ -453,6 +453,8 @@ npm run licenses
 | ネイティブモジュール実行エラー | エラーメッセージを ConversionResult に含めて ConvertingScreen で Alert 表示 |
 | キャンセル                     | AbortSignal でネイティブ変換セッションを中断、TrimScreen へ戻る（goBack）   |
 | 権限拒否                       | 設定画面へ誘導するアラートを表示                                            |
+| 非対応フォーマット動画選択     | HomeScreen で Alert 表示（シネマティックモード・スパーシャルビデオ等）      |
+| サムネイル生成失敗（PhotoData）| キャッシュへコピーしてから生成を再試行。失敗時は黒タイルにフォールバック    |
 
 ---
 
