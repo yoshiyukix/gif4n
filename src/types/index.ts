@@ -56,6 +56,9 @@ export const QUALITY_PRESETS: QualityPreset[] = [
   { width: 320, fps: 5 },
 ];
 
+/** パイロット変換に使用するプリセットのインデックス（中間品質 480px/10fps）*/
+export const PILOT_PRESET_INDEX = 4 as const;
+
 // ────────────────────────────────────────────────
 // ConversionStatus
 // ────────────────────────────────────────────────
@@ -63,7 +66,6 @@ export const QUALITY_PRESETS: QualityPreset[] = [
 export type ConversionStatus =
   | 'idle' // 未開始
   | 'running' // 変換中
-  | 'checking' // サイズ確認中（再試行判定）
   | 'done' // 完了
   | 'cancelled' // キャンセル済み
   | 'error'; // エラー

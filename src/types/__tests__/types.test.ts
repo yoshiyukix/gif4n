@@ -157,12 +157,11 @@ describe('types/index', () => {
       const statuses: ConversionStatus[] = [
         'idle',
         'running',
-        'checking',
         'done',
         'cancelled',
         'error',
       ];
-      expect(statuses).toHaveLength(6);
+      expect(statuses).toHaveLength(5);
     });
   });
 });

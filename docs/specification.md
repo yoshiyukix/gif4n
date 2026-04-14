@@ -168,7 +168,6 @@ gif-to-note-app/
 type ConversionStatus =
   | 'idle' // 未開始
   | 'running' // 変換中
-  | 'checking' // サイズ確認中（再試行判定）
   | 'done' // 完了
   | 'cancelled' // キャンセル済み
   | 'error'; // エラー

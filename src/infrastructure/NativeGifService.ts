@@ -1,6 +1,6 @@
 import { requireNativeModule } from 'expo-modules-core';
 import * as FileSystem from 'expo-file-system/legacy';
-import { VideoSource, TrimRange, QualityPreset, QUALITY_PRESETS } from '../types';
+import { VideoSource, TrimRange, QualityPreset, QUALITY_PRESETS, PILOT_PRESET_INDEX } from '../types';
 
 /** パイロット変換で各サンプル点をカバーする秒数（後から変更しやすいよう定数化） */
 const PILOT_SAMPLE_DURATION_SEC = 1.0;
@@ -127,8 +127,8 @@ export class NativeGifService implements INativeGifService {
       return 0;
     }
 
-    // 中間品質プリセット (480px/10fps) で変換 → 最高品質への外挿倍率が ~2.5倍に縮小し推定精度が向上する
-    const pilotPreset = QUALITY_PRESETS[4]; // { width: 480, fps: 10 }
+    // 中間品質プリセット (PILOT_PRESET_INDEX = 480px/10fps) で変換 → 最高品質への外挿倍率が ~2.5倍に縮小し推定精度が向上する
+    const pilotPreset = QUALITY_PRESETS[PILOT_PRESET_INDEX];
     const actualDuration = Math.min(PILOT_SAMPLE_DURATION_SEC, source.durationSec);
 
     const samples: number[] = [];

@@ -1,8 +1,8 @@
-import { VideoSource, QUALITY_PRESETS } from '../types';
+import { VideoSource, QUALITY_PRESETS, PILOT_PRESET_INDEX } from '../types';
 import { INativeGifService } from '../infrastructure/NativeGifService';
 
 // パイロット変換に使用するプリセット（中間品質 = 最高品質への外挿倍率を最小化）
-const PILOT_PRESET = QUALITY_PRESETS[4]; // { width: 480, fps: 10 }
+const PILOT_PRESET = QUALITY_PRESETS[PILOT_PRESET_INDEX];
 
 // パイロット変換は PILOT_PRESET（中間品質）で測定するため、PILOT_PRESET を基準(1.0)として
 // 各プリセットのスケール係数を計算する。

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { VideoSource } from '../types';
 import { IPilotEstimationUseCase } from '../usecases/PilotEstimationUseCase';
 
@@ -19,11 +19,9 @@ export function usePilotEstimation(
 ): UsePilotEstimationResult {
   const [bytesPerSec, setBytesPerSec] = useState<number | null>(null);
   const [isPilotDone, setIsPilotDone] = useState(false);
-  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const abort = new AbortController();
-    abortRef.current = abort;
 
     useCase
       .run(source, abort.signal)
