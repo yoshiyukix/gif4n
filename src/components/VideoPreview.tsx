@@ -32,6 +32,9 @@ export function VideoPreview({
 }: Props) {
   const trimRangeRef = useRef(trimRange);
   const seekToRef = useRef(seekTo);
+  const loopRef = useRef(loop);
+  // true のとき「ユーザー操作 or externalPaused による意図的停止」
+  const intentionalPauseRef = useRef(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentTimeSec, setCurrentTimeSec] = useState(trimRange.startSec);
 
@@ -42,6 +45,10 @@ export function VideoPreview({
   useEffect(() => {
     seekToRef.current = seekTo;
   }, [seekTo]);
+
+  useEffect(() => {
+    loopRef.current = loop;
+  }, [loop]);
 
   const player = useVideoPlayer(uri, (p) => {
     p.loop = false;
@@ -74,9 +81,11 @@ export function VideoPreview({
   // false に変わったとき seekTo の位置から確実に再生開始する
   useEffect(() => {
     if (externalPaused) {
+      intentionalPauseRef.current = true;
       player.pause();
       setIsPlaying(false);
     } else if (externalPaused === false) {
+      intentionalPauseRef.current = false;
       if (seekToRef.current !== undefined) {
         player.currentTime = seekToRef.current;
       }
@@ -91,7 +100,7 @@ export function VideoPreview({
     onTimeUpdate?.(currentTime);
     const { startSec, endSec } = trimRangeRef.current;
     if (currentTime >= endSec) {
-      if (loop) {
+      if (loopRef.current) {
         player.currentTime = startSec;
       } else {
         player.pause();
@@ -100,11 +109,23 @@ export function VideoPreview({
     }
   });
 
+  // 動画が自然終端に達して停止したときのループ処理
+  // （timeUpdate はプレイヤー停止後に発火しないため playingChange で補完）
+  // intentionalPauseRef で「ユーザー操作による停止」と区別する
+  useEventListener(player, 'playingChange', ({ isPlaying: nowPlaying }) => {
+    if (!nowPlaying && loopRef.current && !intentionalPauseRef.current) {
+      player.currentTime = trimRangeRef.current.startSec;
+      player.play();
+    }
+  });
+
   function handleTap() {
     if (isPlaying) {
+      intentionalPauseRef.current = true;
       player.pause();
       setIsPlaying(false);
     } else {
+      intentionalPauseRef.current = false;
       if (player.currentTime >= trimRangeRef.current.endSec) {
         player.currentTime = trimRangeRef.current.startSec;
       }

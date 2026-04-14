@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
-  Switch,
   ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -45,7 +44,6 @@ export default function TrimScreen({ route, navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { trimRange, setStart, setEnd } = useTrim(source.durationSec || 60);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
-  const [loopEnabled, setLoopEnabled] = useState(true);
   const [currentTimeSec, setCurrentTimeSec] = useState(0);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const [seekTo, setSeekTo] = useState<number | undefined>(undefined);
@@ -120,7 +118,7 @@ export default function TrimScreen({ route, navigation }: Props) {
             uri={source.uri}
             trimRange={trimRange}
             playbackSpeed={playbackSpeed}
-            loop={loopEnabled}
+            loop={true}
             onTimeUpdate={setCurrentTimeSec}
             seekTo={seekTo}
             externalPaused={isSeekDragging}
@@ -183,23 +181,6 @@ export default function TrimScreen({ route, navigation }: Props) {
               );
             })}
           </View>
-        </View>
-
-        {/* ─── ループ再生カード ─── */}
-        <View style={styles.loopCard}>
-          <View style={styles.loopIconWrap}>
-            <Ionicons name="repeat" size={20} color={BLUE} />
-          </View>
-          <View style={styles.loopText}>
-            <Text style={styles.loopTitle}>Loop Playback</Text>
-            <Text style={styles.loopSub}>Repeat trimmed segment</Text>
-          </View>
-          <Switch
-            value={loopEnabled}
-            onValueChange={setLoopEnabled}
-            trackColor={{ false: '#E5E5EA', true: BLUE }}
-            thumbColor="#fff"
-          />
         </View>
 
         <View style={{ height: 16 }} />
@@ -294,26 +275,4 @@ const styles = StyleSheet.create({
   speedSublabel: { fontSize: 10, fontWeight: '600', color: '#8E8E93', marginTop: 2 },
   speedSublabelActive: { color: 'rgba(255,255,255,0.8)' },
 
-  // Loop card
-  loopCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    marginHorizontal: 16,
-    marginBottom: 16,
-    padding: 16,
-    gap: 14,
-  },
-  loopIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#EAF0FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loopText: { flex: 1 },
-  loopTitle: { fontSize: 15, fontWeight: '600', color: '#1C1C1E' },
-  loopSub: { fontSize: 12, color: '#8E8E93', marginTop: 2 },
 });
