@@ -11,8 +11,18 @@ const HIDDEN_ROUTES = new Set(['Converting']);
 
 const TABS = [
   { name: 'Studio', label: 'STUDIO', icon: 'film' as const, iconOutline: 'film-outline' as const },
-  { name: 'Library', label: 'LIBRARY', icon: 'albums' as const, iconOutline: 'albums-outline' as const },
-  { name: 'Settings', label: 'SETTINGS', icon: 'settings' as const, iconOutline: 'settings-outline' as const },
+  {
+    name: 'Library',
+    label: 'LIBRARY',
+    icon: 'albums' as const,
+    iconOutline: 'albums-outline' as const,
+  },
+  {
+    name: 'Settings',
+    label: 'SETTINGS',
+    icon: 'settings' as const,
+    iconOutline: 'settings-outline' as const,
+  },
 ];
 
 function isFocusedRouteHidden(state: BottomTabBarProps['state']): boolean {
@@ -52,10 +62,7 @@ export function AppTabBar({ state, navigation }: BottomTabBarProps) {
 
   return (
     <>
-      <View
-        style={styles.tabBar}
-        onLayout={(e) => setBarWidth(e.nativeEvent.layout.width)}
-      >
+      <View style={styles.tabBar} onLayout={(e) => setBarWidth(e.nativeEvent.layout.width)}>
         {barWidth > 0 && (
           <Animated.View
             pointerEvents="none"
@@ -76,9 +83,7 @@ export function AppTabBar({ state, navigation }: BottomTabBarProps) {
                 size={20}
                 color={isFocused ? '#fff' : '#8E8E93'}
               />
-              <Text style={[styles.tabLabel, isFocused && styles.tabLabelActive]}>
-                {tab.label}
-              </Text>
+              <Text style={[styles.tabLabel, isFocused && styles.tabLabelActive]}>{tab.label}</Text>
             </TouchableOpacity>
           );
         })}

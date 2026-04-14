@@ -21,7 +21,12 @@ async function outputSizeResolver(uri: string): Promise<number> {
 }
 
 export default function ConvertingScreen({ route, navigation }: Props) {
-  const { source, trimRange, thumbnailUri: initialThumbnailUri } = route.params;
+  const {
+    source,
+    trimRange,
+    thumbnailUri: initialThumbnailUri,
+    estimatedStartIndex,
+  } = route.params;
 
   const nativeService = useMemo(() => new NativeGifService(), []);
   const estimator = useMemo(() => new SizeEstimator(), []);
@@ -29,7 +34,7 @@ export default function ConvertingScreen({ route, navigation }: Props) {
     () => new ConversionUseCase(nativeService, estimator),
     [nativeService, estimator],
   );
-  const { settings } = useSettings();
+  const { settings, isLoaded } = useSettings();
   const { job, start, cancel } = useConversion({
     useCase,
     outputSizeResolver,
@@ -40,11 +45,12 @@ export default function ConvertingScreen({ route, navigation }: Props) {
   const thumbnailUri = initialThumbnailUri;
 
   useEffect(() => {
+    if (!isLoaded) return;
     if (started.current) return;
     started.current = true;
-    start(source, trimRange);
+    start(source, trimRange, estimatedStartIndex);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLoaded]);
 
   const [errorShown, setErrorShown] = useState(false);
 

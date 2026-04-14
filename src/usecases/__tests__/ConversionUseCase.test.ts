@@ -43,6 +43,7 @@ function makeNativeMock(outputSizeBytes: number): jest.Mocked<INativeGifService>
           return `file:///tmp/out_${outputSizeBytes}.gif`;
         },
       ),
+    convertPilot: jest.fn().mockResolvedValue(100_000),
   };
 }
 
@@ -64,6 +65,7 @@ function makeCancelMock(): jest.Mocked<INativeGifService> {
           return 'file:///tmp/out.gif';
         },
       ),
+    convertPilot: jest.fn().mockResolvedValue(100_000),
   };
 }
 
@@ -71,6 +73,7 @@ function makeCancelMock(): jest.Mocked<INativeGifService> {
 function makeErrorMock(message: string): jest.Mocked<INativeGifService> {
   return {
     convert: jest.fn().mockRejectedValue(new Error(message)),
+    convertPilot: jest.fn().mockResolvedValue(100_000),
   };
 }
 
@@ -160,6 +163,7 @@ describe('ConversionUseCase', () => {
               return `file:///tmp/out_${size}.gif`;
             },
           ),
+        convertPilot: jest.fn().mockResolvedValue(100_000),
       };
       // 変換後にサイズを取得するため、ConversionUseCase がサイズを計算できるよう
       // モックの outputUri からサイズを解釈するかどうかは実装次第。
@@ -328,7 +332,7 @@ describe('ConversionUseCase', () => {
 
       await useCase.run(source, trim, noop, controller.signal, () => 5 * 1024 * 1024);
 
-      expect(mockEstimator.estimateStartIndex).toHaveBeenCalledWith(source, trim);
+      expect(mockEstimator.estimateStartIndex).toHaveBeenCalledWith(source, trim, 10 * 1024 * 1024);
       // convert の最初の呼び出しが QUALITY_PRESETS[3] で行われるはず
       expect(mock.convert).toHaveBeenCalledWith(
         source,
@@ -337,6 +341,83 @@ describe('ConversionUseCase', () => {
         expect.any(Function),
         expect.any(AbortSignal),
       );
+    });
+  });
+
+  // ────────────────────────────
+  // startIndexOverride
+  // ────────────────────────────
+
+  describe('startIndexOverride', () => {
+    it('startIndexOverride を指定すると estimateStartIndex が呼ばれない', async () => {
+      const mockEstimator = {
+        estimateStartIndex: jest.fn().mockReturnValue(0),
+        estimateBytes: jest.fn(),
+      };
+      const mock = makeNativeMock(5 * 1024 * 1024);
+      const useCase = new ConversionUseCase(mock, mockEstimator as unknown as SizeEstimator);
+      const controller = new AbortController();
+
+      await useCase.run(
+        source,
+        trim,
+        noop,
+        controller.signal,
+        () => 5 * 1024 * 1024,
+        undefined,
+        undefined,
+        4,
+      );
+
+      expect(mockEstimator.estimateStartIndex).not.toHaveBeenCalled();
+    });
+
+    it('startIndexOverride で指定したインデックスから試行を開始する', async () => {
+      const mock = makeNativeMock(5 * 1024 * 1024);
+      const useCase = new ConversionUseCase(mock, new SizeEstimator());
+      const controller = new AbortController();
+
+      await useCase.run(
+        source,
+        trim,
+        noop,
+        controller.signal,
+        () => 5 * 1024 * 1024,
+        undefined,
+        undefined,
+        2,
+      );
+
+      expect(mock.convert).toHaveBeenCalledWith(
+        source,
+        trim,
+        QUALITY_PRESETS[2],
+        expect.any(Function),
+        expect.any(AbortSignal),
+      );
+    });
+
+    it('startIndexOverride が undefined のときは SizeEstimator にフォールバックする', async () => {
+      const mockEstimator = {
+        estimateStartIndex: jest.fn().mockReturnValue(1),
+        estimateBytes: jest.fn(),
+      };
+      const mock = makeNativeMock(5 * 1024 * 1024);
+      const useCase = new ConversionUseCase(mock, mockEstimator as unknown as SizeEstimator);
+      const controller = new AbortController();
+
+      await useCase.run(
+        source,
+        trim,
+        noop,
+        controller.signal,
+        () => 5 * 1024 * 1024,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      expect(mockEstimator.estimateStartIndex).toHaveBeenCalledWith(source, trim, 10 * 1024 * 1024);
     });
   });
 });

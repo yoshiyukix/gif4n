@@ -89,9 +89,13 @@ public class GifToNoteModule: Module {
       let natural = videoTrack.naturalSize.applying(videoTrack.preferredTransform)
       let w = abs(natural.width), h = abs(natural.height)
       if w > 0 {
-        outputHeight = UInt32(h / w * CGFloat(outputWidth))
+        let computed = UInt32((h / w * CGFloat(outputWidth)).rounded())
+        // gifski は幅/高さが 0 の場合にクラッシュするため最低 1 を保証
+        outputHeight = max(1, computed)
       }
     }
+    // gifski は幅が 0 の場合にクラッシュするため最低 1 を保証
+    outputWidth = max(1, outputWidth)
 
     // 出力先の一時ファイル
     let outputURL = FileManager.default.temporaryDirectory
@@ -152,13 +156,21 @@ public class GifToNoteModule: Module {
       do {
         cgImage = try generator.copyCGImage(at: time, actualTime: &actualTime)
       } catch {
+        NSLog("[GifToNote] copyCGImage failed at %.2fs frame %d/%d: %@", timeSec, i + 1, frameCount, error.localizedDescription)
         thrownError = error
         break
       }
 
       // CGImage → RGBA バイト列（gifski は uncorrelated RGBA/sRGB を期待）
-      let w = Int(outputWidth)
-      let h = Int(outputHeight)
+      // 事前計算値ではなく copyCGImage が実際に返した画像サイズを使う
+      let w = cgImage.width
+      let h = cgImage.height
+      guard w > 0 && h > 0 else {
+        NSLog("[GifToNote] cgImage has invalid size %dx%d at frame %d", w, h, i)
+        thrownError = NSError(domain: "GifToNote", code: 3,
+                              userInfo: [NSLocalizedDescriptionKey: "copyCGImage が無効な画像サイズを返しました (\(w)x\(h))"])
+        break
+      }
       let bytesPerRow = w * 4
       var pixelBuffer = [UInt8](repeating: 0, count: h * bytesPerRow)
 
@@ -172,6 +184,7 @@ public class GifToNoteModule: Module {
         space: colorSpace,
         bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
       ) else {
+        NSLog("[GifToNote] CGContext creation failed for size %dx%d at frame %d", w, h, i)
         thrownError = NSError(domain: "GifToNote", code: 3,
                               userInfo: [NSLocalizedDescriptionKey: "CGContext の作成に失敗しました"])
         break
@@ -195,8 +208,8 @@ public class GifToNoteModule: Module {
         gifski_add_frame_rgba(
           handle,
           UInt32(i),
-          outputWidth,
-          outputHeight,
+          UInt32(w),
+          UInt32(h),
           ptr.bindMemory(to: UInt8.self).baseAddress!,
           pts
         )

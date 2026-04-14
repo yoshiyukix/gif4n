@@ -1,5 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView, Switch } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ScrollView,
+  Switch,
+  ActivityIndicator,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +17,10 @@ import { RootStackParamList } from '../navigation/types';
 import { VideoPreview } from '../components/VideoPreview';
 import { TrimSlider } from '../components/TrimSlider';
 import { useTrim } from '../hooks/useTrim';
+import { usePilotEstimation } from '../hooks/usePilotEstimation';
+import { NativeGifService } from '../infrastructure/NativeGifService';
+import { PilotEstimationUseCase } from '../usecases/PilotEstimationUseCase';
+import { useSettings } from '../hooks/useSettings';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Trim'>;
 
@@ -38,6 +51,11 @@ export default function TrimScreen({ route, navigation }: Props) {
   const [seekTo, setSeekTo] = useState<number | undefined>(undefined);
   const [isSeekDragging, setIsSeekDragging] = useState(false);
 
+  const nativeService = useMemo(() => new NativeGifService(), []);
+  const pilotUseCase = useMemo(() => new PilotEstimationUseCase(nativeService), [nativeService]);
+  const { bytesPerSec, isPilotDone } = usePilotEstimation(source, pilotUseCase);
+  const { settings } = useSettings();
+
   async function handleNext() {
     const duration = trimRange.endSec - trimRange.startSec;
     if (duration < MIN_DURATION_SEC) {
@@ -53,7 +71,14 @@ export default function TrimScreen({ route, navigation }: Props) {
     } catch {
       // サムネイル取得失敗時は null のまま遷移
     }
-    navigation.navigate('Converting', { source, trimRange, thumbnailUri });
+    const estimatedStartIndex =
+      bytesPerSec != null
+        ? Math.max(
+            0,
+            pilotUseCase.estimateStartIndex(bytesPerSec, duration, settings.maxSizeMb * 1024 * 1024) - 1,
+          )
+        : undefined;
+    navigation.navigate('Converting', { source, trimRange, thumbnailUri, estimatedStartIndex });
   }
 
   const selectedSec = trimRange.endSec - trimRange.startSec;
@@ -70,8 +95,17 @@ export default function TrimScreen({ route, navigation }: Props) {
           <Ionicons name="chevron-back" size={24} color={BLUE} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Trim Video</Text>
-        <TouchableOpacity onPress={handleNext} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <Text style={styles.headerNext}>Next</Text>
+        <TouchableOpacity
+          onPress={handleNext}
+          disabled={!isPilotDone}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={styles.headerNextButton}
+        >
+          {isPilotDone ? (
+            <Text style={styles.headerNext}>Next</Text>
+          ) : (
+            <ActivityIndicator size="small" color={BLUE} />
+          )}
         </TouchableOpacity>
       </View>
 
@@ -190,6 +224,7 @@ const styles = StyleSheet.create({
   },
   headerBack: { marginRight: 4 },
   headerTitle: { fontSize: 17, fontWeight: '600', color: '#1C1C1E' },
+  headerNextButton: { width: 44, alignItems: 'flex-end', justifyContent: 'center' },
   headerNext: { fontSize: 17, fontWeight: '600', color: BLUE },
 
   // Scroll

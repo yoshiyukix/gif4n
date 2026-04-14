@@ -1,5 +1,12 @@
 import { requireNativeModule } from 'expo-modules-core';
-import { VideoSource, TrimRange, QualityPreset } from '../types';
+import * as FileSystem from 'expo-file-system/legacy';
+import { VideoSource, TrimRange, QualityPreset, QUALITY_PRESETS } from '../types';
+
+/** パイロット変換で各サンプル点をカバーする秒数（後から変更しやすいよう定数化） */
+const PILOT_SAMPLE_DURATION_SEC = 1.0;
+
+/** パイロット変換のサンプル位置（動画全体長に対する相対位置） */
+const PILOT_SAMPLE_POSITIONS = [0.25, 0.5, 0.75] as const;
 
 /** Hermes には DOMException がないため独自定義 */
 export class AbortError extends Error {
@@ -23,6 +30,14 @@ export interface INativeGifService {
     onProgress: (rate: number) => void,
     signal: AbortSignal,
   ): Promise<string>;
+
+  /**
+   * 25%・50%・75% 地点の各 PILOT_SAMPLE_DURATION_SEC 秒を中間品質 preset (480px/10fps) で変換し、
+   * 1 秒あたりのバイト数の平均を返す。
+   * 変換に使用した一時ファイルは内部で削除する。
+   * キャンセル・失敗時は AbortError をスローする。
+   */
+  convertPilot(source: VideoSource, signal: AbortSignal): Promise<number>;
 }
 // ─── ネイティブモジュール型定義 ───────────────────────
 
@@ -105,5 +120,44 @@ export class NativeGifService implements INativeGifService {
       subscription.remove();
       signal.removeEventListener('abort', abortHandler);
     }
+  }
+
+  async convertPilot(source: VideoSource, signal: AbortSignal): Promise<number> {
+    if (source.durationSec <= 0) {
+      return 0;
+    }
+
+    // 中間品質プリセット (480px/10fps) で変換 → 最高品質への外挿倍率が ~2.5倍に縮小し推定精度が向上する
+    const pilotPreset = QUALITY_PRESETS[4]; // { width: 480, fps: 10 }
+    const actualDuration = Math.min(PILOT_SAMPLE_DURATION_SEC, source.durationSec);
+
+    const samples: number[] = [];
+    for (const pos of PILOT_SAMPLE_POSITIONS) {
+      const centerSec = pos * source.durationSec;
+      const startSec = Math.max(0, Math.min(centerSec - actualDuration / 2, source.durationSec - actualDuration));
+      const pilotTrim: TrimRange = { startSec, endSec: startSec + actualDuration };
+
+      const outputUri = await this.convert(source, pilotTrim, pilotPreset, () => {}, signal);
+
+      let sizeBytes = 0;
+      try {
+        const info = await FileSystem.getInfoAsync(outputUri);
+        sizeBytes = info.exists ? (info.size ?? 0) : 0;
+      } catch {
+        sizeBytes = 0;
+      }
+
+      FileSystem.deleteAsync(outputUri, { idempotent: true }).catch(() => {});
+
+      const bytesPerSec = sizeBytes / actualDuration;
+      if (bytesPerSec > 0) {
+        samples.push(bytesPerSec);
+      }
+    }
+
+    if (samples.length === 0) {
+      return 0;
+    }
+    return samples.reduce((sum, v) => sum + v, 0) / samples.length;
   }
 }

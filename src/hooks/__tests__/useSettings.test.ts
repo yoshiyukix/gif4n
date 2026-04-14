@@ -71,4 +71,23 @@ describe('useSettings', () => {
       expect(result.current.settings).toEqual(DEFAULT_SETTINGS);
     });
   });
+
+  it('ロード完了前は isLoaded が false、完了後は true になる', async () => {
+    const { result } = renderHook(() => useSettings());
+
+    await waitFor(() => {
+      expect(result.current.isLoaded).toBe(true);
+    });
+  });
+
+  it('AsyncStorage に値があれば isLoaded が true になった後に反映される', async () => {
+    await AsyncStorage.setItem('@gif_to_note/settings', JSON.stringify({ maxSizeMb: 8 }));
+
+    const { result } = renderHook(() => useSettings());
+
+    await waitFor(() => {
+      expect(result.current.isLoaded).toBe(true);
+      expect(result.current.settings.maxSizeMb).toBe(8);
+    });
+  });
 });

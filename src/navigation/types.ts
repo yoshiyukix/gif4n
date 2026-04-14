@@ -6,7 +6,12 @@ import { VideoSource, TrimRange, QualityPreset } from '../types';
 export type StudioStackParamList = {
   Home: undefined;
   Trim: { source: VideoSource };
-  Converting: { source: VideoSource; trimRange: TrimRange; thumbnailUri: string | null };
+  Converting: {
+    source: VideoSource;
+    trimRange: TrimRange;
+    thumbnailUri: string | null;
+    estimatedStartIndex?: number;
+  };
   Result: { gifUri: string; sizeBytes: number; preset: QualityPreset };
 };
 

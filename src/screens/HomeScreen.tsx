@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as MediaLibrary from 'expo-media-library';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import { RootStackParamList } from '../navigation/types';
-import { VideoSource } from '../types';
+import { VideoImportService, normalizeMediaLibraryUri } from '../infrastructure/VideoImportService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -42,7 +42,7 @@ const VideoTile = memo(({ asset, onPress }: TileProps) => {
     (async () => {
       try {
         const info = await MediaLibrary.getAssetInfoAsync(asset);
-        const localUri = info.localUri ?? asset.uri;
+        const localUri = normalizeMediaLibraryUri(info.localUri ?? asset.uri);
         const { uri } = await VideoThumbnails.getThumbnailAsync(localUri, { time: 0 });
         if (!cancelled) setThumbUri(uri);
       } catch {
@@ -72,6 +72,7 @@ export default function HomeScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const [videos, setVideos] = useState<MediaLibrary.Asset[]>([]);
   const [granted, setGranted] = useState(false);
+  const videoImportService = useMemo(() => new VideoImportService(), []);
 
   useEffect(() => {
     MediaLibrary.requestPermissionsAsync().then((perm) => {
@@ -91,17 +92,10 @@ export default function HomeScreen({ navigation }: Props) {
 
   const onPressVideo = useCallback(
     async (asset: MediaLibrary.Asset) => {
-      const info = await MediaLibrary.getAssetInfoAsync(asset);
-      const source: VideoSource = {
-        uri: info.localUri ?? asset.uri,
-        durationSec: asset.duration,
-        width: asset.width,
-        height: asset.height,
-        fileSizeBytes: 0,
-      };
+      const source = await videoImportService.importAsset(asset);
       navigation.navigate('Trim', { source });
     },
-    [navigation],
+    [navigation, videoImportService],
   );
 
   const renderItem = useCallback(

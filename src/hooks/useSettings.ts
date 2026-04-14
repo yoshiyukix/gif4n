@@ -6,11 +6,13 @@ const STORAGE_KEY = '@gif_to_note/settings';
 
 export interface UseSettingsResult {
   settings: AppSettings;
+  isLoaded: boolean;
   updateSettings: (patch: Partial<AppSettings>) => Promise<void>;
 }
 
 export function useSettings(): UseSettingsResult {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)
@@ -22,6 +24,9 @@ export function useSettings(): UseSettingsResult {
       })
       .catch(() => {
         // 読み込み失敗時はデフォルト値を使用
+      })
+      .finally(() => {
+        setIsLoaded(true);
       });
   }, []);
 
@@ -33,5 +38,5 @@ export function useSettings(): UseSettingsResult {
     });
   }, []);
 
-  return { settings, updateSettings };
+  return { settings, isLoaded, updateSettings };
 }

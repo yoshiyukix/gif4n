@@ -12,7 +12,7 @@ export interface UseConversionOptions {
 
 export interface UseConversionResult {
   job: ConversionJob | null;
-  start: (source: VideoSource, trim: TrimRange) => void;
+  start: (source: VideoSource, trim: TrimRange, startIndexOverride?: number) => void;
   cancel: () => void;
 }
 
@@ -24,7 +24,7 @@ export function useConversion(options: UseConversionOptions): UseConversionResul
   const abortRef = useRef<AbortController | null>(null);
 
   const start = useCallback(
-    (source: VideoSource, trim: TrimRange) => {
+    (source: VideoSource, trim: TrimRange, startIndexOverride?: number) => {
       const abort = new AbortController();
       abortRef.current = abort;
 
@@ -48,6 +48,7 @@ export function useConversion(options: UseConversionOptions): UseConversionResul
           outputSizeResolver,
           (preset) => setJob((prev) => (prev ? { ...prev, preset } : null)),
           maxSizeBytes,
+          startIndexOverride,
         )
         .then((result) => {
           if (result.ok) {

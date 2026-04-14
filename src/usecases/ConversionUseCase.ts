@@ -23,6 +23,7 @@ export interface IConversionUseCase {
     outputSizeResolver: OutputSizeResolver,
     onPresetChange?: (preset: QualityPreset) => void,
     maxSizeBytes?: number,
+    startIndexOverride?: number,
   ): Promise<ConversionResult>;
 }
 
@@ -40,8 +41,10 @@ export class ConversionUseCase implements IConversionUseCase {
     outputSizeResolver: OutputSizeResolver,
     onPresetChange?: (preset: QualityPreset) => void,
     maxSizeBytes: number = DEFAULT_MAX_SIZE_BYTES,
+    startIndexOverride?: number,
   ): Promise<ConversionResult> {
-    const startIndex = this.estimator.estimateStartIndex(source, trim);
+    const startIndex =
+      startIndexOverride ?? this.estimator.estimateStartIndex(source, trim, maxSizeBytes);
 
     for (let i = startIndex; i < QUALITY_PRESETS.length; i++) {
       if (signal.aborted) {

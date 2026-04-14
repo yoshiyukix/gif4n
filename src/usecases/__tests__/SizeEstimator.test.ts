@@ -80,6 +80,30 @@ describe('SizeEstimator', () => {
       expect(Number.isInteger(idx)).toBe(true);
     });
 
+    it('maxSizeBytes=5MB を指定すると 10MB 基準より高いインデックスを返す', () => {
+      // 10MB 基準では index 0 が返るが、5MB 基準では index > 0 になる動画長を選ぶ
+      // 推定: 620 * (620*(720/1280)) * 15 * 60 * 0.010 ≒ 19MB > 10MB → 10MB でも 0 より大
+      // 推定: 620 * (620*(720/1280)) * 15 * 5 * 0.010 ≒ 1.6MB
+      //   5MB なら idx_5mb === idx_10mb — なので、5MB 超えになる秒数を選ぶ
+      // 620 * 348.75 * 15 * D * 0.010 = 32390.625 * D
+      // 32390.625 * D <= 5MB=5,242,880 → D <= 161.8 sec
+      // 32390.625 * D <= 10MB=10,485,760 → D <= 323.7 sec
+      // D = 200 で: 5MB超 10MB以下
+      const source = makeSource({ durationSec: 200, width: 1280, height: 720 });
+      const trim = makeTrim(0, 200);
+      const idx10mb = estimator.estimateStartIndex(source, trim);
+      const idx5mb = estimator.estimateStartIndex(source, trim, 5 * 1024 * 1024);
+      expect(idx5mb).toBeGreaterThan(idx10mb);
+    });
+
+    it('maxSizeBytes を省略すると 10MB がデフォルト閾値になる', () => {
+      const source = makeSource({ durationSec: 200, width: 1280, height: 720 });
+      const trim = makeTrim(0, 200);
+      const idxDefault = estimator.estimateStartIndex(source, trim);
+      const idx10mb = estimator.estimateStartIndex(source, trim, 10 * 1024 * 1024);
+      expect(idxDefault).toBe(idx10mb);
+    });
+
     it('出力幅は動画アスペクト比を保持して preset の幅にスケールする', () => {
       // 正方形動画と横長動画でインデックスが変わることを確認
       const squareSource = makeSource({
