@@ -26,13 +26,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Trim'>;
 const BLUE = '#1758F0';
 const MIN_DURATION_SEC = 0.5;
 
-const SPEED_OPTIONS: { label: string; sublabel: string; value: number }[] = [
-  { label: '0.5x', sublabel: 'SLOW', value: 0.5 },
-  { label: '1.0x', sublabel: 'NORMAL', value: 1.0 },
-  { label: '1.5x', sublabel: 'FAST', value: 1.5 },
-  { label: '2.0x', sublabel: 'DOUBLE', value: 2.0 },
-];
-
 function formatSelected(sec: number): string {
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
@@ -43,7 +36,6 @@ export default function TrimScreen({ route, navigation }: Props) {
   const { source } = route.params;
   const insets = useSafeAreaInsets();
   const { trimRange, setStart, setEnd } = useTrim(source.durationSec || 60);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [currentTimeSec, setCurrentTimeSec] = useState(0);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const [seekTo, setSeekTo] = useState<number | undefined>(undefined);
@@ -117,7 +109,7 @@ export default function TrimScreen({ route, navigation }: Props) {
           <VideoPreview
             uri={source.uri}
             trimRange={trimRange}
-            playbackSpeed={playbackSpeed}
+            playbackSpeed={1}
             loop={true}
             onTimeUpdate={setCurrentTimeSec}
             seekTo={seekTo}
@@ -156,31 +148,6 @@ export default function TrimScreen({ route, navigation }: Props) {
               setIsSeekDragging(false);
             }}
           />
-        </View>
-
-        {/* ─── 再生速度セクション ─── */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitleStandalone}>再生速度</Text>
-          <View style={styles.speedRow}>
-            {SPEED_OPTIONS.map((opt) => {
-              const active = playbackSpeed === opt.value;
-              return (
-                <TouchableOpacity
-                  key={opt.value}
-                  style={[styles.speedButton, active && styles.speedButtonActive]}
-                  onPress={() => setPlaybackSpeed(opt.value)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[styles.speedLabel, active && styles.speedLabelActive]}>
-                    {opt.label}
-                  </Text>
-                  <Text style={[styles.speedSublabel, active && styles.speedSublabelActive]}>
-                    {opt.sublabel}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
         </View>
 
         <View style={{ height: 16 }} />
@@ -238,13 +205,6 @@ const styles = StyleSheet.create({
     color: '#1C1C1E',
     marginBottom: 2,
   },
-  sectionTitleStandalone: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#1C1C1E',
-    paddingHorizontal: 16,
-    marginBottom: 12,
-  },
   sectionSubtitle: {
     fontSize: 13,
     color: '#8E8E93',
@@ -254,25 +214,5 @@ const styles = StyleSheet.create({
   selectedBadge: { alignItems: 'flex-end' },
   selectedText: { fontSize: 22, fontWeight: '700', color: BLUE },
   selectedLabel: { fontSize: 13, fontWeight: '600', color: BLUE },
-
-  // Speed
-  speedRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 12,
-    gap: 8,
-  },
-  speedButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 12,
-    backgroundColor: '#F2F2F7',
-  },
-  speedButtonActive: { backgroundColor: BLUE },
-  speedLabel: { fontSize: 16, fontWeight: '700', color: '#1C1C1E' },
-  speedLabelActive: { color: '#fff' },
-  speedSublabel: { fontSize: 10, fontWeight: '600', color: '#8E8E93', marginTop: 2 },
-  speedSublabelActive: { color: 'rgba(255,255,255,0.8)' },
 
 });
