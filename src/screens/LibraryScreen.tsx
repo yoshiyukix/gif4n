@@ -110,12 +110,7 @@ export default function LibraryScreen({ navigation }: Props) {
 
       {/* ─── Header ─────────────────── */}
       <View style={styles.header}>
-        <View style={styles.logo}>
-          {[0, 1, 2, 3].map((i) => (
-            <View key={i} style={styles.logoDot} />
-          ))}
-        </View>
-        <Text style={styles.appName}>Library</Text>
+        <Text style={styles.headerTitle}>Library</Text>
       </View>
 
       {/* ─── GIF Grid ───────────────── */}
@@ -172,11 +167,11 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: colors.primary,
   },
-  appName: {
-    fontSize: 22,
+  headerTitle: {
+    fontSize: 28,
     fontWeight: '700',
     color: '#1C1C1E',
-    letterSpacing: -0.3,
+    letterSpacing: 0.5,
   },
 
   // Grid
