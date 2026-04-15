@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -42,33 +42,12 @@ function isFocusedRouteHidden(state: BottomTabBarProps['state']): boolean {
 export function AppTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const activeIndex = state.index;
-  const animatedLeft = useRef(new Animated.Value(0)).current;
-  const [barWidth, setBarWidth] = useState(0);
-
-  useEffect(() => {
-    if (barWidth === 0) return;
-    const tabWidth = barWidth / TABS.length;
-    Animated.spring(animatedLeft, {
-      toValue: activeIndex * tabWidth,
-      useNativeDriver: false,
-      tension: 300,
-      friction: 30,
-    }).start();
-  }, [activeIndex, barWidth]);
 
   if (isFocusedRouteHidden(state)) return null;
 
-  const tabWidth = barWidth > 0 ? barWidth / TABS.length : 0;
-
   return (
     <>
-      <View style={styles.tabBar} onLayout={(e) => setBarWidth(e.nativeEvent.layout.width)}>
-        {barWidth > 0 && (
-          <Animated.View
-            pointerEvents="none"
-            style={[styles.cursor, { left: animatedLeft, width: tabWidth }]}
-          />
-        )}
+      <View style={styles.tabBar}>
         {TABS.map((tab, index) => {
           const isFocused = activeIndex === index;
           return (
@@ -81,7 +60,7 @@ export function AppTabBar({ state, navigation }: BottomTabBarProps) {
               <Ionicons
                 name={isFocused ? tab.icon : tab.iconOutline}
                 size={20}
-                color={isFocused ? '#fff' : '#8E8E93'}
+                color={isFocused ? BLUE : '#8E8E93'}
               />
               <Text style={[styles.tabLabel, isFocused && styles.tabLabelActive]}>{tab.label}</Text>
             </TouchableOpacity>
@@ -102,13 +81,6 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#E5E5EA',
   },
-  cursor: {
-    position: 'absolute',
-    top: 12,
-    bottom: 12,
-    borderRadius: 30,
-    backgroundColor: BLUE,
-  },
   tabItem: {
     flex: 1,
     alignItems: 'center',
@@ -123,7 +95,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   tabLabelActive: {
-    color: '#fff',
+    color: BLUE,
   },
   safeArea: {
     backgroundColor: '#fff',
