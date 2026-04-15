@@ -42,30 +42,24 @@ const VideoTile = memo(({ asset, onPress }: TileProps) => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      let tempUri: string | null = null;
+      const info = await MediaLibrary.getAssetInfoAsync(asset);
+      const localUri = normalizeMediaLibraryUri(info.localUri ?? '');
+      if (!localUri) {
+        console.warn('[VideoTile] no localUri', asset.uri);
+        return;
+      }
+      const ext = localUri.split('.').pop() ?? 'mov';
+      const safeId = asset.id.replace(/\//g, '_');
+      const tempUri = `${FileSystem.cacheDirectory}thumb-${safeId}.${ext}`;
       try {
-        const info = await MediaLibrary.getAssetInfoAsync(asset);
-        let localUri = normalizeMediaLibraryUri(info.localUri ?? '');
-        if (!localUri) {
-          console.warn('[VideoTile] no localUri', asset.uri);
-          return;
-        }
-        // PhotoData/CPLAssets はアプリから直接読めないのでキャッシュへコピー
-        if (localUri.includes('/PhotoData/')) {
-          const ext = localUri.split('.').pop() ?? 'MOV';
-          const safeId = asset.id.replace(/\//g, '_');
-          tempUri = `${FileSystem.cacheDirectory}thumb-${safeId}.${ext}`;
-          await FileSystem.copyAsync({ from: localUri, to: tempUri });
-          localUri = tempUri;
-        }
-        const { uri } = await VideoThumbnails.getThumbnailAsync(localUri, { time: 0 });
+        // 権限エラーを避けるため、アクセス元に関わらず必ずキャッシュへコピーしてから生成
+        await FileSystem.copyAsync({ from: localUri, to: tempUri });
+        const { uri } = await VideoThumbnails.getThumbnailAsync(tempUri, { time: 0 });
         if (!cancelled) setThumbUri(uri);
       } catch (e) {
         console.warn('[VideoTile] thumbnail failed', asset.uri, e);
       } finally {
-        if (tempUri) {
-          FileSystem.deleteAsync(tempUri, { idempotent: true }).catch(() => {});
-        }
+        FileSystem.deleteAsync(tempUri, { idempotent: true }).catch(() => {});
       }
     })();
     return () => {

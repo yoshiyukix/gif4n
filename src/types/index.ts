@@ -105,7 +105,7 @@ export interface ConversionJob {
 /** アプリ設定 */
 export interface AppSettings {
   /** GIF 変換の最大ファイルサイズ（MB） */
-  maxSizeMb: 5 | 7 | 10;
+  maxSizeMb: 6 | 8 | 10;
 }
 
 /** アプリ設定のデフォルト値 */
