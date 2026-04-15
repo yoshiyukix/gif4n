@@ -12,8 +12,8 @@ type Props = NativeStackScreenProps<SettingsStackParamList, 'SettingsMain'>;
 const APP_VERSION = '1.0.0';
 
 const MAX_SIZE_OPTIONS: { label: string; value: AppSettings['maxSizeMb'] }[] = [
-  { label: '5 MB', value: 5 },
-  { label: '7 MB', value: 7 },
+  { label: '6 MB', value: 6 },
+  { label: '8 MB', value: 8 },
   { label: '10 MB', value: 10 },
 ];
 
