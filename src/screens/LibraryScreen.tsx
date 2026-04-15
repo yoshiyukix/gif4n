@@ -19,7 +19,7 @@ type Props = NativeStackScreenProps<LibraryStackParamList, 'LibraryList'>;
 
 const NUM_COLS = 3;
 const GAP = 3;
-const BLUE = '#1758F0';
+import { colors } from '../theme';
 
 function fmtDate(ms: number): string {
   const d = new Date(ms);
@@ -115,7 +115,7 @@ export default function LibraryScreen({ navigation }: Props) {
             <View key={i} style={styles.logoDot} />
           ))}
         </View>
-        <Text style={styles.appName}>GIF to Note</Text>
+        <Text style={styles.appName}>Library</Text>
       </View>
 
       {/* ─── GIF Grid ───────────────── */}
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     width: 11,
     height: 11,
     borderRadius: 2,
-    backgroundColor: BLUE,
+    backgroundColor: colors.primary,
   },
   appName: {
     fontSize: 22,

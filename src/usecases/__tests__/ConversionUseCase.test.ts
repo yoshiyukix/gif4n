@@ -190,7 +190,7 @@ describe('ConversionUseCase', () => {
       }
     });
 
-    it('全 9 preset でも 10MB 超なら too_large を返す', async () => {
+    it('全 6 preset でも 10MB 超なら too_large を返す', async () => {
       const mock = makeNativeMock(MAX_SIZE + 1); // 常に 10MB 超
       const useCase = new ConversionUseCase(mock, new SizeEstimator());
       const controller = new AbortController();
@@ -207,7 +207,7 @@ describe('ConversionUseCase', () => {
       if (!result.ok) {
         expect(result.reason).toBe('too_large');
       }
-      expect(mock.convert).toHaveBeenCalledTimes(9);
+      expect(mock.convert).toHaveBeenCalledTimes(6);
     });
   });
 

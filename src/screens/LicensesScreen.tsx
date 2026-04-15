@@ -13,6 +13,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { SettingsStackParamList } from '../navigation/types';
 import licensesData from '../assets/licenses.json';
+import { colors } from '../theme';
 
 type LicenseEntry = {
   name: string;
@@ -30,7 +31,7 @@ export default function LicensesScreen({ navigation }: Props) {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="#1758F0" />
+          <Ionicons name="chevron-back" size={24} color={colors.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>オープンソースライセンス</Text>
         <View style={styles.backButton} />
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
   },
   licenseTag: {
     fontSize: 12,
-    color: '#1758F0',
+    color: colors.primary,
     fontWeight: '600',
   },
   modalSafeArea: {

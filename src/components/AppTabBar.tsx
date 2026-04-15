@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const BLUE = '#1758F0';
+import { colors } from '../theme';
 
 // Converting 画面ではタブバーを非表示にする
 const HIDDEN_ROUTES = new Set(['Converting']);
@@ -60,7 +60,7 @@ export function AppTabBar({ state, navigation }: BottomTabBarProps) {
               <Ionicons
                 name={isFocused ? tab.icon : tab.iconOutline}
                 size={20}
-                color={isFocused ? BLUE : '#8E8E93'}
+                color={isFocused ? colors.primary : '#8E8E93'}
               />
               <Text style={[styles.tabLabel, isFocused && styles.tabLabelActive]}>{tab.label}</Text>
             </TouchableOpacity>
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   tabLabelActive: {
-    color: BLUE,
+    color: colors.primary,
   },
   safeArea: {
     backgroundColor: '#fff',

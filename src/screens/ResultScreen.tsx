@@ -21,7 +21,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Result'>;
 
 const media = new MediaService();
 
-const BLUE = '#1758F0';
+import { colors } from '../theme';
 const GREEN = '#34C759';
 
 type ToastState = { type: 'success' | 'error'; message: string };
@@ -39,7 +39,7 @@ export default function ResultScreen({ route, navigation }: Props) {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity onPress={() => navigation.pop(1)} hitSlop={8}>
-          <Ionicons name="chevron-back" size={28} color={BLUE} />
+          <Ionicons name="chevron-back" size={28} color={colors.primary} />
         </TouchableOpacity>
       ),
     });
@@ -177,12 +177,12 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: BLUE,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
     // 薄い背景リング
-    shadowColor: BLUE,
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   gifPreview: {
     width: '100%',
     aspectRatio: undefined,
-    height: 280,
+    height: 400,
     backgroundColor: '#1C1C1E',
   },
   previewBadge: {
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   savePill: {
-    backgroundColor: BLUE,
+    backgroundColor: colors.primary,
   },
   sharePill: {
     backgroundColor: GREEN,

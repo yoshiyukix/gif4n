@@ -160,10 +160,8 @@ export function VideoPreview({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    aspectRatio: 16 / 9,
-    backgroundColor: '#000',
-    borderRadius: 12,
-    overflow: 'hidden',
+    aspectRatio: 1 / 1,
+    backgroundColor: '#191919',
   },
   video: { flex: 1 },
   playButton: {

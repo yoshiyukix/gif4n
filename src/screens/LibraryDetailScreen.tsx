@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   gifPreview: {
     width: '100%',
     aspectRatio: undefined,
-    height: 280,
+    height: 400,
     backgroundColor: '#1C1C1E',
   },
   previewBadge: {

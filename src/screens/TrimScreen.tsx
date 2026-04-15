@@ -23,7 +23,7 @@ import { useSettings } from '../hooks/useSettings';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Trim'>;
 
-const BLUE = '#1758F0';
+import { colors } from '../theme';
 const MIN_DURATION_SEC = 0.5;
 
 function formatSelected(sec: number): string {
@@ -65,7 +65,11 @@ export default function TrimScreen({ route, navigation }: Props) {
       bytesPerSec != null
         ? Math.max(
             0,
-            pilotUseCase.estimateStartIndex(bytesPerSec, duration, settings.maxSizeMb * 1024 * 1024) - 1,
+            pilotUseCase.estimateStartIndex(
+              bytesPerSec,
+              duration,
+              settings.maxSizeMb * 1024 * 1024,
+            ) - 1,
           )
         : undefined;
     navigation.navigate('Converting', { source, trimRange, thumbnailUri, estimatedStartIndex });
@@ -82,7 +86,7 @@ export default function TrimScreen({ route, navigation }: Props) {
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           style={styles.headerBack}
         >
-          <Ionicons name="chevron-back" size={24} color={BLUE} />
+          <Ionicons name="chevron-back" size={24} color={colors.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Trim Video</Text>
         <TouchableOpacity
@@ -94,7 +98,7 @@ export default function TrimScreen({ route, navigation }: Props) {
           {isPilotDone ? (
             <Text style={styles.headerNext}>Next</Text>
           ) : (
-            <ActivityIndicator size="small" color={BLUE} />
+            <ActivityIndicator size="small" color={colors.primary} />
           )}
         </TouchableOpacity>
       </View>
@@ -122,7 +126,7 @@ export default function TrimScreen({ route, navigation }: Props) {
           <View style={styles.sectionHeader}>
             <View>
               <Text style={styles.sectionTitle}>トリミング</Text>
-              <Text style={styles.sectionSubtitle}>動画の必要な範囲を選択してください</Text>
+              <Text style={styles.sectionSubtitle}>必要な範囲を選択してください</Text>
             </View>
             <View style={styles.selectedBadge}>
               <Text style={styles.selectedText}>{formatSelected(selectedSec)}</Text>
@@ -173,15 +177,13 @@ const styles = StyleSheet.create({
   headerBack: { marginRight: 4 },
   headerTitle: { fontSize: 17, fontWeight: '600', color: '#1C1C1E' },
   headerNextButton: { width: 44, alignItems: 'flex-end', justifyContent: 'center' },
-  headerNext: { fontSize: 17, fontWeight: '600', color: BLUE },
+  headerNext: { fontSize: 17, fontWeight: '600', color: colors.primary },
 
   // Scroll
   scrollContent: { paddingBottom: 8 },
 
   // Video
-  videoWrapper: {
-    margin: 16,
-  },
+  videoWrapper: {},
 
   // Section
   section: {
@@ -212,7 +214,6 @@ const styles = StyleSheet.create({
     maxWidth: 180,
   },
   selectedBadge: { alignItems: 'flex-end' },
-  selectedText: { fontSize: 22, fontWeight: '700', color: BLUE },
-  selectedLabel: { fontSize: 13, fontWeight: '600', color: BLUE },
-
+  selectedText: { fontSize: 22, fontWeight: '700', color: colors.primary },
+  selectedLabel: { fontSize: 13, fontWeight: '600', color: colors.primary },
 });

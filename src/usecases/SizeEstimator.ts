@@ -8,7 +8,7 @@ export interface ISizeEstimator {
    * 変換前に GIF サイズを近似推定し、最初に試すべき preset インデックスを返す。
    * 推定式: outputWidth × outputHeight × fps × durationSec × 係数(0.010)
    * @param maxSizeBytes 許容最大サイズ（バイト）。省略時は 10MB。
-   * @returns 0〜8 のインデックス（QUALITY_PRESETS の添字）
+   * @returns 0〜5 のインデックス（QUALITY_PRESETS の添字）
    */
   estimateStartIndex(source: VideoSource, trim: TrimRange, maxSizeBytes?: number): number;
 }
@@ -36,7 +36,7 @@ export class SizeEstimator implements ISizeEstimator {
         return i;
       }
     }
-    // 全 preset で超過 → 最低品質（インデックス 8）で挑む
+    // 全 preset で超過 → 最低品質（インデックス 5）で挑む
     return QUALITY_PRESETS.length - 1;
   }
 }

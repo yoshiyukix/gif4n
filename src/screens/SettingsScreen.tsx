@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SettingsStackParamList } from '../navigation/types';
 import { useSettings } from '../hooks/useSettings';
 import { AppSettings } from '../types';
+import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'SettingsMain'>;
 
@@ -31,7 +32,7 @@ export default function SettingsScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>SETTINGS</Text>
+        <Text style={styles.headerTitle}>Settings</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   segmentItemActive: {
-    backgroundColor: '#1758F0',
+    backgroundColor: colors.primary,
   },
   segmentText: {
     fontSize: 14,

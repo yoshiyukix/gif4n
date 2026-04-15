@@ -163,15 +163,33 @@ describe('NativeGifService', () => {
       expect(mockNativeModule.convertToGif).toHaveBeenCalledTimes(3);
       expect(mockNativeModule.convertToGif).toHaveBeenNthCalledWith(
         1,
-        expect.objectContaining({ uri: source.uri, startSec: 0.75, endSec: 1.75, outputWidth: 480, fps: 10 }),
+        expect.objectContaining({
+          uri: source.uri,
+          startSec: 0.75,
+          endSec: 1.75,
+          outputWidth: 480,
+          fps: 10,
+        }),
       );
       expect(mockNativeModule.convertToGif).toHaveBeenNthCalledWith(
         2,
-        expect.objectContaining({ uri: source.uri, startSec: 2.0, endSec: 3.0, outputWidth: 480, fps: 10 }),
+        expect.objectContaining({
+          uri: source.uri,
+          startSec: 2.0,
+          endSec: 3.0,
+          outputWidth: 480,
+          fps: 10,
+        }),
       );
       expect(mockNativeModule.convertToGif).toHaveBeenNthCalledWith(
         3,
-        expect.objectContaining({ uri: source.uri, startSec: 3.25, endSec: 4.25, outputWidth: 480, fps: 10 }),
+        expect.objectContaining({
+          uri: source.uri,
+          startSec: 3.25,
+          endSec: 4.25,
+          outputWidth: 480,
+          fps: 10,
+        }),
       );
     });
 

@@ -37,27 +37,24 @@ export interface QualityPreset {
   /** 出力幅（px） */
   width: 320 | 480 | 620;
   /** フレームレート */
-  fps: 5 | 10 | 15;
+  fps: 10 | 15;
 }
 
 /**
  * F-022 品質試行順位（優先度の高い順）
- * 1位: 620px/15fps → 9位: 320px/5fps
+ * 1位: 620px/15fps → 6位: 320px/10fps
  */
 export const QUALITY_PRESETS: QualityPreset[] = [
   { width: 620, fps: 15 },
   { width: 620, fps: 10 },
   { width: 480, fps: 15 },
-  { width: 620, fps: 5 },
   { width: 480, fps: 10 },
   { width: 320, fps: 15 },
-  { width: 480, fps: 5 },
   { width: 320, fps: 10 },
-  { width: 320, fps: 5 },
 ];
 
 /** パイロット変換に使用するプリセットのインデックス（中間品質 480px/10fps）*/
-export const PILOT_PRESET_INDEX = 4 as const;
+export const PILOT_PRESET_INDEX = 3 as const;
 
 // ────────────────────────────────────────────────
 // ConversionStatus

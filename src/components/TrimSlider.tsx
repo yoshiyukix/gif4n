@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, PanResponder, Image, LayoutChangeEvent } from 'react-native';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import { TrimRange } from '../types';
-
-const BLUE = '#1758F0';
+import { MAX_TRIM_DURATION_SEC } from '../hooks/useTrim';
+import { colors } from '../theme';
 const HANDLE_W = 28;
 const THUMB_COUNT = 8;
 
@@ -50,6 +50,7 @@ export function TrimSlider({
   const localStartRef = useRef(trimRange.startSec);
   const localEndRef = useRef(trimRange.endSec);
   const durationRef = useRef(durationSec);
+  const maxTrimDurationRef = useRef(MAX_TRIM_DURATION_SEC);
   const onStartChangeRef = useRef(onStartChange);
   const onEndChangeRef = useRef(onEndChange);
   const onDragStartRef = useRef(onDragStart);
@@ -157,9 +158,16 @@ export function TrimSlider({
         );
         localStartRef.current = newSec;
         setLocalStart(newSec);
+        // 15秒制限: 右ハンドルを連動して縮める
+        if (localEndRef.current - newSec > maxTrimDurationRef.current) {
+          const newEnd = Math.min(dur, newSec + maxTrimDurationRef.current);
+          localEndRef.current = newEnd;
+          setLocalEnd(newEnd);
+        }
       },
       onPanResponderRelease: () => {
         onStartChangeRef.current(localStartRef.current);
+        onEndChangeRef.current(localEndRef.current);
         onDragEndRef.current?.();
       },
     }),
@@ -185,8 +193,15 @@ export function TrimSlider({
         );
         localEndRef.current = newSec;
         setLocalEnd(newSec);
+        // 15秒制限: 左ハンドルを連動して縮める
+        if (newSec - localStartRef.current > maxTrimDurationRef.current) {
+          const newStart = Math.max(0, newSec - maxTrimDurationRef.current);
+          localStartRef.current = newStart;
+          setLocalStart(newStart);
+        }
       },
       onPanResponderRelease: () => {
+        onStartChangeRef.current(localStartRef.current);
         onEndChangeRef.current(localEndRef.current);
         onDragEndRef.current?.();
       },
@@ -356,7 +371,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     borderWidth: 2.5,
-    borderColor: BLUE,
+    borderColor: colors.primary,
     borderRadius: 4,
   },
   playheadLine: {
@@ -390,7 +405,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: HANDLE_W,
-    backgroundColor: BLUE,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,

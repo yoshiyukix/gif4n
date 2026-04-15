@@ -14,16 +14,16 @@ describe('types/index', () => {
   // ────────────────────────────────────────────────
 
   describe('QUALITY_PRESETS', () => {
-    it('9 段階の品質設定が定義されている', () => {
-      expect(QUALITY_PRESETS).toHaveLength(9);
+    it('6 段階の品質設定が定義されている', () => {
+      expect(QUALITY_PRESETS).toHaveLength(6);
     });
 
     it('最高品質は 620px / 15fps', () => {
       expect(QUALITY_PRESETS[0]).toEqual({ width: 620, fps: 15 });
     });
 
-    it('最低品質は 320px / 5fps', () => {
-      expect(QUALITY_PRESETS[8]).toEqual({ width: 320, fps: 5 });
+    it('最低品質は 320px / 10fps', () => {
+      expect(QUALITY_PRESETS[5]).toEqual({ width: 320, fps: 10 });
     });
 
     it('F-022 の優先順位どおりに並んでいる', () => {
@@ -31,12 +31,9 @@ describe('types/index', () => {
         { width: 620, fps: 15 },
         { width: 620, fps: 10 },
         { width: 480, fps: 15 },
-        { width: 620, fps: 5 },
         { width: 480, fps: 10 },
         { width: 320, fps: 15 },
-        { width: 480, fps: 5 },
         { width: 320, fps: 10 },
-        { width: 320, fps: 5 },
       ];
       expect(QUALITY_PRESETS).toEqual(expected);
     });
@@ -48,8 +45,8 @@ describe('types/index', () => {
       });
     });
 
-    it('各 preset の fps は 5 | 10 | 15 のいずれか', () => {
-      const validFps = [5, 10, 15];
+    it('各 preset の fps は 10 | 15 のいずれか', () => {
+      const validFps = [10, 15];
       QUALITY_PRESETS.forEach((p) => {
         expect(validFps).toContain(p.fps);
       });
@@ -154,13 +151,7 @@ describe('types/index', () => {
 
   describe('ConversionStatus', () => {
     it('すべての有効ステータスを受け入れる', () => {
-      const statuses: ConversionStatus[] = [
-        'idle',
-        'running',
-        'done',
-        'cancelled',
-        'error',
-      ];
+      const statuses: ConversionStatus[] = ['idle', 'running', 'done', 'cancelled', 'error'];
       expect(statuses).toHaveLength(5);
     });
   });

@@ -1,6 +1,12 @@
 import { requireNativeModule } from 'expo-modules-core';
 import * as FileSystem from 'expo-file-system/legacy';
-import { VideoSource, TrimRange, QualityPreset, QUALITY_PRESETS, PILOT_PRESET_INDEX } from '../types';
+import {
+  VideoSource,
+  TrimRange,
+  QualityPreset,
+  QUALITY_PRESETS,
+  PILOT_PRESET_INDEX,
+} from '../types';
 
 /** パイロット変換で各サンプル点をカバーする秒数（後から変更しやすいよう定数化） */
 const PILOT_SAMPLE_DURATION_SEC = 1.0;
@@ -134,7 +140,10 @@ export class NativeGifService implements INativeGifService {
     const samples: number[] = [];
     for (const pos of PILOT_SAMPLE_POSITIONS) {
       const centerSec = pos * source.durationSec;
-      const startSec = Math.max(0, Math.min(centerSec - actualDuration / 2, source.durationSec - actualDuration));
+      const startSec = Math.max(
+        0,
+        Math.min(centerSec - actualDuration / 2, source.durationSec - actualDuration),
+      );
       const pilotTrim: TrimRange = { startSec, endSec: startSec + actualDuration };
 
       const outputUri = await this.convert(source, pilotTrim, pilotPreset, () => {}, signal);

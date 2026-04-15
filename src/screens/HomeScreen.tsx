@@ -22,7 +22,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 const NUM_COLS = 3;
 const GAP = 3;
-const BLUE = '#1758F0';
+import { colors } from '../theme';
 
 function fmtDuration(sec: number): string {
   const m = Math.floor(sec / 60);
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     width: 11,
     height: 11,
     borderRadius: 2,
-    backgroundColor: BLUE,
+    backgroundColor: colors.primary,
   },
   appName: {
     fontSize: 22,

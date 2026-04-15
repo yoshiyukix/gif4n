@@ -47,16 +47,16 @@ describe('SizeEstimator', () => {
 
     it('全 preset で超過する場合はインデックス 8 を返す', () => {
       // 係数 0.010 で 320*240*5 * 10 = 38MB >> 10MB になるような超長動画
-      // 320 * 240 * 5 * durationSec * 0.010 <= 10MB → durationSec <= 2604 sec
+      // 320 * 240 * 10 * durationSec * 0.010 <= 10MB → durationSec <= 1302 sec
       // 係数が 0.010 の場合、実際には非常に長い動画が必要
       // 代わりに estimateBytes をモックせずに境界値を見つける
-      // 320 * 240 * 5 * D * 0.010 = 384000 * D * 0.010 = 3840 * D
-      // 3840 * D <= 10_000_000 → D <= 2604
-      // よって D = 3000 秒なら必ず 8 を返す
-      const source = makeSource({ durationSec: 3000, width: 320, height: 240 });
-      const trim = makeTrim(0, 3000);
+      // 320 * 240 * 10 * D * 0.010 = 768000 * D * 0.010 = 7680 * D
+      // 7680 * D <= 10_000_000 → D <= 1302
+      // よって D = 2000 秒なら必ず 5（最低品質インデックス）を返す
+      const source = makeSource({ durationSec: 2000, width: 320, height: 240 });
+      const trim = makeTrim(0, 2000);
       const idx = estimator.estimateStartIndex(source, trim);
-      expect(idx).toBe(8);
+      expect(idx).toBe(5);
     });
 
     it('トリミング範囲の長さで推定する（元動画の durationSec ではなく）', () => {
