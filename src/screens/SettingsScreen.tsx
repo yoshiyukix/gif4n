@@ -7,10 +7,11 @@ import { SettingsStackParamList } from '../navigation/types';
 import { useSettings } from '../hooks/useSettings';
 import { AppSettings } from '../types';
 import { colors } from '../theme';
+import { version } from '../../package.json';
 
 type Props = NativeStackScreenProps<SettingsStackParamList, 'SettingsMain'>;
 
-const APP_VERSION = '1.0.0';
+const APP_VERSION = version;
 
 const MAX_SIZE_OPTIONS: { label: string; value: AppSettings['maxSizeMb'] }[] = [
   { label: '6 MB', value: 6 },

@@ -94,13 +94,13 @@ describe('PilotEstimationUseCase', () => {
       expect(idx).toBeGreaterThan(0);
     });
 
-    it('全プリセット超過の場合はインデックス 8（最低品質）を返す', () => {
+    it('全プリセット超過の場合は最低品質インデックスを返す', () => {
       // 極端に大きい bytes/sec と長い duration
       const idx = useCase.estimateStartIndex(10_000_000, 1000, 10 * 1024 * 1024);
       expect(idx).toBe(QUALITY_PRESETS.length - 1);
     });
 
-    it('返り値は 0 以上 8 以下の整数', () => {
+    it('返り値は 0 以上 5 以下の整数', () => {
       const idx = useCase.estimateStartIndex(100_000, 10, 10 * 1024 * 1024);
       expect(idx).toBeGreaterThanOrEqual(0);
       expect(idx).toBeLessThanOrEqual(QUALITY_PRESETS.length - 1);

@@ -21,7 +21,7 @@ function getFile(): File {
 export async function addGifEntry(entry: LibraryGifEntry): Promise<void> {
   const existing = await getGifEntries();
   const updated = [entry, ...existing];
-  getFile().write(JSON.stringify(updated));
+  await getFile().write(JSON.stringify(updated));
 }
 
 export async function getGifEntries(): Promise<LibraryGifEntry[]> {
@@ -29,7 +29,16 @@ export async function getGifEntries(): Promise<LibraryGifEntry[]> {
   if (!file.exists) return [];
   try {
     const content = await file.text();
-    return JSON.parse(content) as LibraryGifEntry[];
+    const raw: unknown = JSON.parse(content);
+    if (!Array.isArray(raw)) return [];
+    return raw.filter(
+      (e): e is LibraryGifEntry =>
+        typeof e === 'object' &&
+        e !== null &&
+        typeof (e as LibraryGifEntry).assetId === 'string' &&
+        typeof (e as LibraryGifEntry).sizeBytes === 'number' &&
+        typeof (e as LibraryGifEntry).createdAt === 'number',
+    );
   } catch {
     return [];
   }

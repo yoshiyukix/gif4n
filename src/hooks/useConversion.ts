@@ -67,7 +67,14 @@ export function useConversion(options: UseConversionOptions): UseConversionResul
             setJob((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
           } else {
             setJob((prev) =>
-              prev ? { ...prev, status: 'error', errorMessage: result.message } : null,
+              prev
+                ? {
+                    ...prev,
+                    status: 'error',
+                    errorMessage: result.message,
+                    errorReason: result.reason as 'too_large' | 'native_error',
+                  }
+                : null,
             );
           }
         })

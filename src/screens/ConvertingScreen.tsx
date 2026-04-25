@@ -25,7 +25,7 @@ export default function ConvertingScreen({ route, navigation }: Props) {
   const {
     source,
     trimRange,
-    thumbnailUri: initialThumbnailUri,
+    thumbnailUri,
     estimatedStartIndex,
   } = route.params;
 
@@ -43,13 +43,14 @@ export default function ConvertingScreen({ route, navigation }: Props) {
   });
   const started = useRef(false);
 
-  const thumbnailUri = initialThumbnailUri;
-
   useEffect(() => {
     if (!isLoaded) return;
     if (started.current) return;
     started.current = true;
     start(source, trimRange, estimatedStartIndex);
+    // isLoaded が true になった瞬間に 1 回だけ変換を開始するため意図的に依存配列を省略している。
+    // started.current ref によって二重起動を防いでおり、ConvertingScreen は画面遷移時に
+    // route.params が固定されるため source/trimRange/estimatedStartIndex の変化は発生しない。
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded]);
 
@@ -69,11 +70,14 @@ export default function ConvertingScreen({ route, navigation }: Props) {
     }
     if (job?.status === 'error' && !errorShown) {
       setErrorShown(true);
-      Alert.alert('変換エラー', job.errorMessage ?? '変換中にエラーが発生しました。', [
+      const title = job.errorReason === 'too_large' ? '動画が長すぎます' : '変換エラー';
+      Alert.alert(title, job.errorMessage ?? '変換中にエラーが発生しました。', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     }
-    // job.status の変化時のみ遷移処理を実行する（他フィールドの変化で重複実行させない）
+    // job.status の変化時のみ遷移処理を実行する（他フィールドの変化で重複実行させない）。
+    // navigation と errorShown は ConvertingScreen のライフサイクル中に変化しないため
+    // 依存配列からの省略は安全。
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [job?.status]);
 

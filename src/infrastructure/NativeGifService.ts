@@ -101,8 +101,8 @@ export class NativeGifService implements INativeGifService {
 
     // Expo イベントで進捗を受け取る（セッション ID でフィルタリング）
     const subscription = module.addListener('onProgress', (data: Record<string, unknown>) => {
-      if (data.sessionId === sessionId) {
-        onProgress(data.progress as number);
+      if (data.sessionId === sessionId && typeof data.progress === 'number') {
+        onProgress(data.progress);
       }
     });
 

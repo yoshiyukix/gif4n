@@ -11,7 +11,7 @@ export interface UsePilotEstimationResult {
 
 /**
  * マウント時にパイロット変換を開始し、1 秒あたりのバイト数を返す hook。
- * アンマウット時に変換を自動キャンセルする。
+ * アンマウント時に変換を自動キャンセルする。
  */
 export function usePilotEstimation(
   source: VideoSource,

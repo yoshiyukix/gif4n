@@ -12,17 +12,20 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import * as MediaLibrary from 'expo-media-library';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import * as FileSystem from 'expo-file-system/legacy';
+import * as DocumentPicker from 'expo-document-picker';
 import { RootStackParamList } from '../navigation/types';
 import { VideoImportService, normalizeMediaLibraryUri } from '../infrastructure/VideoImportService';
+import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 const NUM_COLS = 3;
 const GAP = 3;
-import { colors } from '../theme';
+const VIDEO_FETCH_LIMIT = 200;
 
 function fmtDuration(sec: number): string {
   const m = Math.floor(sec / 60);
@@ -45,6 +48,7 @@ const VideoTile = memo(({ asset, onPress }: TileProps) => {
       const info = await MediaLibrary.getAssetInfoAsync(asset);
       const localUri = normalizeMediaLibraryUri(info.localUri ?? '');
       if (!localUri) {
+        // eslint-disable-next-line no-console
         console.warn('[VideoTile] no localUri', asset.uri);
         return;
       }
@@ -57,6 +61,7 @@ const VideoTile = memo(({ asset, onPress }: TileProps) => {
         const { uri } = await VideoThumbnails.getThumbnailAsync(tempUri, { time: 0 });
         if (!cancelled) setThumbUri(uri);
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.warn('[VideoTile] thumbnail failed', asset.uri, e);
       } finally {
         FileSystem.deleteAsync(tempUri, { idempotent: true }).catch(() => {});
@@ -97,7 +102,7 @@ export default function HomeScreen({ navigation }: Props) {
   async function loadVideos() {
     const { assets } = await MediaLibrary.getAssetsAsync({
       mediaType: MediaLibrary.MediaType.video,
-      first: 200,
+      first: VIDEO_FETCH_LIMIT,
       sortBy: MediaLibrary.SortBy.creationTime,
     });
     setVideos(assets);
@@ -109,6 +114,7 @@ export default function HomeScreen({ navigation }: Props) {
         const source = await videoImportService.importAsset(asset);
         navigation.navigate('Trim', { source });
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.warn('[HomeScreen] importAsset failed', asset.uri, e);
         Alert.alert(
           'この動画は変換できません',
@@ -118,6 +124,30 @@ export default function HomeScreen({ navigation }: Props) {
     },
     [navigation, videoImportService],
   );
+
+  const onPickFile = useCallback(async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['video/mp4', 'video/quicktime', 'video/*'],
+        copyToCacheDirectory: false,
+      });
+      if (result.canceled || !result.assets?.length) return;
+      const file = result.assets[0];
+      const source = await videoImportService.importFileUri(
+        file.uri,
+        file.name ?? 'video.mp4',
+        file.size ?? 0,
+      );
+      navigation.navigate('Trim', { source });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn('[HomeScreen] importFileUri failed', e);
+      Alert.alert(
+        'この動画は変換できません',
+        'ファイルにアクセスできないか、対応していない動画形式です。別のファイルをお試しください。',
+      );
+    }
+  }, [navigation, videoImportService]);
 
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<MediaLibrary.Asset>) => (
@@ -133,6 +163,13 @@ export default function HomeScreen({ navigation }: Props) {
       {/* ─── Header ─────────────────── */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Studio</Text>
+        <TouchableOpacity
+          onPress={onPickFile}
+          style={styles.headerButton}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons name="folder-open-outline" size={26} color={colors.primary} />
+        </TouchableOpacity>
       </View>
 
       {/* ─── Video Grid ─────────────── */}
@@ -168,9 +205,13 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: colors.surface,
     paddingHorizontal: 20,
     paddingVertical: 16,
+  },
+  headerButton: {
+    padding: 4,
   },
   logo: {
     width: 26,
@@ -220,7 +261,12 @@ const styles = StyleSheet.create({
 
   // Empty / Count
   empty: { alignItems: 'center', paddingVertical: 80 },
-  emptyText: { color: colors.textSecondary, fontSize: 15, textAlign: 'center', paddingHorizontal: 40 },
+  emptyText: {
+    color: colors.textSecondary,
+    fontSize: 15,
+    textAlign: 'center',
+    paddingHorizontal: 40,
+  },
   count: {
     textAlign: 'center',
     color: colors.textSecondary,

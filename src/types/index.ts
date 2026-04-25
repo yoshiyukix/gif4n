@@ -89,6 +89,8 @@ export interface ConversionJob {
   outputSizeBytes: number | null;
   /** エラー時のメッセージ */
   errorMessage?: string;
+  /** エラー時の原因分類 */
+  errorReason?: 'too_large' | 'native_error';
 }
 
 // ────────────────────────────────────────────────

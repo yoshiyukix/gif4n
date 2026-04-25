@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 
 // Converting 画面ではタブバーを非表示にする
-const HIDDEN_ROUTES = new Set(['Converting']);
+const HIDDEN_ROUTES = new Set(['Converting', 'Result']);
 
 const TABS = [
   { name: 'Studio', label: 'STUDIO', icon: 'film' as const, iconOutline: 'film-outline' as const },

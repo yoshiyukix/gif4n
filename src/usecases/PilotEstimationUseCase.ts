@@ -24,7 +24,7 @@ export interface IPilotEstimationUseCase {
    * @param bytesPerSec   パイロット変換で実測した 1 秒あたりのバイト数
    * @param trimDurationSec トリム後の動画秒数
    * @param maxSizeBytes  許容最大サイズ（バイト）
-   * @returns 0〜8 のインデックス（QUALITY_PRESETS の添字）
+   * @returns 0〜5 のインデックス（QUALITY_PRESETS の添字）
    */
   estimateStartIndex(bytesPerSec: number, trimDurationSec: number, maxSizeBytes: number): number;
 }

@@ -33,32 +33,32 @@ describe('useSettings', () => {
     const { result } = renderHook(() => useSettings());
 
     await act(async () => {
-      await result.current.updateSettings({ maxSizeMb: 5 });
+      await result.current.updateSettings({ maxSizeMb: 6 });
     });
 
-    expect(result.current.settings.maxSizeMb).toBe(5);
+    expect(result.current.settings.maxSizeMb).toBe(6);
   });
 
   it('updateSettings 後に AsyncStorage へ保存される', async () => {
     const { result } = renderHook(() => useSettings());
 
     await act(async () => {
-      await result.current.updateSettings({ maxSizeMb: 7 });
+      await result.current.updateSettings({ maxSizeMb: 8 });
     });
 
     const raw = await AsyncStorage.getItem('@gif_to_note/settings');
     expect(raw).not.toBeNull();
     const parsed = JSON.parse(raw!);
-    expect(parsed.maxSizeMb).toBe(7);
+    expect(parsed.maxSizeMb).toBe(8);
   });
 
   it('AsyncStorage に値があれば再マウント時にロードされる', async () => {
-    await AsyncStorage.setItem('@gif_to_note/settings', JSON.stringify({ maxSizeMb: 5 }));
+    await AsyncStorage.setItem('@gif_to_note/settings', JSON.stringify({ maxSizeMb: 6 }));
 
     const { result } = renderHook(() => useSettings());
 
     await waitFor(() => {
-      expect(result.current.settings.maxSizeMb).toBe(5);
+      expect(result.current.settings.maxSizeMb).toBe(6);
     });
   });
 

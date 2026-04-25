@@ -1,5 +1,5 @@
 import { SizeEstimator } from '../SizeEstimator';
-import { VideoSource, TrimRange } from '../../types';
+import { VideoSource, TrimRange, QUALITY_PRESETS } from '../../types';
 
 describe('SizeEstimator', () => {
   let estimator: SizeEstimator;
@@ -45,7 +45,7 @@ describe('SizeEstimator', () => {
       expect(idx).toBeGreaterThan(0);
     });
 
-    it('全 preset で超過する場合はインデックス 8 を返す', () => {
+    it('全 preset で超過する場合はインデックス 5 を返す', () => {
       // 係数 0.010 で 320*240*5 * 10 = 38MB >> 10MB になるような超長動画
       // 320 * 240 * 10 * durationSec * 0.010 <= 10MB → durationSec <= 1302 sec
       // 係数が 0.010 の場合、実際には非常に長い動画が必要
@@ -71,12 +71,12 @@ describe('SizeEstimator', () => {
       expect(idxShort).toBeLessThan(idxFull);
     });
 
-    it('返り値は 0 以上 8 以下の整数', () => {
+    it('返り値は 0 以上 5 以下の整数', () => {
       const source = makeSource();
       const trim = makeTrim(0, 10);
       const idx = estimator.estimateStartIndex(source, trim);
       expect(idx).toBeGreaterThanOrEqual(0);
-      expect(idx).toBeLessThanOrEqual(8);
+      expect(idx).toBeLessThanOrEqual(QUALITY_PRESETS.length - 1);
       expect(Number.isInteger(idx)).toBe(true);
     });
 
@@ -136,8 +136,8 @@ describe('SizeEstimator', () => {
       const source = makeSource();
       const trim = makeTrim(0, 10);
       const bytes15 = estimator.estimateBytes(source, trim, { width: 620, fps: 15 });
-      const bytes5 = estimator.estimateBytes(source, trim, { width: 620, fps: 5 });
-      expect(bytes15).toBeGreaterThan(bytes5);
+      const bytes10 = estimator.estimateBytes(source, trim, { width: 620, fps: 10 });
+      expect(bytes15).toBeGreaterThan(bytes10);
     });
 
     it('解像度が高いほど推定サイズが大きい', () => {

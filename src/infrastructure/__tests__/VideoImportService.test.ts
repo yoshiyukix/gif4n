@@ -1,5 +1,6 @@
 import * as MediaLibraryModule from 'expo-media-library';
 import * as FileSystem from 'expo-file-system/legacy';
+import { createVideoPlayer } from 'expo-video';
 import { VideoImportService } from '../VideoImportService';
 
 jest.mock('expo-media-library', () => ({
@@ -11,6 +12,20 @@ jest.mock('expo-file-system/legacy', () => ({
   makeDirectoryAsync: jest.fn(),
   copyAsync: jest.fn(),
   getInfoAsync: jest.fn(),
+}));
+
+jest.mock('expo-video', () => ({
+  createVideoPlayer: jest.fn().mockReturnValue({
+    duration: 10,
+    release: jest.fn(),
+    addListener: jest
+      .fn()
+      .mockImplementation((_event: string, cb: (payload: { status: string }) => void) => {
+        // 即座に readyToPlay を通知
+        setTimeout(() => cb({ status: 'readyToPlay' }), 0);
+        return { remove: jest.fn() };
+      }),
+  }),
 }));
 
 const MediaLibrary = jest.mocked(
@@ -116,5 +131,82 @@ describe('VideoImportService', () => {
       from: 'file:///var/mobile/Media/DCIM/101APPLE/IMG_1648.MP4',
       to: expect.any(String),
     });
+  });
+});
+
+describe('VideoImportService — importFileUri', () => {
+  const fileUri = 'content://com.android.providers.media/video:12345';
+  const filename = 'clip.mp4';
+  const fileSize = 3_000_000;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // importFileUri 用デフォルト: readyToPlay を即座に発火し duration=8 を返す
+    jest.mocked(createVideoPlayer).mockReturnValue({
+      duration: 8,
+      release: jest.fn(),
+      addListener: jest
+        .fn()
+        .mockImplementation((_event: string, cb: (payload: { status: string }) => void) => {
+          setTimeout(() => cb({ status: 'readyToPlay' }), 0);
+          return { remove: jest.fn() };
+        }),
+    } as never);
+    ExpoFileSystem.makeDirectoryAsync.mockResolvedValue(undefined);
+    ExpoFileSystem.copyAsync.mockResolvedValue(undefined);
+    ExpoFileSystem.getInfoAsync.mockResolvedValue({ exists: true, size: fileSize });
+  });
+
+  it('ファイル URI をキャッシュへコピーして VideoSource を返す', async () => {
+    const service = new VideoImportService();
+    const source = await service.importFileUri(fileUri, filename, fileSize);
+
+    expect(ExpoFileSystem.makeDirectoryAsync).toHaveBeenCalledWith(
+      'file:///mock/cache/selected-videos/',
+      { intermediates: true },
+    );
+    expect(ExpoFileSystem.copyAsync).toHaveBeenCalledWith({
+      from: fileUri,
+      to: expect.stringMatching(/^file:\/\/\/mock\/cache\/selected-videos\//),
+    });
+    expect(source).toMatchObject({
+      durationSec: 8,
+      width: 1920,
+      height: 1080,
+      fileSizeBytes: fileSize,
+    });
+    expect(source.uri).toMatch(/^file:\/\/\/mock\/cache\/selected-videos\//);
+  });
+
+  it('getInfoAsync が exists=false の場合は fileSize 引数をフォールバックに使う', async () => {
+    ExpoFileSystem.getInfoAsync.mockResolvedValue({ exists: false, size: null });
+    const service = new VideoImportService();
+    const source = await service.importFileUri(fileUri, filename, fileSize);
+
+    expect(source.fileSizeBytes).toBe(fileSize);
+  });
+
+  it('拡張子なしファイル名には .mp4 を補完する', async () => {
+    const service = new VideoImportService();
+    const source = await service.importFileUri(fileUri, 'noextension', fileSize);
+
+    expect(source.uri).toMatch(/\.mp4$/);
+  });
+
+  it('statusChange で error が発火された場合は durationSec=0 を返す', async () => {
+    jest.mocked(createVideoPlayer).mockReturnValue({
+      duration: 0,
+      release: jest.fn(),
+      addListener: jest
+        .fn()
+        .mockImplementation((_event: string, cb: (payload: { status: string }) => void) => {
+          setTimeout(() => cb({ status: 'error' }), 0);
+          return { remove: jest.fn() };
+        }),
+    } as never);
+    const service = new VideoImportService();
+    const source = await service.importFileUri(fileUri, filename, fileSize);
+
+    expect(source.durationSec).toBe(0);
   });
 });

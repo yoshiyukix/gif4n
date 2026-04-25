@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,13 +15,11 @@ import { GifPreview } from '../components/GifPreview';
 import { SaveToast } from '../components/SaveToast';
 import { MediaService } from '../infrastructure/MediaService';
 import { addGifEntry } from '../infrastructure/GifLibraryStore';
-import * as Sharing from 'expo-sharing';
+
+import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Result'>;
 
-const media = new MediaService();
-
-import { colors } from '../theme';
 const GREEN = colors.accent;
 
 type ToastState = { type: 'success' | 'error'; message: string };
@@ -30,20 +28,11 @@ export default function ResultScreen({ route, navigation }: Props) {
   const { gifUri, sizeBytes, preset } = route.params;
   const sizeMB = (sizeBytes / (1024 * 1024)).toFixed(2);
   const insets = useSafeAreaInsets();
+  const media = useMemo(() => new MediaService(), []);
 
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => (
-        <TouchableOpacity onPress={() => navigation.pop(1)} hitSlop={8}>
-          <Ionicons name="chevron-back" size={28} color={colors.primary} />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
 
   async function handleSave() {
     if (isSaving) return;
@@ -62,9 +51,11 @@ export default function ResultScreen({ route, navigation }: Props) {
   }
 
   async function handleShare() {
-    const available = await Sharing.isAvailableAsync();
-    if (available) {
-      await Sharing.shareAsync(gifUri, { mimeType: 'image/gif' });
+    try {
+      await media.share(gifUri);
+    } catch {
+      setToast({ type: 'error', message: '共有に失敗しました' });
+      setToastVisible(true);
     }
   }
 
@@ -74,6 +65,12 @@ export default function ResultScreen({ route, navigation }: Props) {
 
   return (
     <View style={[styles.safeArea, { paddingTop: insets.top }]}>
+      {/* ヘッダー */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.pop(1)} hitSlop={8}>
+          <Ionicons name="chevron-back" size={28} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
       {toast && (
         <SaveToast
           visible={toastVisible}
@@ -158,6 +155,10 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.surface,
+  },
+  header: {
+    paddingHorizontal: 8,
+    paddingVertical: 12,
   },
   scroll: {
     flex: 1,

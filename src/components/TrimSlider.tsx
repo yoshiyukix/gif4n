@@ -122,6 +122,7 @@ export function TrimSlider({
           });
           if (!cancelled) uris.push(tUri);
         } catch (e) {
+          // eslint-disable-next-line no-console
           console.warn('[TrimSlider] thumbnail failed', { uri, timeSec }, e);
           if (!cancelled) uris.push('');
         }
@@ -268,12 +269,17 @@ export function TrimSlider({
                         resizeMode="cover"
                       />
                     ) : (
-                      <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.borderStrong }]} />
+                      <View
+                        style={[StyleSheet.absoluteFill, { backgroundColor: colors.borderStrong }]}
+                      />
                     )}
                   </View>
                 ))
               : Array.from({ length: THUMB_COUNT }).map((_, i) => (
-                  <View key={i} style={[styles.thumbCell, { backgroundColor: colors.borderStrong }]} />
+                  <View
+                    key={i}
+                    style={[styles.thumbCell, { backgroundColor: colors.borderStrong }]}
+                  />
                 ))}
           </View>
 

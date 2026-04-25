@@ -21,9 +21,9 @@ import { NativeGifService } from '../infrastructure/NativeGifService';
 import { PilotEstimationUseCase } from '../usecases/PilotEstimationUseCase';
 import { useSettings } from '../hooks/useSettings';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Trim'>;
-
 import { colors } from '../theme';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Trim'>;
 const MIN_DURATION_SEC = 0.5;
 
 function formatSelected(sec: number): string {
@@ -59,6 +59,7 @@ export default function TrimScreen({ route, navigation }: Props) {
       });
       thumbnailUri = result.uri;
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.warn('[TrimScreen] thumbnail failed', source.uri, e);
     }
     const estimatedStartIndex =

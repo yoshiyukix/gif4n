@@ -14,12 +14,12 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as MediaLibrary from 'expo-media-library';
 import { LibraryStackParamList } from '../navigation/types';
 import { getGifEntries, LibraryGifEntry } from '../infrastructure/GifLibraryStore';
+import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<LibraryStackParamList, 'LibraryList'>;
 
 const NUM_COLS = 3;
 const GAP = 3;
-import { colors } from '../theme';
 
 function fmtDate(ms: number): string {
   const d = new Date(ms);
@@ -56,6 +56,11 @@ export default function LibraryScreen({ navigation }: Props) {
 
   const loadItems = useCallback(async () => {
     setLoading(true);
+    const { granted } = await MediaLibrary.requestPermissionsAsync();
+    if (!granted) {
+      setLoading(false);
+      return;
+    }
     const entries = await getGifEntries();
     const resolved: GifItem[] = [];
     for (const entry of entries) {
@@ -71,14 +76,7 @@ export default function LibraryScreen({ navigation }: Props) {
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    MediaLibrary.requestPermissionsAsync().then(({ granted }) => {
-      if (granted) loadItems();
-      else setLoading(false);
-    });
-  }, [loadItems]);
-
-  // Library タブに戻るたびに再読み込み
+  // focus イベントで初回表示時 + タブ戻り時に読み込む
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', loadItems);
     return unsubscribe;
@@ -197,7 +195,12 @@ const styles = StyleSheet.create({
 
   // Empty / Count
   empty: { alignItems: 'center', paddingVertical: 80 },
-  emptyText: { color: colors.textSecondary, fontSize: 15, textAlign: 'center', paddingHorizontal: 40 },
+  emptyText: {
+    color: colors.textSecondary,
+    fontSize: 15,
+    textAlign: 'center',
+    paddingHorizontal: 40,
+  },
   count: {
     textAlign: 'center',
     color: colors.textSecondary,

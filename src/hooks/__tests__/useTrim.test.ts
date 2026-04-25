@@ -76,23 +76,23 @@ describe('useTrim', () => {
 
   it('setEnd で選択範囲が MAX_TRIM_DURATION_SEC を超えた場合、startSec を連動して縮める', () => {
     const { result } = renderHook(() => useTrim(60));
-    // 初期: {start:0, end:15}。setEnd(20) → duration=20>15 → start=5
+    // 初期: {start:0, end:10}。setEnd(20) → duration=20>10 → start=10
     act(() => {
       result.current.setEnd(20);
     });
-    expect(result.current.trimRange).toEqual<TrimRange>({ startSec: 5, endSec: 20 });
+    expect(result.current.trimRange).toEqual<TrimRange>({ startSec: 10, endSec: 20 });
   });
 
   it('setStart で選択範囲が MAX_TRIM_DURATION_SEC を超えた場合、endSec を連動して縮める', () => {
     const { result } = renderHook(() => useTrim(60));
-    // 初期: {start:0, end:15}。まず end を 20 に伸ばす → start=5,end=20
+    // 初期: {start:0, end:10}。まず end を 20 に伸ばす → start=10,end=20
     act(() => {
       result.current.setEnd(20);
     });
-    // setStart(-2) → newStart=0, duration=20-0=20>15 → end=15
+    // setStart(-2) → newStart=0, duration=20-0=20>10 → end=10
     act(() => {
       result.current.setStart(-2);
     });
-    expect(result.current.trimRange).toEqual<TrimRange>({ startSec: 0, endSec: 15 });
+    expect(result.current.trimRange).toEqual<TrimRange>({ startSec: 0, endSec: 10 });
   });
 });
