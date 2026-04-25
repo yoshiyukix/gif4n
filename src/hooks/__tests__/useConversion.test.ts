@@ -78,8 +78,8 @@ describe('useConversion', () => {
 
     const options = makeOptions({
       useCase: {
-        run: jest.fn().mockImplementation((_src, _trim, _onProgress, signal) => {
-          capturedSignal = signal;
+        run: jest.fn().mockImplementation((_src, _trim, options) => {
+          capturedSignal = options.signal;
           return new Promise((resolve) => {
             resolveRun = resolve;
           });

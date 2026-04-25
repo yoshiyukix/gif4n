@@ -97,7 +97,11 @@ describe('ConversionUseCase', () => {
       const useCase = new ConversionUseCase(mock, new SizeEstimator());
       const controller = new AbortController();
 
-      const result = await useCase.run(source, trim, noop, controller.signal, () => sizeBytes);
+      const result = await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: () => sizeBytes,
+      });
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -113,7 +117,11 @@ describe('ConversionUseCase', () => {
       const useCase = new ConversionUseCase(mock, new SizeEstimator());
       const controller = new AbortController();
 
-      await useCase.run(source, trim, noop, controller.signal, () => sizeBytes);
+      await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: () => sizeBytes,
+      });
 
       expect(mock.convert).toHaveBeenCalledTimes(1);
     });
@@ -125,13 +133,11 @@ describe('ConversionUseCase', () => {
       const controller = new AbortController();
       const progressValues: number[] = [];
 
-      await useCase.run(
-        source,
-        trim,
-        (r) => progressValues.push(r),
-        controller.signal,
-        () => sizeBytes,
-      );
+      await useCase.run(source, trim, {
+        onProgress: (r) => progressValues.push(r),
+        signal: controller.signal,
+        outputSizeResolver: () => sizeBytes,
+      });
 
       expect(progressValues.length).toBeGreaterThan(0);
     });
@@ -171,17 +177,15 @@ describe('ConversionUseCase', () => {
       const useCase = new ConversionUseCase(mock, new SizeEstimator());
       const controller = new AbortController();
 
-      const result = await useCase.run(
-        source,
-        trim,
-        noop,
-        controller.signal,
+      const result = await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
         // outputSizeResolver: 変換結果 URI → sizeBytes を返すモック関数
-        (uri: string) => {
+        outputSizeResolver: (uri: string) => {
           if (uri.includes(`${MAX_SIZE + 1}`)) return MAX_SIZE + 1;
           return 5 * 1024 * 1024;
         },
-      );
+      });
 
       expect(result.ok).toBe(true);
       expect(mock.convert).toHaveBeenCalledTimes(2);
@@ -195,13 +199,11 @@ describe('ConversionUseCase', () => {
       const useCase = new ConversionUseCase(mock, new SizeEstimator());
       const controller = new AbortController();
 
-      const result = await useCase.run(
-        source,
-        trim,
-        noop,
-        controller.signal,
-        () => MAX_SIZE + 1, // 常に 10MB 超
-      );
+      const result = await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: () => MAX_SIZE + 1, // 常に 10MB 超
+      });
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -224,18 +226,15 @@ describe('ConversionUseCase', () => {
 
       // 最初は 5MB 超、2 回目から LIMIT 以内
       let callCount = 0;
-      const result = await useCase.run(
-        source,
-        trim,
-        noop,
-        controller.signal,
-        (_uri) => {
+      const result = await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: (_uri) => {
           callCount++;
           return callCount === 1 ? LIMIT + 1 : LIMIT - 1;
         },
-        undefined,
-        LIMIT,
-      );
+        maxSizeBytes: LIMIT,
+      });
 
       expect(result.ok).toBe(true);
       expect(mock.convert).toHaveBeenCalledTimes(2);
@@ -247,7 +246,11 @@ describe('ConversionUseCase', () => {
       const useCase = new ConversionUseCase(mock, new SizeEstimator());
       const controller = new AbortController();
 
-      const result = await useCase.run(source, trim, noop, controller.signal, () => sizeBytes);
+      const result = await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: () => sizeBytes,
+      });
 
       expect(result.ok).toBe(true);
     });
@@ -258,15 +261,12 @@ describe('ConversionUseCase', () => {
       const useCase = new ConversionUseCase(mock, new SizeEstimator());
       const controller = new AbortController();
 
-      const result = await useCase.run(
-        source,
-        trim,
-        noop,
-        controller.signal,
-        () => LIMIT + 1,
-        undefined,
-        LIMIT,
-      );
+      const result = await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: () => LIMIT + 1,
+        maxSizeBytes: LIMIT,
+      });
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -287,7 +287,11 @@ describe('ConversionUseCase', () => {
       const controller = new AbortController();
       controller.abort();
 
-      const result = await useCase.run(source, trim, noop, controller.signal, () => 0);
+      const result = await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: () => 0,
+      });
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -306,7 +310,11 @@ describe('ConversionUseCase', () => {
       const useCase = new ConversionUseCase(mock, new SizeEstimator());
       const controller = new AbortController();
 
-      const result = await useCase.run(source, trim, noop, controller.signal, () => 0);
+      const result = await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: () => 0,
+      });
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -330,7 +338,11 @@ describe('ConversionUseCase', () => {
       const useCase = new ConversionUseCase(mock, mockEstimator as unknown as SizeEstimator);
       const controller = new AbortController();
 
-      await useCase.run(source, trim, noop, controller.signal, () => 5 * 1024 * 1024);
+      await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: () => 5 * 1024 * 1024,
+      });
 
       expect(mockEstimator.estimateStartIndex).toHaveBeenCalledWith(source, trim, 10 * 1024 * 1024);
       // convert の最初の呼び出しが QUALITY_PRESETS[3] で行われるはず
@@ -358,16 +370,12 @@ describe('ConversionUseCase', () => {
       const useCase = new ConversionUseCase(mock, mockEstimator as unknown as SizeEstimator);
       const controller = new AbortController();
 
-      await useCase.run(
-        source,
-        trim,
-        noop,
-        controller.signal,
-        () => 5 * 1024 * 1024,
-        undefined,
-        undefined,
-        4,
-      );
+      await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: () => 5 * 1024 * 1024,
+        startIndexOverride: 4,
+      });
 
       expect(mockEstimator.estimateStartIndex).not.toHaveBeenCalled();
     });
@@ -377,16 +385,12 @@ describe('ConversionUseCase', () => {
       const useCase = new ConversionUseCase(mock, new SizeEstimator());
       const controller = new AbortController();
 
-      await useCase.run(
-        source,
-        trim,
-        noop,
-        controller.signal,
-        () => 5 * 1024 * 1024,
-        undefined,
-        undefined,
-        2,
-      );
+      await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: () => 5 * 1024 * 1024,
+        startIndexOverride: 2,
+      });
 
       expect(mock.convert).toHaveBeenCalledWith(
         source,
@@ -406,16 +410,11 @@ describe('ConversionUseCase', () => {
       const useCase = new ConversionUseCase(mock, mockEstimator as unknown as SizeEstimator);
       const controller = new AbortController();
 
-      await useCase.run(
-        source,
-        trim,
-        noop,
-        controller.signal,
-        () => 5 * 1024 * 1024,
-        undefined,
-        undefined,
-        undefined,
-      );
+      await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: () => 5 * 1024 * 1024,
+      });
 
       expect(mockEstimator.estimateStartIndex).toHaveBeenCalledWith(source, trim, 10 * 1024 * 1024);
     });

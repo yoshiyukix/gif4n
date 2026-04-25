@@ -1,25 +1,16 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import * as FileSystem from 'expo-file-system/legacy';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../navigation/types';
-import { useConversion } from '../hooks/useConversion';
-import { ConversionUseCase } from '../usecases/ConversionUseCase';
-import { NativeGifService } from '../infrastructure/NativeGifService';
-import { SizeEstimator } from '../usecases/SizeEstimator';
+import { useConversionProcess } from '../hooks/useConversionProcess';
 import { QUALITY_PRESETS } from '../types';
 import { useSettings } from '../hooks/useSettings';
 import { colors } from '../theme';
 import CircularProgress from '../components/CircularProgress';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Converting'>;
-
-async function outputSizeResolver(uri: string): Promise<number> {
-  const info = await FileSystem.getInfoAsync(uri);
-  return info.exists ? (info.size ?? 0) : 0;
-}
 
 export default function ConvertingScreen({ route, navigation }: Props) {
   const {
@@ -29,18 +20,8 @@ export default function ConvertingScreen({ route, navigation }: Props) {
     estimatedStartIndex,
   } = route.params;
 
-  const nativeService = useMemo(() => new NativeGifService(), []);
-  const estimator = useMemo(() => new SizeEstimator(), []);
-  const useCase = useMemo(
-    () => new ConversionUseCase(nativeService, estimator),
-    [nativeService, estimator],
-  );
   const { settings, isLoaded } = useSettings();
-  const { job, start, cancel } = useConversion({
-    useCase,
-    outputSizeResolver,
-    maxSizeBytes: settings.maxSizeMb * 1024 * 1024,
-  });
+  const { job, start, cancel } = useConversionProcess(settings.maxSizeMb * 1024 * 1024);
   const started = useRef(false);
 
   useEffect(() => {

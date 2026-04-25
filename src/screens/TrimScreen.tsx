@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -16,9 +16,8 @@ import { RootStackParamList } from '../navigation/types';
 import { VideoPreview } from '../components/VideoPreview';
 import { TrimSlider } from '../components/TrimSlider';
 import { useTrim } from '../hooks/useTrim';
-import { usePilotEstimation } from '../hooks/usePilotEstimation';
-import { NativeGifService } from '../infrastructure/NativeGifService';
-import { PilotEstimationUseCase } from '../usecases/PilotEstimationUseCase';
+import { useTrimPilot } from '../hooks/useTrimPilot';
+
 import { useSettings } from '../hooks/useSettings';
 
 import { colors } from '../theme';
@@ -41,9 +40,7 @@ export default function TrimScreen({ route, navigation }: Props) {
   const [seekTo, setSeekTo] = useState<number | undefined>(undefined);
   const [isSeekDragging, setIsSeekDragging] = useState(false);
 
-  const nativeService = useMemo(() => new NativeGifService(), []);
-  const pilotUseCase = useMemo(() => new PilotEstimationUseCase(nativeService), [nativeService]);
-  const { bytesPerSec, isPilotDone } = usePilotEstimation(source, pilotUseCase);
+  const { bytesPerSec, isPilotDone, estimateStartIndex } = useTrimPilot(source);
   const { settings } = useSettings();
 
   async function handleNext() {
@@ -64,14 +61,7 @@ export default function TrimScreen({ route, navigation }: Props) {
     }
     const estimatedStartIndex =
       bytesPerSec != null
-        ? Math.max(
-            0,
-            pilotUseCase.estimateStartIndex(
-              bytesPerSec,
-              duration,
-              settings.maxSizeMb * 1024 * 1024,
-            ),
-          )
+        ? estimateStartIndex(duration, settings.maxSizeMb * 1024 * 1024)
         : undefined;
     navigation.navigate('Converting', { source, trimRange, thumbnailUri, estimatedStartIndex });
   }

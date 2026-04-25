@@ -2,6 +2,9 @@ import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system/legacy';
 import { createVideoPlayer } from 'expo-video';
 import { VideoSource } from '../types';
+import { normalizeMediaLibraryUri } from '../utils/mediaUtils';
+
+export { normalizeMediaLibraryUri } from '../utils/mediaUtils';
 
 type ImportableAsset = Pick<
   MediaLibrary.Asset,
@@ -12,11 +15,6 @@ export interface IVideoImportService {
   importAsset(asset: ImportableAsset): Promise<VideoSource>;
   /** DocumentPicker 等で取得したファイル URI から VideoSource を生成する（F-002）*/
   importFileUri(fileUri: string, filename: string, fileSize: number): Promise<VideoSource>;
-}
-
-export function normalizeMediaLibraryUri(uri: string): string {
-  const hashIndex = uri.indexOf('#');
-  return hashIndex >= 0 ? uri.slice(0, hashIndex) : uri;
 }
 
 export class VideoImportService implements IVideoImportService {

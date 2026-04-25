@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,9 +11,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import * as MediaLibrary from 'expo-media-library';
 import { LibraryStackParamList } from '../navigation/types';
-import { getGifEntries, LibraryGifEntry } from '../infrastructure/GifLibraryStore';
+import { GifItem, LibraryGifEntry, useGifLibrary } from '../hooks/useGifLibrary';
 import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<LibraryStackParamList, 'LibraryList'>;
@@ -47,34 +46,11 @@ const GifTile = memo(({ entry, localUri, onPress }: TileProps) => (
 ));
 
 // ─── エントリ + URI セット ────────────────────────────────────────────
-type GifItem = { entry: LibraryGifEntry; localUri: string };
+// GifItem は useGifLibrary から re-export される
 
 export default function LibraryScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
-  const [items, setItems] = useState<GifItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const loadItems = useCallback(async () => {
-    setLoading(true);
-    const { granted } = await MediaLibrary.requestPermissionsAsync();
-    if (!granted) {
-      setLoading(false);
-      return;
-    }
-    const entries = await getGifEntries();
-    const resolved: GifItem[] = [];
-    for (const entry of entries) {
-      try {
-        const info = await MediaLibrary.getAssetInfoAsync(entry.assetId);
-        const localUri = info.localUri ?? info.uri;
-        if (localUri) resolved.push({ entry, localUri });
-      } catch {
-        // カメラロールから削除済みのエントリはスキップ
-      }
-    }
-    setItems(resolved);
-    setLoading(false);
-  }, []);
+  const { items, loading, loadItems } = useGifLibrary();
 
   // focus イベントで初回表示時 + タブ戻り時に読み込む
   useEffect(() => {

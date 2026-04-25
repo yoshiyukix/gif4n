@@ -67,6 +67,40 @@ describe('GifLibraryStore', () => {
       const entries = await getGifEntries();
       expect(entries).toEqual([]);
     });
+
+    it('preset フィールドが欠損しているエントリはフィルタリングされる', async () => {
+      mockFileContent = JSON.stringify([{ assetId: 'a', sizeBytes: 100, createdAt: 1000 }]);
+
+      const entries = await getGifEntries();
+      expect(entries).toEqual([]);
+    });
+
+    it('preset フィールドが null のエントリはフィルタリングされる', async () => {
+      mockFileContent = JSON.stringify([
+        { assetId: 'a', sizeBytes: 100, createdAt: 1000, preset: null },
+      ]);
+
+      const entries = await getGifEntries();
+      expect(entries).toEqual([]);
+    });
+
+    it('preset の width が欠損しているエントリはフィルタリングされる', async () => {
+      mockFileContent = JSON.stringify([
+        { assetId: 'a', sizeBytes: 100, createdAt: 1000, preset: { fps: 15 } },
+      ]);
+
+      const entries = await getGifEntries();
+      expect(entries).toEqual([]);
+    });
+
+    it('preset が正しければ通過する', async () => {
+      const entry = makeEntry({ assetId: 'valid' });
+      mockFileContent = JSON.stringify([entry]);
+
+      const entries = await getGifEntries();
+      expect(entries).toHaveLength(1);
+      expect(entries[0].assetId).toBe('valid');
+    });
   });
 
   // ────────────────────────────

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LibraryStackParamList } from '../navigation/types';
 import { GifPreview } from '../components/GifPreview';
 import { SaveToast } from '../components/SaveToast';
-import { MediaService } from '../infrastructure/MediaService';
+import { useMediaActions } from '../hooks/useMediaActions';
 import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<LibraryStackParamList, 'LibraryDetail'>;
@@ -29,22 +29,17 @@ export default function LibraryDetailScreen({ route, navigation }: Props) {
   const { localUri, sizeBytes, preset, createdAt } = route.params;
   const sizeMB = (sizeBytes / (1024 * 1024)).toFixed(2);
   const insets = useSafeAreaInsets();
-  const media = useMemo(() => new MediaService(), []);
+  const { isSharing, shareGif } = useMediaActions();
 
-  const [isSharing, setIsSharing] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
 
   async function handleShare() {
-    if (isSharing) return;
-    setIsSharing(true);
     try {
-      await media.share(localUri);
+      await shareGif(localUri);
     } catch {
       setToast({ type: 'error', message: '共有に失敗しました' });
       setToastVisible(true);
-    } finally {
-      setIsSharing(false);
     }
   }
 

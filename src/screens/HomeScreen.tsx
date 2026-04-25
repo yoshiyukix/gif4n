@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -18,7 +18,8 @@ import * as VideoThumbnails from 'expo-video-thumbnails';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as DocumentPicker from 'expo-document-picker';
 import { RootStackParamList } from '../navigation/types';
-import { VideoImportService, normalizeMediaLibraryUri } from '../infrastructure/VideoImportService';
+import { useVideoImport } from '../hooks/useVideoImport';
+import { normalizeMediaLibraryUri } from '../utils/mediaUtils';
 import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -90,7 +91,7 @@ export default function HomeScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const [videos, setVideos] = useState<MediaLibrary.Asset[]>([]);
   const [granted, setGranted] = useState(false);
-  const videoImportService = useMemo(() => new VideoImportService(), []);
+  const videoImportService = useVideoImport();
 
   useEffect(() => {
     MediaLibrary.requestPermissionsAsync().then((perm) => {

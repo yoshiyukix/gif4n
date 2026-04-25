@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -13,8 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../navigation/types';
 import { GifPreview } from '../components/GifPreview';
 import { SaveToast } from '../components/SaveToast';
-import { MediaService } from '../infrastructure/MediaService';
-import { addGifEntry } from '../infrastructure/GifLibraryStore';
+import { useMediaActions } from '../hooks/useMediaActions';
 
 import { colors } from '../theme';
 
@@ -28,31 +27,25 @@ export default function ResultScreen({ route, navigation }: Props) {
   const { gifUri, sizeBytes, preset } = route.params;
   const sizeMB = (sizeBytes / (1024 * 1024)).toFixed(2);
   const insets = useSafeAreaInsets();
-  const media = useMemo(() => new MediaService(), []);
+  const { isSaving, saveGif, shareGif } = useMediaActions();
 
-  const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
 
   async function handleSave() {
-    if (isSaving) return;
-    setIsSaving(true);
     try {
-      const assetId = await media.saveToLibrary(gifUri);
-      await addGifEntry({ assetId, sizeBytes, preset, createdAt: Date.now() });
+      await saveGif(gifUri, sizeBytes, preset);
       setToast({ type: 'success', message: 'カメラロールに保存しました' });
       setToastVisible(true);
     } catch {
       setToast({ type: 'error', message: '保存に失敗しました' });
       setToastVisible(true);
-    } finally {
-      setIsSaving(false);
     }
   }
 
   async function handleShare() {
     try {
-      await media.share(gifUri);
+      await shareGif(gifUri);
     } catch {
       setToast({ type: 'error', message: '共有に失敗しました' });
       setToastVisible(true);

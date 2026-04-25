@@ -24,14 +24,15 @@ export function useSettings(): UseSettingsResult {
     AsyncStorage.getItem(STORAGE_KEY)
       .then((raw) => {
         if (raw) {
-          const parsed = JSON.parse(raw) as Partial<AppSettings>;
+          const parsed: unknown = JSON.parse(raw);
           const VALID_MAX_SIZE_MB: ReadonlyArray<number> = [6, 8, 10];
-          const sanitized: Partial<AppSettings> = {
-            ...parsed,
-            ...(parsed.maxSizeMb !== undefined && !VALID_MAX_SIZE_MB.includes(parsed.maxSizeMb)
-              ? { maxSizeMb: DEFAULT_SETTINGS.maxSizeMb }
-              : {}),
-          };
+          const sanitized: Partial<AppSettings> = {};
+          if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+            const p = parsed as Record<string, unknown>;
+            if (typeof p.maxSizeMb === 'number' && VALID_MAX_SIZE_MB.includes(p.maxSizeMb)) {
+              sanitized.maxSizeMb = p.maxSizeMb as AppSettings['maxSizeMb'];
+            }
+          }
           setSettings({ ...DEFAULT_SETTINGS, ...sanitized });
         }
       })

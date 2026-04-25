@@ -40,16 +40,14 @@ export function useConversion(options: UseConversionOptions): UseConversionResul
       setJob(initial);
 
       useCase
-        .run(
-          source,
-          trim,
-          (rate) => setJob((prev) => (prev ? { ...prev, progressRate: rate } : null)),
-          abort.signal,
+        .run(source, trim, {
+          onProgress: (rate) => setJob((prev) => (prev ? { ...prev, progressRate: rate } : null)),
+          signal: abort.signal,
           outputSizeResolver,
-          (preset) => setJob((prev) => (prev ? { ...prev, preset } : null)),
+          onPresetChange: (preset) => setJob((prev) => (prev ? { ...prev, preset } : null)),
           maxSizeBytes,
           startIndexOverride,
-        )
+        })
         .then((result) => {
           if (result.ok) {
             setJob((prev) =>

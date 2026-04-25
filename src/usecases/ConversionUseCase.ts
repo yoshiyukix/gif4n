@@ -10,6 +10,16 @@ const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
  */
 export type OutputSizeResolver = (uri: string) => Promise<number> | number;
 
+/** ConversionUseCase.run() のオプションパラメーター */
+export interface ConversionRunOptions {
+  onProgress: (rate: number) => void;
+  signal: AbortSignal;
+  outputSizeResolver: OutputSizeResolver;
+  onPresetChange?: (preset: QualityPreset) => void;
+  maxSizeBytes?: number;
+  startIndexOverride?: number;
+}
+
 export interface IConversionUseCase {
   /**
    * 品質を自動調整しながら GIF を生成する。
@@ -18,12 +28,7 @@ export interface IConversionUseCase {
   run(
     source: VideoSource,
     trim: TrimRange,
-    onProgress: (rate: number) => void,
-    signal: AbortSignal,
-    outputSizeResolver: OutputSizeResolver,
-    onPresetChange?: (preset: QualityPreset) => void,
-    maxSizeBytes?: number,
-    startIndexOverride?: number,
+    options: ConversionRunOptions,
   ): Promise<ConversionResult>;
 }
 
@@ -36,13 +41,17 @@ export class ConversionUseCase implements IConversionUseCase {
   async run(
     source: VideoSource,
     trim: TrimRange,
-    onProgress: (rate: number) => void,
-    signal: AbortSignal,
-    outputSizeResolver: OutputSizeResolver,
-    onPresetChange?: (preset: QualityPreset) => void,
-    maxSizeBytes: number = DEFAULT_MAX_SIZE_BYTES,
-    startIndexOverride?: number,
+    options: ConversionRunOptions,
   ): Promise<ConversionResult> {
+    const {
+      onProgress,
+      signal,
+      outputSizeResolver,
+      onPresetChange,
+      maxSizeBytes = DEFAULT_MAX_SIZE_BYTES,
+      startIndexOverride,
+    } = options;
+
     const startIndex =
       startIndexOverride ?? this.estimator.estimateStartIndex(source, trim, maxSizeBytes);
 
