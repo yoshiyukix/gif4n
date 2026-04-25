@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { TrimRange } from '../types';
 
-export const MAX_TRIM_DURATION_SEC = 15;
+export const MAX_TRIM_DURATION_SEC = 10;
 
 export interface TrimState {
   trimRange: TrimRange;

@@ -107,7 +107,7 @@ export interface AppSettings {
 
 /** アプリ設定のデフォルト値 */
 export const DEFAULT_SETTINGS: AppSettings = {
-  maxSizeMb: 10,
+  maxSizeMb: 8,
 };
 
 // ────────────────────────────────────────────────

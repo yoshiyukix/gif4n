@@ -186,8 +186,7 @@ type ConversionStatus =
             └─ bytes/sec を実測
   → TrimRange 指定
   → [Next] で estimatedStartIndex を計算して ConvertingScreen へ渡す
-       └─ パイロット完了済み: max(0, PilotEstimationUseCase.estimateStartIndex(bytes/sec, duration, maxSize) - 1)
-            ※ 推定インデックスより 1 段階上の品質から試行する（推定が保守的な場合に最高品質を狙う）
+       └─ パイロット完了済み: max(0, PilotEstimationUseCase.estimateStartIndex(bytes/sec, duration, maxSize))
        └─ パイロット未完了: undefined（SizeEstimator フォールバック）
   → ConversionUseCase.run(source, trim, ..., startIndexOverride?)
        └─ startIndexOverride が指定されていれば SizeEstimator をスキップ

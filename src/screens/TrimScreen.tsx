@@ -69,7 +69,7 @@ export default function TrimScreen({ route, navigation }: Props) {
               bytesPerSec,
               duration,
               settings.maxSizeMb * 1024 * 1024,
-            ) - 1,
+            ),
           )
         : undefined;
     navigation.navigate('Converting', { source, trimRange, thumbnailUri, estimatedStartIndex });
