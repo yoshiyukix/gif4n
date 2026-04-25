@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../theme';
 
 const TOAST_HEIGHT = 56;
 const DISPLAY_DURATION_MS = 2500;
@@ -17,7 +18,7 @@ interface SaveToastProps {
 }
 
 const COLORS: Record<ToastType, string> = {
-  success: '#34C759',
+  success: colors.accent,
   error: '#FF3B30',
 };
 

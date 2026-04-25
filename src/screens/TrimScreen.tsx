@@ -161,21 +161,21 @@ export default function TrimScreen({ route, navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#F2F2F7' },
+  root: { flex: 1, backgroundColor: colors.surface },
 
   // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: colors.border,
   },
   headerBack: { marginRight: 4 },
-  headerTitle: { fontSize: 17, fontWeight: '600', color: '#1C1C1E' },
+  headerTitle: { fontSize: 17, fontWeight: '600', color: colors.textPrimary },
   headerNextButton: { width: 44, alignItems: 'flex-end', justifyContent: 'center' },
   headerNext: { fontSize: 17, fontWeight: '600', color: colors.primary },
 
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
 
   // Section
   section: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.cardBackground,
     borderRadius: 16,
     marginHorizontal: 16,
     marginBottom: 16,
@@ -204,12 +204,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#1C1C1E',
+    color: colors.textPrimary,
     marginBottom: 2,
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: colors.textSecondary,
     flexShrink: 1,
     maxWidth: 180,
   },

@@ -106,7 +106,7 @@ export default function LibraryScreen({ navigation }: Props) {
 
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
 
       {/* ─── Header ─────────────────── */}
       <View style={styles.header}>
@@ -142,13 +142,13 @@ export default function LibraryScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#F2F2F7' },
+  root: { flex: 1, backgroundColor: colors.surface },
 
   // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     paddingHorizontal: 20,
     paddingVertical: 16,
   },
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1C1C1E',
+    color: colors.textPrimary,
     letterSpacing: 0.5,
   },
 
@@ -197,10 +197,10 @@ const styles = StyleSheet.create({
 
   // Empty / Count
   empty: { alignItems: 'center', paddingVertical: 80 },
-  emptyText: { color: '#8E8E93', fontSize: 15, textAlign: 'center', paddingHorizontal: 40 },
+  emptyText: { color: colors.textSecondary, fontSize: 15, textAlign: 'center', paddingHorizontal: 40 },
   count: {
     textAlign: 'center',
-    color: '#8E8E93',
+    color: colors.textSecondary,
     fontSize: 14,
     marginVertical: 24,
   },

@@ -100,18 +100,18 @@ export default function SettingsScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: colors.surface,
   },
   header: {
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 8,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: colors.surface,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1C1C1E',
+    color: colors.textPrimary,
     letterSpacing: 0.5,
   },
   scrollContent: {
@@ -121,14 +121,14 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#6C6C70',
+    color: colors.textTertiary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 4,
     marginLeft: 4,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.cardBackground,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -137,18 +137,18 @@ const styles = StyleSheet.create({
   itemLabel: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#1C1C1E',
+    color: colors.textPrimary,
   },
   itemDescription: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: colors.textSecondary,
     lineHeight: 17,
   },
   segmentRow: {
     flexDirection: 'row',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E5E5EA',
+    borderColor: colors.border,
     overflow: 'hidden',
     marginTop: 4,
   },
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.cardBackground,
   },
   segmentItemActive: {
     backgroundColor: colors.primary,
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   segmentText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#3C3C43',
+    color: colors.textTertiary,
   },
   segmentTextActive: {
     color: '#fff',
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     fontSize: 15,
-    color: '#8E8E93',
+    color: colors.textSecondary,
   },
   linkRow: {
     flexDirection: 'row',
@@ -186,6 +186,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: colors.border,
   },
 });

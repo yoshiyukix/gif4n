@@ -11,6 +11,7 @@ import { NativeGifService } from '../infrastructure/NativeGifService';
 import { SizeEstimator } from '../usecases/SizeEstimator';
 import { QUALITY_PRESETS } from '../types';
 import { useSettings } from '../hooks/useSettings';
+import { colors } from '../theme';
 import CircularProgress from '../components/CircularProgress';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Converting'>;
@@ -91,7 +92,7 @@ export default function ConvertingScreen({ route, navigation }: Props) {
           <Text style={styles.heading}>変換中...</Text>
           <Text style={styles.subHeading}>フレームを最適化しています...</Text>
           <View style={styles.chip}>
-            <Ionicons name="flash" size={14} color="#2855E7" style={styles.chipIcon} />
+            <Ionicons name="flash" size={14} color={colors.accent} style={styles.chipIcon} />
             <Text style={styles.chipText}>高速エンコード実行中</Text>
           </View>
         </View>
@@ -136,7 +137,7 @@ export default function ConvertingScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#EAECF4',
+    backgroundColor: colors.surface,
   },
   container: {
     flex: 1,
@@ -156,16 +157,16 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1C1E2A',
+    color: colors.textPrimary,
   },
   subHeading: {
     fontSize: 15,
-    color: '#737590',
+    color: colors.textSecondary,
   },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#DDE4F8',
+    backgroundColor: colors.accentSubtle,
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -177,12 +178,12 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#2855E7',
+    color: colors.accent,
   },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.cardBackground,
     borderRadius: 12,
     padding: 12,
     width: '100%',
@@ -199,7 +200,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   thumbnailPlaceholder: {
-    backgroundColor: '#D8DCF0',
+    backgroundColor: colors.placeholder,
   },
   cardInfo: {
     flex: 1,
@@ -208,18 +209,18 @@ const styles = StyleSheet.create({
   fileName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1C1E2A',
+    color: colors.textPrimary,
   },
   fileMeta: {
     fontSize: 13,
-    color: '#737590',
+    color: colors.textSecondary,
   },
   spacer: {
     flex: 1,
   },
   cancelButton: {
     width: '100%',
-    backgroundColor: '#CDD4EE',
+    backgroundColor: colors.placeholder,
     borderRadius: 32,
     paddingVertical: 18,
     alignItems: 'center',
@@ -227,6 +228,6 @@ const styles = StyleSheet.create({
   cancelText: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1C1E2A',
+    color: colors.textPrimary,
   },
 });

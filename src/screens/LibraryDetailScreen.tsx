@@ -14,6 +14,7 @@ import * as Sharing from 'expo-sharing';
 import { LibraryStackParamList } from '../navigation/types';
 import { GifPreview } from '../components/GifPreview';
 import { SaveToast } from '../components/SaveToast';
+import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<LibraryStackParamList, 'LibraryDetail'>;
 
@@ -68,7 +69,7 @@ export default function LibraryDetailScreen({ route, navigation }: Props) {
           style={styles.backBtn}
           activeOpacity={0.7}
         >
-          <Ionicons name="chevron-back" size={24} color="#1C1C1E" />
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>GIF</Text>
         <View style={styles.backBtn} />
@@ -133,17 +134,17 @@ export default function LibraryDetailScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: colors.surface,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     paddingHorizontal: 8,
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: colors.border,
   },
   backBtn: {
     width: 44,
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1C1C1E',
+    color: colors.textPrimary,
   },
   scroll: { flex: 1 },
   scrollContent: {
@@ -165,7 +166,7 @@ const styles = StyleSheet.create({
 
   // カード
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.cardBackground,
     borderRadius: 16,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -199,7 +200,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: colors.border,
     marginHorizontal: 16,
   },
   infoRow: {
@@ -209,8 +210,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
   },
-  infoLabel: { fontSize: 14, color: '#3C3C43' },
-  infoValue: { fontSize: 14, fontWeight: '600', color: '#1C1C1E' },
+  infoLabel: { fontSize: 14, color: colors.textTertiary },
+  infoValue: { fontSize: 14, fontWeight: '600', color: colors.textPrimary },
 
   // アクション
   actions: { gap: 12 },
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
     paddingVertical: 17,
   },
   pillDisabled: { opacity: 0.6 },
-  sharePill: { backgroundColor: '#34C759' },
+  sharePill: { backgroundColor: colors.accent },
   pillIcon: { marginRight: 8 },
   pillText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });

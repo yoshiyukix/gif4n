@@ -268,12 +268,12 @@ export function TrimSlider({
                         resizeMode="cover"
                       />
                     ) : (
-                      <View style={[StyleSheet.absoluteFill, { backgroundColor: '#C7C7CC' }]} />
+                      <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.borderStrong }]} />
                     )}
                   </View>
                 ))
               : Array.from({ length: THUMB_COUNT }).map((_, i) => (
-                  <View key={i} style={[styles.thumbCell, { backgroundColor: '#C7C7CC' }]} />
+                  <View key={i} style={[styles.thumbCell, { backgroundColor: colors.borderStrong }]} />
                 ))}
           </View>
 
@@ -419,5 +419,5 @@ const styles = StyleSheet.create({
     marginTop: 6,
     paddingHorizontal: 2,
   },
-  labelText: { fontSize: 12, color: '#8E8E93' },
+  labelText: { fontSize: 12, color: colors.textSecondary },
 });

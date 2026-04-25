@@ -22,7 +22,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Result'>;
 const media = new MediaService();
 
 import { colors } from '../theme';
-const GREEN = '#34C759';
+const GREEN = colors.accent;
 
 type ToastState = { type: 'success' | 'error'; message: string };
 
@@ -157,7 +157,7 @@ export default function ResultScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: colors.surface,
   },
   scroll: {
     flex: 1,
@@ -191,17 +191,17 @@ const styles = StyleSheet.create({
   successTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1C1C1E',
+    color: colors.textPrimary,
     marginBottom: 6,
   },
   successSubtitle: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: colors.textSecondary,
   },
 
   // カード
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.cardBackground,
     borderRadius: 16,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: colors.border,
     marginHorizontal: 16,
   },
   infoRow: {
@@ -249,12 +249,12 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-    color: '#3C3C43',
+    color: colors.textTertiary,
   },
   infoValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1C1C1E',
+    color: colors.textPrimary,
   },
 
   // アクション
@@ -290,12 +290,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 50,
     borderWidth: 1,
-    borderColor: '#C7C7CC',
+    borderColor: colors.borderStrong,
     paddingVertical: 17,
   },
   backText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#3C3C43',
+    color: colors.textTertiary,
   },
 });

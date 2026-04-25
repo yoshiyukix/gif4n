@@ -75,11 +75,11 @@ export function AppTabBar({ state, navigation }: BottomTabBarProps) {
 const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: colors.cardBackground,
     paddingTop: 12,
     paddingBottom: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#E5E5EA',
+    borderTopColor: colors.border,
   },
   tabItem: {
     flex: 1,
@@ -91,13 +91,13 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: colors.textSecondary,
     letterSpacing: 0.5,
   },
   tabLabelActive: {
     color: colors.primary,
   },
   safeArea: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.cardBackground,
   },
 });

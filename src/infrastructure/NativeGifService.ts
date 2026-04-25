@@ -25,7 +25,7 @@ export class AbortError extends Error {
 export interface INativeGifService {
   /**
    * Platform Channel 経由でネイティブ GIF 変換を実行する。
-   * iOS: AVFoundation + ImageIO
+   * iOS: AVFoundation + gifski (Swift)
    * Android: gifski (Kotlin ネイティブモジュール)
    * @returns 出力 GIF のローカル URI
    */
@@ -71,7 +71,7 @@ interface GifToNoteNativeModule {
  * Expo Modules API（Platform Channel）経由で iOS / Android のネイティブ GIF 変換を呼び出す。
  *
  * 実機実装:
- *   - iOS: AVFoundation + ImageIO (Swift) — ios/GifToNoteModule.swift
+ *   - iOS: AVFoundation + gifski (Swift) — ios/GifToNoteModule.swift
  *   - Android: gifski NDK (Kotlin) — android/.../GifToNoteModule.kt
  */
 export class NativeGifService implements INativeGifService {

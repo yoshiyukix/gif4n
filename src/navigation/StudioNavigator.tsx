@@ -5,6 +5,7 @@ import HomeScreen from '../screens/HomeScreen';
 import TrimScreen from '../screens/TrimScreen';
 import ConvertingScreen from '../screens/ConvertingScreen';
 import ResultScreen from '../screens/ResultScreen';
+import { colors } from '../theme';
 
 const Stack = createNativeStackNavigator<StudioStackParamList>();
 
@@ -20,12 +21,12 @@ export function StudioNavigator() {
       <Stack.Screen
         name="Converting"
         component={ConvertingScreen}
-        options={{ title: '変換中', headerBackVisible: false }}
+        options={{ title: '変換中', headerBackVisible: false, headerStyle: { backgroundColor: colors.surface } }}
       />
       <Stack.Screen
         name="Result"
         component={ResultScreen}
-        options={{ title: 'Done', headerBackVisible: false, headerLeft: () => null }}
+        options={{ title: 'Done', headerBackVisible: false, headerLeft: () => null, headerStyle: { backgroundColor: colors.surface } }}
       />
     </Stack.Navigator>
   );

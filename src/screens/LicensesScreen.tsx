@@ -64,7 +64,7 @@ export default function LicensesScreen({ navigation }: Props) {
               <Text style={styles.modalSubtitle}>{selected?.license}</Text>
             </View>
             <TouchableOpacity onPress={() => setSelected(null)} style={styles.closeButton}>
-              <Ionicons name="close" size={22} color="#3C3C43" />
+              <Ionicons name="close" size={22} color={colors.textTertiary} />
             </TouchableOpacity>
           </View>
           <ScrollView style={styles.modalBody} contentContainerStyle={styles.modalBodyContent}>
@@ -81,7 +81,7 @@ export default function LicensesScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: colors.surface,
   },
   header: {
     flexDirection: 'row',
@@ -89,9 +89,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: colors.border,
   },
   backButton: {
     width: 40,
@@ -100,18 +100,18 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1C1C1E',
+    color: colors.textPrimary,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: colors.border,
     marginLeft: 16,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: colors.cardBackground,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
@@ -122,11 +122,11 @@ const styles = StyleSheet.create({
   packageName: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#1C1C1E',
+    color: colors.textPrimary,
   },
   packageVersion: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: colors.textSecondary,
     marginTop: 2,
   },
   licenseTag: {
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   },
   modalSafeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.cardBackground,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -144,16 +144,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: colors.border,
   },
   modalTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1C1C1E',
+    color: colors.textPrimary,
   },
   modalSubtitle: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: colors.textSecondary,
     marginTop: 2,
   },
   closeButton: {
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
   licenseText: {
     fontSize: 12,
-    color: '#3C3C43',
+    color: colors.textTertiary,
     lineHeight: 18,
     fontFamily: 'Courier',
   },

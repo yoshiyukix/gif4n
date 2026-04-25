@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
+import { colors } from '../theme';
 
 interface Props {
   /** 進捗 0.0 〜 1.0 */
@@ -26,7 +27,7 @@ export default function CircularProgress({ progress, size = 220, strokeWidth = 1
             cx={center}
             cy={center}
             r={radius}
-            stroke="#D8DCF0"
+            stroke={colors.placeholder}
             strokeWidth={strokeWidth}
             fill="none"
           />
@@ -35,7 +36,7 @@ export default function CircularProgress({ progress, size = 220, strokeWidth = 1
             cx={center}
             cy={center}
             r={radius}
-            stroke="#2855E7"
+            stroke={colors.primary}
             strokeWidth={strokeWidth}
             fill="none"
             strokeDasharray={circumference}
@@ -59,13 +60,13 @@ const styles = StyleSheet.create({
   percent: {
     fontSize: 44,
     fontWeight: '700',
-    color: '#1C1E2A',
+    color: colors.textPrimary,
     letterSpacing: -1,
   },
   processing: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#737590',
+    color: colors.textSecondary,
     letterSpacing: 1.5,
   },
 });
