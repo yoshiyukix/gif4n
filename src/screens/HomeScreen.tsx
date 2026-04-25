@@ -14,11 +14,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as MediaLibrary from 'expo-media-library';
-import * as VideoThumbnails from 'expo-video-thumbnails';
-import * as FileSystem from 'expo-file-system/legacy';
 import * as DocumentPicker from 'expo-document-picker';
 import { RootStackParamList } from '../navigation/types';
 import { useVideoImport } from '../hooks/useVideoImport';
+import { useVideoThumbnail } from '../hooks/useVideoThumbnail';
 import { normalizeMediaLibraryUri } from '../utils/mediaUtils';
 import { colors } from '../theme';
 
@@ -41,37 +40,7 @@ type TileProps = {
 };
 
 const VideoTile = memo(({ asset, onPress }: TileProps) => {
-  const [thumbUri, setThumbUri] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const info = await MediaLibrary.getAssetInfoAsync(asset);
-      const localUri = normalizeMediaLibraryUri(info.localUri ?? '');
-      if (!localUri) {
-        // eslint-disable-next-line no-console
-        console.warn('[VideoTile] no localUri', asset.uri);
-        return;
-      }
-      const ext = localUri.split('.').pop() ?? 'mov';
-      const safeId = asset.id.replace(/\//g, '_');
-      const tempUri = `${FileSystem.cacheDirectory}thumb-${safeId}.${ext}`;
-      try {
-        // 権限エラーを避けるため、アクセス元に関わらず必ずキャッシュへコピーしてから生成
-        await FileSystem.copyAsync({ from: localUri, to: tempUri });
-        const { uri } = await VideoThumbnails.getThumbnailAsync(tempUri, { time: 0 });
-        if (!cancelled) setThumbUri(uri);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('[VideoTile] thumbnail failed', asset.uri, e);
-      } finally {
-        FileSystem.deleteAsync(tempUri, { idempotent: true }).catch(() => {});
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [asset]);
+  const thumbUri = useVideoThumbnail(asset);
 
   return (
     <TouchableOpacity style={styles.tile} onPress={() => onPress(asset)} activeOpacity={0.8}>

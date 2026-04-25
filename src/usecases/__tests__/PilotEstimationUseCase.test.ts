@@ -1,5 +1,4 @@
-import { PilotEstimationUseCase } from '../PilotEstimationUseCase';
-import { INativeGifService } from '../../infrastructure/NativeGifService';
+import { PilotEstimationUseCase, IPilotNativeService } from '../PilotEstimationUseCase';
 import { VideoSource, QUALITY_PRESETS } from '../../types';
 
 // ─── ヘルパー ────────────────────────────────────────────────────
@@ -17,7 +16,7 @@ function makeSource(overrides: Partial<VideoSource> = {}): VideoSource {
 
 function makeNativeService(
   bytesPerSec = 100_000,
-): jest.Mocked<Pick<INativeGifService, 'convertPilot'>> {
+): jest.Mocked<IPilotNativeService> {
   return {
     convertPilot: jest.fn().mockResolvedValue(bytesPerSec),
   };
@@ -29,7 +28,7 @@ describe('PilotEstimationUseCase', () => {
   describe('run()', () => {
     it('convertPilot の結果を bytes/sec として返す', async () => {
       const native = makeNativeService(200_000);
-      const useCase = new PilotEstimationUseCase(native as unknown as INativeGifService);
+      const useCase = new PilotEstimationUseCase(native);
       const controller = new AbortController();
 
       const result = await useCase.run(makeSource(), controller.signal);
@@ -43,7 +42,7 @@ describe('PilotEstimationUseCase', () => {
           .fn()
           .mockRejectedValue(Object.assign(new Error('cancelled'), { name: 'AbortError' })),
       };
-      const useCase = new PilotEstimationUseCase(native as unknown as INativeGifService);
+      const useCase = new PilotEstimationUseCase(native);
       const controller = new AbortController();
 
       const result = await useCase.run(makeSource(), controller.signal);
@@ -53,7 +52,7 @@ describe('PilotEstimationUseCase', () => {
 
     it('convertPilot が予期しないエラーを投げると null を返す', async () => {
       const native = { convertPilot: jest.fn().mockRejectedValue(new Error('native error')) };
-      const useCase = new PilotEstimationUseCase(native as unknown as INativeGifService);
+      const useCase = new PilotEstimationUseCase(native);
       const controller = new AbortController();
 
       const result = await useCase.run(makeSource(), controller.signal);
@@ -63,7 +62,7 @@ describe('PilotEstimationUseCase', () => {
 
     it('convertPilot が 0 を返したとき null を返す', async () => {
       const native = makeNativeService(0);
-      const useCase = new PilotEstimationUseCase(native as unknown as INativeGifService);
+      const useCase = new PilotEstimationUseCase(native);
       const controller = new AbortController();
 
       const result = await useCase.run(makeSource(), controller.signal);
@@ -77,7 +76,7 @@ describe('PilotEstimationUseCase', () => {
 
     beforeEach(() => {
       const native = makeNativeService();
-      useCase = new PilotEstimationUseCase(native as unknown as INativeGifService);
+      useCase = new PilotEstimationUseCase(native);
     });
 
     it('短時間トリムでは最高品質（インデックス 0）を返す', () => {

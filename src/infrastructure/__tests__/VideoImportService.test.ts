@@ -193,6 +193,20 @@ describe('VideoImportService — importFileUri', () => {
     expect(source.uri).toMatch(/\.mp4$/);
   });
 
+  it('スラッシュを含むファイル名はバス名から拡張子を抽出する', async () => {
+    const service = new VideoImportService();
+    const source = await service.importFileUri(fileUri, 'video/path/file.MOV', fileSize);
+
+    expect(source.uri).toMatch(/\.MOV$/);
+  });
+
+  it('不正な拡張子（ドットと英数字以外）は .mp4 にフォールバックする', async () => {
+    const service = new VideoImportService();
+    const source = await service.importFileUri(fileUri, 'test.../evil', fileSize);
+
+    expect(source.uri).toMatch(/\.mp4$/);
+  });
+
   it('statusChange で error が発火された場合は durationSec=0 を返す', async () => {
     jest.mocked(createVideoPlayer).mockReturnValue({
       duration: 0,

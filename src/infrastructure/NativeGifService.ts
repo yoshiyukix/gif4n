@@ -82,7 +82,7 @@ export class NativeGifService implements INativeGifService {
       // requireNativeModule は Expo Modules API のエントリポイント
       this.native = requireNativeModule<GifToNoteNativeModule>('GifToNote');
     }
-    return this.native!;
+    return this.native;
   }
 
   async convert(

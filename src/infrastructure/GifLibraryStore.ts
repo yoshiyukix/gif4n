@@ -41,7 +41,9 @@ export async function getGifEntries(): Promise<LibraryGifEntry[]> {
         typeof (e as LibraryGifEntry).preset === 'object' &&
         (e as LibraryGifEntry).preset !== null &&
         typeof (e as LibraryGifEntry).preset?.width === 'number' &&
-        typeof (e as LibraryGifEntry).preset?.fps === 'number',
+        typeof (e as LibraryGifEntry).preset?.fps === 'number' &&
+        ([320, 480, 620] as number[]).includes((e as LibraryGifEntry).preset.width) &&
+        ([10, 15] as number[]).includes((e as LibraryGifEntry).preset.fps),
     );
   } catch {
     return [];

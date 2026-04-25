@@ -1,0 +1,200 @@
+import React from 'react';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { Alert } from 'react-native';
+import { ConversionJob, QUALITY_PRESETS } from '../../types';
+
+// ─── モック ──────────────────────────────────────────────────────
+
+const mockStart = jest.fn();
+const mockCancel = jest.fn();
+let mockJob: ConversionJob | null = null;
+
+const mockSettings = { maxSizeMb: 10 };
+let mockIsLoaded = true;
+
+jest.mock('../../hooks/useConversionProcess', () => ({
+  useConversionProcess: jest.fn(),
+}));
+jest.mock('../../hooks/useSettings', () => ({
+  useSettings: jest.fn(),
+}));
+jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Ionicons' }));
+jest.mock('../../components/CircularProgress', () => 'CircularProgress');
+jest.mock('react-native-safe-area-context', () => ({
+  SafeAreaView: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+// テストごとにモック戻り値を設定
+import { useConversionProcess } from '../../hooks/useConversionProcess';
+import { useSettings } from '../../hooks/useSettings';
+const mockUseConversionProcess = useConversionProcess as jest.Mock;
+const mockUseSettings = useSettings as jest.Mock;
+
+// ─── テスト用フィクスチャ ─────────────────────────────────────────
+
+const mockSource = {
+  uri: 'file:///tmp/input.mp4',
+  durationSec: 10,
+  width: 1280,
+  height: 720,
+  fileSizeBytes: 5_000_000,
+};
+
+const mockTrimRange = { startSec: 0, endSec: 5 };
+
+const mockReplace = jest.fn();
+const mockGoBack = jest.fn();
+
+function makeNavigation() {
+  return {
+    replace: mockReplace,
+    goBack: mockGoBack,
+  };
+}
+
+function makeRouteParams(overrides: Record<string, unknown> = {}) {
+  return {
+    params: {
+      source: mockSource,
+      trimRange: mockTrimRange,
+      thumbnailUri: null,
+      estimatedStartIndex: undefined,
+      ...overrides,
+    },
+  };
+}
+
+// ConvertingScreen を遅延インポート（モックセットアップ後）
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const ConvertingScreen = require('../ConvertingScreen').default;
+
+function renderScreen(job: ConversionJob | null = null) {
+  mockJob = job;
+  mockUseConversionProcess.mockReturnValue({
+    job: mockJob,
+    start: mockStart,
+    cancel: mockCancel,
+  });
+  mockUseSettings.mockReturnValue({
+    settings: mockSettings,
+    isLoaded: mockIsLoaded,
+  });
+
+  return render(
+    React.createElement(ConvertingScreen, {
+      route: makeRouteParams(),
+      navigation: makeNavigation(),
+    }),
+  );
+}
+
+// ─── テストスイート ───────────────────────────────────────────────
+
+describe('ConvertingScreen', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockIsLoaded = true;
+    mockJob = null;
+  });
+
+  it('job.status === "done" のとき navigation.replace("Result", ...) が呼ばれる', async () => {
+    const doneJob: ConversionJob = {
+      source: mockSource,
+      trim: mockTrimRange,
+      preset: QUALITY_PRESETS[0],
+      status: 'done',
+      progressRate: 1.0,
+      outputUri: 'file:///tmp/out.gif',
+      outputSizeBytes: 1_000_000,
+    };
+
+    renderScreen(doneJob);
+
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('Result', {
+        gifUri: 'file:///tmp/out.gif',
+        sizeBytes: 1_000_000,
+        preset: QUALITY_PRESETS[0],
+      });
+    });
+  });
+
+  it('job.status === "cancelled" のとき navigation.goBack() が呼ばれる', async () => {
+    const cancelledJob: ConversionJob = {
+      source: mockSource,
+      trim: mockTrimRange,
+      preset: QUALITY_PRESETS[0],
+      status: 'cancelled',
+      progressRate: 0,
+      outputUri: null,
+      outputSizeBytes: null,
+    };
+
+    renderScreen(cancelledJob);
+
+    await waitFor(() => {
+      expect(mockGoBack).toHaveBeenCalled();
+    });
+  });
+
+  it('job.status === "error"（too_large）のとき Alert.alert("動画が長すぎます", ...) が表示される', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    const errorJob: ConversionJob = {
+      source: mockSource,
+      trim: mockTrimRange,
+      preset: QUALITY_PRESETS[5],
+      status: 'error',
+      progressRate: 0,
+      outputUri: null,
+      outputSizeBytes: null,
+      errorReason: 'too_large',
+      errorMessage: '全品質設定で 10MB を超えました。',
+    };
+
+    renderScreen(errorJob);
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith(
+        '動画が長すぎます',
+        expect.any(String),
+        expect.any(Array),
+      );
+    });
+    alertSpy.mockRestore();
+  });
+
+  it('job.status === "error"（native_error）のとき Alert.alert("変換エラー", ...) が表示される', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    const errorJob: ConversionJob = {
+      source: mockSource,
+      trim: mockTrimRange,
+      preset: QUALITY_PRESETS[0],
+      status: 'error',
+      progressRate: 0,
+      outputUri: null,
+      outputSizeBytes: null,
+      errorReason: 'native_error',
+      errorMessage: 'ネイティブエラーが発生しました',
+    };
+
+    renderScreen(errorJob);
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith(
+        '変換エラー',
+        expect.any(String),
+        expect.any(Array),
+      );
+    });
+    alertSpy.mockRestore();
+  });
+
+  it('キャンセルボタン押下で cancel() が呼ばれる', () => {
+    renderScreen(null);
+
+    const { getByText } = renderScreen(null);
+    fireEvent.press(getByText('キャンセル'));
+
+    expect(mockCancel).toHaveBeenCalled();
+  });
+});

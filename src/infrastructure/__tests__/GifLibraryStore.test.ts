@@ -101,6 +101,24 @@ describe('GifLibraryStore', () => {
       expect(entries).toHaveLength(1);
       expect(entries[0].assetId).toBe('valid');
     });
+
+    it('preset.width が許容値外（例: 999）のエントリはフィルタリングされる', async () => {
+      mockFileContent = JSON.stringify([
+        { assetId: 'a', sizeBytes: 100, createdAt: 1000, preset: { width: 999, fps: 15 } },
+      ]);
+
+      const entries = await getGifEntries();
+      expect(entries).toEqual([]);
+    });
+
+    it('preset.fps が許容値外（例: 99）のエントリはフィルタリングされる', async () => {
+      mockFileContent = JSON.stringify([
+        { assetId: 'a', sizeBytes: 100, createdAt: 1000, preset: { width: 620, fps: 99 } },
+      ]);
+
+      const entries = await getGifEntries();
+      expect(entries).toEqual([]);
+    });
   });
 
   // ────────────────────────────

@@ -18,11 +18,21 @@
   },
   "jest": {
     "preset": "jest-expo/node",
+    "setupFiles": [
+      "<rootDir>/node_modules/react-native/jest/setup.js"
+    ],
     "setupFilesAfterEnv": [
       "./jest.setup.js"
     ],
+    "haste": {
+      "defaultPlatform": "ios"
+    },
     "moduleNameMapper": {
-      "^react-native$": "<rootDir>/node_modules/react-native"
+      "^react-native$": "<rootDir>/node_modules/react-native",
+      "^react-native-web(.*)$": "<rootDir>/__mocks__/react-native-web.js"
+    },
+    "transform": {
+      "\\.[jt]sx?$": ["babel-jest", {"caller": {"name": "metro", "bundler": "metro", "platform": "ios"}}]
     },
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)"

@@ -1,5 +1,4 @@
 import { VideoSource, QUALITY_PRESETS, PILOT_PRESET_INDEX } from '../types';
-import { INativeGifService } from '../infrastructure/NativeGifService';
 
 // パイロット変換に使用するプリセット（中間品質 = 最高品質への外挿倍率を最小化）
 const PILOT_PRESET = QUALITY_PRESETS[PILOT_PRESET_INDEX];
@@ -11,6 +10,11 @@ const PILOT_PRESET = QUALITY_PRESETS[PILOT_PRESET_INDEX];
 const PRESET_SCALE_FACTORS: number[] = QUALITY_PRESETS.map(
   (p) => (p.width * p.width * p.fps) / (PILOT_PRESET.width * PILOT_PRESET.width * PILOT_PRESET.fps),
 );
+
+/** PilotEstimationUseCase が必要とするネイティブサービスの最小インターフェース */
+export interface IPilotNativeService {
+  convertPilot(source: VideoSource, signal: AbortSignal): Promise<number>;
+}
 
 export interface IPilotEstimationUseCase {
   /**
@@ -30,7 +34,7 @@ export interface IPilotEstimationUseCase {
 }
 
 export class PilotEstimationUseCase implements IPilotEstimationUseCase {
-  constructor(private readonly native: INativeGifService) {}
+  constructor(private readonly native: IPilotNativeService) {}
 
   async run(source: VideoSource, signal: AbortSignal): Promise<number | null> {
     try {

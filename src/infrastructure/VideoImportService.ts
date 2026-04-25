@@ -107,6 +107,12 @@ export class VideoImportService implements IVideoImportService {
   }
 
   private getFileExtension(filename: string): string {
-    return filename.includes('.') ? filename.slice(filename.lastIndexOf('.')) : '.mp4';
+    // パス区切り文字を除去してファイル名のみを取り出す
+    const basename = filename.split('/').pop() ?? filename;
+    const dotIndex = basename.lastIndexOf('.');
+    if (dotIndex <= 0) return '.mp4';
+    const ext = basename.slice(dotIndex);
+    // 拡張子に使える文字のみ許可（英数字）
+    return /^\.[a-zA-Z0-9]+$/.test(ext) ? ext : '.mp4';
   }
 }
