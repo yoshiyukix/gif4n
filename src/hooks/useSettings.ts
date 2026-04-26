@@ -25,7 +25,7 @@ export function useSettings(): UseSettingsResult {
       .then((raw) => {
         if (raw) {
           const parsed: unknown = JSON.parse(raw);
-          const VALID_MAX_SIZE_MB: ReadonlyArray<number> = [6, 8, 10];
+          const VALID_MAX_SIZE_MB: readonly number[] = [6, 8, 10];
           const sanitized: Partial<AppSettings> = {};
           if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
             const p = parsed as Record<string, unknown>;

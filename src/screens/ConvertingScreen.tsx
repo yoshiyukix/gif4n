@@ -13,12 +13,7 @@ import CircularProgress from '../components/CircularProgress';
 type Props = NativeStackScreenProps<RootStackParamList, 'Converting'>;
 
 export default function ConvertingScreen({ route, navigation }: Props) {
-  const {
-    source,
-    trimRange,
-    thumbnailUri,
-    estimatedStartIndex,
-  } = route.params;
+  const { source, trimRange, thumbnailUri, estimatedStartIndex } = route.params;
 
   const { settings, isLoaded } = useSettings();
   const { job, start, cancel } = useConversionProcess(settings.maxSizeMb * 1024 * 1024);

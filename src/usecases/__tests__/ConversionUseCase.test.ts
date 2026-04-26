@@ -1,6 +1,5 @@
-import { ConversionUseCase } from '../ConversionUseCase';
+import { ConversionUseCase, IConversionNativeService } from '../ConversionUseCase';
 import { SizeEstimator } from '../SizeEstimator';
-import { INativeGifService } from '../../infrastructure/NativeGifService';
 import { VideoSource, TrimRange, QualityPreset, QUALITY_PRESETS } from '../../types';
 
 // ────────────────────────────────────────────────
@@ -25,7 +24,7 @@ function makeTrim(startSec = 0, endSec = 10): TrimRange {
 }
 
 /** 指定サイズの GIF を返すモック NativeGifService */
-function makeNativeMock(outputSizeBytes: number): jest.Mocked<INativeGifService> {
+function makeNativeMock(outputSizeBytes: number): jest.Mocked<IConversionNativeService> {
   return {
     convert: jest
       .fn()
@@ -43,12 +42,11 @@ function makeNativeMock(outputSizeBytes: number): jest.Mocked<INativeGifService>
           return `file:///tmp/out_${outputSizeBytes}.gif`;
         },
       ),
-    convertPilot: jest.fn().mockResolvedValue(100_000),
   };
 }
 
 /** キャンセルをシミュレートするモック */
-function makeCancelMock(): jest.Mocked<INativeGifService> {
+function makeCancelMock(): jest.Mocked<IConversionNativeService> {
   return {
     convert: jest
       .fn()
@@ -65,15 +63,13 @@ function makeCancelMock(): jest.Mocked<INativeGifService> {
           return 'file:///tmp/out.gif';
         },
       ),
-    convertPilot: jest.fn().mockResolvedValue(100_000),
   };
 }
 
 /** ネイティブエラーをシミュレートするモック */
-function makeErrorMock(message: string): jest.Mocked<INativeGifService> {
+function makeErrorMock(message: string): jest.Mocked<IConversionNativeService> {
   return {
     convert: jest.fn().mockRejectedValue(new Error(message)),
-    convertPilot: jest.fn().mockResolvedValue(100_000),
   };
 }
 
@@ -150,7 +146,7 @@ describe('ConversionUseCase', () => {
   describe('再試行', () => {
     it('出力が 10MB 超なら次の preset で再試行する', async () => {
       let callCount = 0;
-      const mock: jest.Mocked<INativeGifService> = {
+      const mock: jest.Mocked<IConversionNativeService> = {
         convert: jest
           .fn()
           .mockImplementation(
@@ -169,7 +165,6 @@ describe('ConversionUseCase', () => {
               return `file:///tmp/out_${size}.gif`;
             },
           ),
-        convertPilot: jest.fn().mockResolvedValue(100_000),
       };
       // 変換後にサイズを取得するため、ConversionUseCase がサイズを計算できるよう
       // モックの outputUri からサイズを解釈するかどうかは実装次第。

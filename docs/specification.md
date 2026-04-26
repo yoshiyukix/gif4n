@@ -1,7 +1,7 @@
 # 設計書: gif-to-note
 
-**バージョン**: 1.4  
-**更新日**: 2026-04-26（F-002 ファイルピッカー対応・全体バグ修正・ JSON 検証強化）  
+**バージョン**: 1.0  
+**更新日**: 2026-04-26（IConversionNativeService 分離・インターフェース定義修正・サムネイル誤記修正）  
 **作成日**: 2026-03-29  
 **対応要件定義書**: `docs/requirements.md`
 
@@ -219,27 +219,37 @@ type ConversionStatus =
 ### `ConversionUseCase`
 
 ```typescript
+/** ConversionUseCase が必要とするネイティブサービスの最小インターフェース（Domain 层内に定義） */
+export interface IConversionNativeService {
+  convert(
+    source: VideoSource,
+    trim: TrimRange,
+    preset: QualityPreset,
+    onProgress: (rate: number) => void,
+    signal: AbortSignal,
+  ): Promise<string>;
+}
+
+export interface ConversionRunOptions {
+  onProgress: (rate: number) => void;
+  signal: AbortSignal;
+  outputSizeResolver: (uri: string) => Promise<number>;
+  onPresetChange?: (preset: QualityPreset) => void;
+  maxSizeBytes?: number;         // デフォルト: 10MB
+  startIndexOverride?: number;   // パイロット変換で得たインデックス。指定時は SizeEstimator をスキップ
+}
+
 interface IConversionUseCase {
   /**
    * 品質を自動調整しながら GIF を生成する。
    * maxSizeBytes 以内に収まる最高品質の preset を試行順に探索する。
-   * startIndexOverride を指定した場合は SizeEstimator をスキップしてそこから開始する。
    */
   run(
     source: VideoSource,
     trim: TrimRange,
-    onProgress: (rate: number) => void,
-    signal: AbortSignal,
-    outputSizeResolver: (uri: string) => Promise<number>,
-    onPresetChange?: (preset: QualityPreset) => void,
-    maxSizeBytes?: number,        // デフォルト: 10 * 1024 * 1024
-    startIndexOverride?: number,  // パイロット変換で得たインデックス。指定時は SizeEstimator をスキップ
+    options: ConversionRunOptions,
   ): Promise<ConversionResult>;
 }
-
-type ConversionResult =
-  | { ok: true; outputUri: string; sizeBytes: number; preset: QualityPreset }
-  | { ok: false; reason: 'too_large' | 'cancelled' | 'native_error'; message: string };
 ```
 
 ### `NativeGifService`
@@ -468,7 +478,7 @@ npm run licenses
 | キャンセル                     | AbortSignal でネイティブ変換セッションを中断、TrimScreen へ戻る（goBack）   |
 | 権限拒否                       | 設定画面へ誘導するアラートを表示                                            |
 | 非対応フォーマット動画選択     | HomeScreen で Alert 表示（シネマティックモード・スパーシャルビデオ等）      |
-| サムネイル生成失敗（PhotoData）| キャッシュへコピーしてから生成を再試行。失敗時は黒タイルにフォールバック    |
+| サムネイル生成失敗（PhotoData）| キャッシュへコピーしてから生成を試行。失敗時は null を返し黒タイルにフォールバック |
 
 ---
 

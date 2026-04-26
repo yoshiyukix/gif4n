@@ -18,7 +18,6 @@ import * as DocumentPicker from 'expo-document-picker';
 import { RootStackParamList } from '../navigation/types';
 import { useVideoImport } from '../hooks/useVideoImport';
 import { useVideoThumbnail } from '../hooks/useVideoThumbnail';
-import { normalizeMediaLibraryUri } from '../utils/mediaUtils';
 import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;

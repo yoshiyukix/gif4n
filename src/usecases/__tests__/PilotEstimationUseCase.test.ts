@@ -14,9 +14,7 @@ function makeSource(overrides: Partial<VideoSource> = {}): VideoSource {
   };
 }
 
-function makeNativeService(
-  bytesPerSec = 100_000,
-): jest.Mocked<IPilotNativeService> {
+function makeNativeService(bytesPerSec = 100_000): jest.Mocked<IPilotNativeService> {
   return {
     convertPilot: jest.fn().mockResolvedValue(bytesPerSec),
   };

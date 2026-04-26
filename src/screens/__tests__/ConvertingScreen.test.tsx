@@ -2,6 +2,8 @@ import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import { ConversionJob, QUALITY_PRESETS } from '../../types';
+import { useConversionProcess } from '../../hooks/useConversionProcess';
+import { useSettings } from '../../hooks/useSettings';
 
 // ─── モック ──────────────────────────────────────────────────────
 
@@ -24,9 +26,6 @@ jest.mock('react-native-safe-area-context', () => ({
   SafeAreaView: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-// テストごとにモック戻り値を設定
-import { useConversionProcess } from '../../hooks/useConversionProcess';
-import { useSettings } from '../../hooks/useSettings';
 const mockUseConversionProcess = useConversionProcess as jest.Mock;
 const mockUseSettings = useSettings as jest.Mock;
 
@@ -180,11 +179,7 @@ describe('ConvertingScreen', () => {
     renderScreen(errorJob);
 
     await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalledWith(
-        '変換エラー',
-        expect.any(String),
-        expect.any(Array),
-      );
+      expect(alertSpy).toHaveBeenCalledWith('変換エラー', expect.any(String), expect.any(Array));
     });
     alertSpy.mockRestore();
   });

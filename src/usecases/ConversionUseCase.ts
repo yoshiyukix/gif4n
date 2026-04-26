@@ -1,6 +1,16 @@
 import { VideoSource, TrimRange, ConversionResult, QualityPreset, QUALITY_PRESETS } from '../types';
-import { INativeGifService } from '../infrastructure/NativeGifService';
 import { ISizeEstimator } from './SizeEstimator';
+
+/** ConversionUseCase が必要とするネイティブサービスの最小インターフェース */
+export interface IConversionNativeService {
+  convert(
+    source: VideoSource,
+    trim: TrimRange,
+    preset: QualityPreset,
+    onProgress: (rate: number) => void,
+    signal: AbortSignal,
+  ): Promise<string>;
+}
 
 const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
@@ -34,7 +44,7 @@ export interface IConversionUseCase {
 
 export class ConversionUseCase implements IConversionUseCase {
   constructor(
-    private readonly native: INativeGifService,
+    private readonly native: IConversionNativeService,
     private readonly estimator: ISizeEstimator,
   ) {}
 
