@@ -3,7 +3,7 @@ import AVFoundation
 @_implementationOnly import gifski
 
 // ─────────────────────────────────────────────────────────────
-// GifToNote Expo Native Module (iOS)
+// Gif4n Expo Native Module (iOS)
 //
 // 機能:
 //   - AVAssetImageGenerator で指定範囲のフレームを抽出
@@ -23,12 +23,12 @@ public struct ConvertParams: Record {
   @Field public var sessionId: String = ""
 }
 
-public class GifToNoteModule: Module {
+public class Gif4nModule: Module {
   private var activeSessions: [String: Bool] = [:]
   private let lock = NSLock()
 
   public func definition() -> ModuleDefinition {
-    Name("GifToNote")
+    Name("Gif4n")
 
     Events("onProgress")
 

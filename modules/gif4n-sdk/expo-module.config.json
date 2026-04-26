@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["Gif4nModule"]
+  },
+  "android": {
+    "modules": ["com.gif4n.app.Gif4nModule"]
+  }
+}

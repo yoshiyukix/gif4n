@@ -22,7 +22,7 @@ licenseChecker.init(
   {
     start: ROOT,
     production: true,
-    excludePackages: 'gif-to-note-app;gif-to-note-sdk',
+    excludePackages: 'gif4n;gif4n-sdk',
     // ライセンス全文を含める
     customFormat: {
       name: '',

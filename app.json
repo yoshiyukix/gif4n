@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "gif-to-note-app",
-    "slug": "gif-to-note-app",
+    "name": "gif4n",
+    "slug": "gif4n",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,10 +16,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.giftonote.app"
+      "bundleIdentifier": "com.gif4n.app"
     },
     "android": {
-      "package": "com.giftonote.app",
+      "package": "com.gif4n.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

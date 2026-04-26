@@ -1,9 +1,0 @@
-{
-  "platforms": ["apple", "android"],
-  "apple": {
-    "modules": ["GifToNoteModule"]
-  },
-  "android": {
-    "modules": ["com.giftonote.app.GifToNoteModule"]
-  }
-}

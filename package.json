@@ -1,5 +1,5 @@
 {
-  "name": "gif-to-note-app",
+  "name": "gif4n",
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
@@ -53,7 +53,7 @@
     "expo-status-bar": "~55.0.5",
     "expo-video": "~55.0.15",
     "expo-video-thumbnails": "~55.0.14",
-    "gif-to-note-sdk": "file:./modules/gif-to-note-sdk",
+    "gif4n-sdk": "file:./modules/gif4n-sdk",
     "react": "19.2.0",
     "react-native": "0.83.4",
     "react-native-image-picker": "^8.2.1",

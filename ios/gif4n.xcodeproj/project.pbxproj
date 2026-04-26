@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		2EA1E795B31F391AED2D191D /* libPods-giftonoteapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D28E61E660F2A3EBFA24D98 /* libPods-giftonoteapp.a */; };
+		2EA1E795B31F391AED2D191D /* libPods-gif4n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D28E61E660F2A3EBFA24D98 /* libPods-gif4n.a */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		4E4DE82949031A4F7B72DA1B /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB96BB08616776462ECE45B /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
@@ -17,19 +17,19 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		13B07F961A680F5B00A75B9A /* giftonoteapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = giftonoteapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = giftonoteapp/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = giftonoteapp/Info.plist; sourceTree = "<group>"; };
-		7A965EB53A5EC85AF17A562A /* Pods-giftonoteapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-giftonoteapp.release.xcconfig"; path = "Target Support Files/Pods-giftonoteapp/Pods-giftonoteapp.release.xcconfig"; sourceTree = "<group>"; };
-		7D28E61E660F2A3EBFA24D98 /* libPods-giftonoteapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-giftonoteapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = giftonoteapp/SplashScreen.storyboard; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* gif4n.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gif4n.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = gif4n/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = gif4n/Info.plist; sourceTree = "<group>"; };
+		7A965EB53A5EC85AF17A562A /* Pods-gif4n.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-gif4n.release.xcconfig"; path = "Target Support Files/Pods-gif4n/Pods-gif4n.release.xcconfig"; sourceTree = "<group>"; };
+		7D28E61E660F2A3EBFA24D98 /* libPods-gif4n.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-gif4n.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = gif4n/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		CE2E03C01D798F5325A8343A /* Pods-giftonoteapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-giftonoteapp.debug.xcconfig"; path = "Target Support Files/Pods-giftonoteapp/Pods-giftonoteapp.debug.xcconfig"; sourceTree = "<group>"; };
+		CE2E03C01D798F5325A8343A /* Pods-gif4n.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-gif4n.debug.xcconfig"; path = "Target Support Files/Pods-gif4n/Pods-gif4n.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		EFB96BB08616776462ECE45B /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-giftonoteapp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = giftonoteapp/AppDelegate.swift; sourceTree = "<group>"; };
-		F11748442D0722820044C1D9 /* giftonoteapp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "giftonoteapp-Bridging-Header.h"; path = "giftonoteapp/giftonoteapp-Bridging-Header.h"; sourceTree = "<group>"; };
-		F158B2E911725F44DF76CACC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = giftonoteapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		EFB96BB08616776462ECE45B /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-gif4n/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = gif4n/AppDelegate.swift; sourceTree = "<group>"; };
+		F11748442D0722820044C1D9 /* gif4n-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "gif4n-Bridging-Header.h"; path = "gif4n/gif4n-Bridging-Header.h"; sourceTree = "<group>"; };
+		F158B2E911725F44DF76CACC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = gif4n/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,32 +37,32 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2EA1E795B31F391AED2D191D /* libPods-giftonoteapp.a in Frameworks */,
+				2EA1E795B31F391AED2D191D /* libPods-gif4n.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		13B07FAE1A68108700A75B9A /* giftonoteapp */ = {
+		13B07FAE1A68108700A75B9A /* gif4n */ = {
 			isa = PBXGroup;
 			children = (
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
-				F11748442D0722820044C1D9 /* giftonoteapp-Bridging-Header.h */,
+				F11748442D0722820044C1D9 /* gif4n-Bridging-Header.h */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
 				F158B2E911725F44DF76CACC /* PrivacyInfo.xcprivacy */,
 			);
-			name = giftonoteapp;
+			name = gif4n;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				7D28E61E660F2A3EBFA24D98 /* libPods-giftonoteapp.a */,
+				7D28E61E660F2A3EBFA24D98 /* libPods-gif4n.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -77,7 +77,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				13B07FAE1A68108700A75B9A /* giftonoteapp */,
+				13B07FAE1A68108700A75B9A /* gif4n */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
@@ -92,7 +92,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* giftonoteapp.app */,
+				13B07F961A680F5B00A75B9A /* gif4n.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -103,21 +103,21 @@
 				BB2F792C24A3F905000567C9 /* Expo.plist */,
 			);
 			name = Supporting;
-			path = giftonoteapp/Supporting;
+			path = gif4n/Supporting;
 			sourceTree = "<group>";
 		};
-		BE305FB128B878A110BF0F2F /* giftonoteapp */ = {
+		BE305FB128B878A110BF0F2F /* gif4n */ = {
 			isa = PBXGroup;
 			children = (
 				EFB96BB08616776462ECE45B /* ExpoModulesProvider.swift */,
 			);
-			name = giftonoteapp;
+			name = gif4n;
 			sourceTree = "<group>";
 		};
 		F864D9655E0EB08A6EAAE17B /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				BE305FB128B878A110BF0F2F /* giftonoteapp */,
+				BE305FB128B878A110BF0F2F /* gif4n */,
 			);
 			name = ExpoModulesProviders;
 			sourceTree = "<group>";
@@ -125,8 +125,8 @@
 		FF152AE7D38F78B76F636CC6 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				CE2E03C01D798F5325A8343A /* Pods-giftonoteapp.debug.xcconfig */,
-				7A965EB53A5EC85AF17A562A /* Pods-giftonoteapp.release.xcconfig */,
+				CE2E03C01D798F5325A8343A /* Pods-gif4n.debug.xcconfig */,
+				7A965EB53A5EC85AF17A562A /* Pods-gif4n.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -134,9 +134,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		13B07F861A680F5B00A75B9A /* giftonoteapp */ = {
+		13B07F861A680F5B00A75B9A /* gif4n */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "giftonoteapp" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "gif4n" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
 				112B9C241475F3F9C8480ACD /* [Expo] Configure project */,
@@ -151,9 +151,9 @@
 			);
 			dependencies = (
 			);
-			name = giftonoteapp;
-			productName = giftonoteapp;
-			productReference = 13B07F961A680F5B00A75B9A /* giftonoteapp.app */;
+			name = gif4n;
+			productName = gif4n;
+			productReference = 13B07F961A680F5B00A75B9A /* gif4n.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -172,7 +172,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "giftonoteapp" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "gif4n" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -185,7 +185,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* giftonoteapp */,
+				13B07F861A680F5B00A75B9A /* gif4n */,
 			);
 		};
 /* End PBXProject section */
@@ -228,7 +228,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-giftonoteapp/Pods-giftonoteapp-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-gif4n/Pods-gif4n-frameworks.sh",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermesvm.framework/hermesvm",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -237,7 +237,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-giftonoteapp/Pods-giftonoteapp-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-gif4n/Pods-gif4n-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */ = {
@@ -255,7 +255,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-giftonoteapp-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-gif4n-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -273,18 +273,18 @@
 			inputPaths = (
 				"$(SRCROOT)/.xcode.env",
 				"$(SRCROOT)/.xcode.env.local",
-				"$(SRCROOT)/giftonoteapp/giftonoteapp.entitlements",
-				"$(SRCROOT)/Pods/Target Support Files/Pods-giftonoteapp/expo-configure-project.sh",
+				"$(SRCROOT)/gif4n/gif4n.entitlements",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-gif4n/expo-configure-project.sh",
 			);
 			name = "[Expo] Configure project";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(SRCROOT)/Pods/Target Support Files/Pods-giftonoteapp/ExpoModulesProvider.swift",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-gif4n/ExpoModulesProvider.swift",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-giftonoteapp/expo-configure-project.sh\"\n";
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-gif4n/expo-configure-project.sh\"\n";
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -292,7 +292,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-giftonoteapp/Pods-giftonoteapp-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-gif4n/Pods-gif4n-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/AsyncStorage/AsyncStorage_resources.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/ExpoConstants_privacy.bundle",
@@ -323,7 +323,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-giftonoteapp/Pods-giftonoteapp-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-gif4n/Pods-gif4n-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -343,11 +343,11 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CE2E03C01D798F5325A8343A /* Pods-giftonoteapp.debug.xcconfig */;
+			baseConfigurationReference = CE2E03C01D798F5325A8343A /* Pods-gif4n.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = giftonoteapp/giftonoteapp.entitlements;
+				CODE_SIGN_ENTITLEMENTS = gif4n/gif4n.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -357,7 +357,7 @@
 					"$(inherited)",
 					"FB_SONARKIT_ENABLED=1",
 				);
-				INFOPLIST_FILE = giftonoteapp/Info.plist;
+				INFOPLIST_FILE = gif4n/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -370,10 +370,10 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.giftonote.app;
-				PRODUCT_NAME = giftonoteapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gif4n.app;
+				PRODUCT_NAME = gif4n;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "giftonoteapp/giftonoteapp-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "gif4n/gif4n-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -383,16 +383,16 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7A965EB53A5EC85AF17A562A /* Pods-giftonoteapp.release.xcconfig */;
+			baseConfigurationReference = 7A965EB53A5EC85AF17A562A /* Pods-gif4n.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = giftonoteapp/giftonoteapp.entitlements;
+				CODE_SIGN_ENTITLEMENTS = gif4n/gif4n.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = SZTBAP7E2L;
-				INFOPLIST_FILE = giftonoteapp/Info.plist;
+				INFOPLIST_FILE = gif4n/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -405,10 +405,10 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.giftonote.app;
-				PRODUCT_NAME = giftonoteapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gif4n.app;
+				PRODUCT_NAME = gif4n;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "giftonoteapp/giftonoteapp-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "gif4n/gif4n-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -551,7 +551,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "giftonoteapp" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "gif4n" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -560,7 +560,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "giftonoteapp" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "gif4n" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,

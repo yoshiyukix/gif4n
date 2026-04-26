@@ -1,4 +1,4 @@
-package com.giftonote.app
+package com.gif4n.app
 
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -11,7 +11,7 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 // ─────────────────────────────────────────────────────────────
-// GifToNote Expo Native Module (Android)
+// Gif4n Expo Native Module (Android)
 //
 // 機能:
 //   - MediaMetadataRetriever で指定範囲の動画フレームを抽出
@@ -24,13 +24,13 @@ import java.util.concurrent.ConcurrentHashMap
 //   app/src/main/jniLibs/ 配下に .so を配置すること。
 // ─────────────────────────────────────────────────────────────
 
-class GifToNoteModule : Module() {
+class Gif4nModule : Module() {
 
   // アクティブな変換セッション管理
   private val activeSessions = ConcurrentHashMap<String, Boolean>()
 
   override fun definition() = ModuleDefinition {
-    Name("GifToNote")
+    Name("Gif4n")
 
     // ─── convertToGif ─────────────────────────────────
 

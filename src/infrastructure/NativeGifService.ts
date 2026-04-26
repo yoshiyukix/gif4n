@@ -47,7 +47,7 @@ export interface INativeGifService {
 }
 // ─── ネイティブモジュール型定義 ───────────────────────
 
-interface GifToNoteNativeModule {
+interface Gif4nNativeModule {
   convertToGif(params: {
     uri: string;
     startSec: number;
@@ -71,16 +71,16 @@ interface GifToNoteNativeModule {
  * Expo Modules API（Platform Channel）経由で iOS / Android のネイティブ GIF 変換を呼び出す。
  *
  * 実機実装:
- *   - iOS: AVFoundation + gifski (Swift) — ios/GifToNoteModule.swift
- *   - Android: gifski NDK (Kotlin) — android/.../GifToNoteModule.kt
+ *   - iOS: AVFoundation + gifski (Swift) — ios/Gif4nModule.swift
+ *   - Android: gifski NDK (Kotlin) — android/.../Gif4nModule.kt
  */
 export class NativeGifService implements INativeGifService {
-  private native: GifToNoteNativeModule | null = null;
+  private native: Gif4nNativeModule | null = null;
 
-  private getModule(): GifToNoteNativeModule {
+  private getModule(): Gif4nNativeModule {
     if (!this.native) {
       // requireNativeModule は Expo Modules API のエントリポイント
-      this.native = requireNativeModule<GifToNoteNativeModule>('GifToNote');
+      this.native = requireNativeModule<Gif4nNativeModule>('Gif4n');
     }
     return this.native;
   }

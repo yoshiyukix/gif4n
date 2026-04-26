@@ -20,7 +20,7 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 
 prepare_react_native_project!
 
-target 'giftonoteapp' do
+target 'gif4n' do
   use_expo_modules!
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
@@ -88,7 +88,7 @@ target 'giftonoteapp' do
 
     # Workaround: CocoaPods generates wrong output path (gifski.framework) for static library
     # XCFramework. Fix it to libgifski.a so Xcode's build system correctly tracks the output.
-    gifski_output_list = "#{installer.sandbox.root}/Target Support Files/gif-to-note-sdk/gif-to-note-sdk-xcframeworks-output-files.xcfilelist"
+    gifski_output_list = "#{installer.sandbox.root}/Target Support Files/gif4n-sdk/gif4n-sdk-xcframeworks-output-files.xcfilelist"
     if File.exist?(gifski_output_list)
       content = File.read(gifski_output_list)
       if content.include?('gifski.framework')

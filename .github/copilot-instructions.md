@@ -1,4 +1,4 @@
-# gif-to-note — Copilot Instructions
+# gif4n — Copilot Instructions
 
 ## AI への指示
 

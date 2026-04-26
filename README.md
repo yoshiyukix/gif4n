@@ -1,4 +1,4 @@
-# gif-to-note
+# gif4n
 
 MP4 / MOV 動画を、[Note](https://note.com) のテキスト記事に貼り付け可能な GIF へ変換するスマホアプリ。  
 変換はすべてオンデバイスで完結し、ネットワーク接続・バックエンドは不要です。
@@ -104,7 +104,7 @@ open ios/*.xcworkspace
 
 Xcode で以下を設定して実行します。
 
-- Scheme: `giftonoteapp`
+- Scheme: `gif4n`
 - Build Configuration: `Release`
 - Target Device: 接続中の iPhone
 

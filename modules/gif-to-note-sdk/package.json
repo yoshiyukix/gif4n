@@ -1,7 +1,0 @@
-{
-  "name": "gif-to-note-sdk",
-  "version": "1.0.0",
-  "description": "Native GIF conversion module for gif-to-note",
-  "main": "build/index.js",
-  "private": true
-}

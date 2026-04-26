@@ -123,7 +123,7 @@ PODS:
   - fast_float (8.0.0)
   - FBLazyVector (0.83.4)
   - fmt (11.0.2)
-  - gif-to-note-sdk (1.0.0):
+  - gif4n-sdk (1.0.0):
     - ExpoModulesCore
   - glog (0.3.5)
   - hermes-engine (0.14.1):
@@ -2883,7 +2883,7 @@ DEPENDENCIES:
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
-  - gif-to-note-sdk (from `../modules/gif-to-note-sdk/ios`)
+  - gif4n-sdk (from `../modules/gif4n-sdk/ios`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
@@ -3011,8 +3011,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/Libraries/FBLazyVector"
   fmt:
     :podspec: "../node_modules/react-native/third-party-podspecs/fmt.podspec"
-  gif-to-note-sdk:
-    :path: "../modules/gif-to-note-sdk/ios"
+  gif4n-sdk:
+    :path: "../modules/gif4n-sdk/ios"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   hermes-engine:
@@ -3191,9 +3191,9 @@ SPEC CHECKSUMS:
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FBLazyVector: 82d1d7996af4c5850242966eb81e73f9a6dfab1e
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
-  gif-to-note-sdk: 4a342e2507404d94ed5c0b78743ef3518b747f98
+  gif4n-sdk: 2e57b6b80eee41cc9e32cb3488b68f84ac5c1561
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
-  hermes-engine: d13712e92f5f5c7f1ca6e5e7422324fb034f3041
+  hermes-engine: b4d6ae2fa5126ddc983d9181c53ac3e5355d7beb
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
   RCTDeprecation: 9da1d0cf93db23ca8b41e8efe9ae558fd9c0077f
   RCTRequired: 92a63c7041031a131fa5206eb082d53f95729b79
@@ -3271,6 +3271,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: b669e79fa0f8d3f6f5e35372345f54b99e06b13c
 
-PODFILE CHECKSUM: ed2495f7801d7e1533eea3b762d3e622cd8b4910
+PODFILE CHECKSUM: ae306508ffe946fe374a415bf922d8d6ace2c240
 
 COCOAPODS: 1.16.2
