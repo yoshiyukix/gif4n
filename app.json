@@ -9,11 +9,6 @@
     "experiments": {
       "reactCompiler": true
     },
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.gif4n.app"
@@ -25,9 +20,6 @@
         "backgroundColor": "#ffffff"
       },
       "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     },
     "plugins": ["expo-sharing", "expo-video"]
   }
