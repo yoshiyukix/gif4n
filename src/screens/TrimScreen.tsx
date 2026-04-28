@@ -105,8 +105,7 @@ export default function TrimScreen({ route, navigation }: Props) {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View>
-              <Text style={styles.sectionTitle}>トリミング</Text>
-              <Text style={styles.sectionSubtitle}>必要な範囲を選択してください</Text>
+              <Text style={styles.sectionTitle}>必要な範囲を選択してください</Text>
             </View>
             <View style={styles.selectedBadge}>
               <Text style={styles.selectedText}>{formatSelected(selectedSec)}</Text>

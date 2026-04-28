@@ -135,8 +135,8 @@ export default function ResultScreen({ route, navigation }: Props) {
             <Text style={styles.pillText}>共有</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.backButton} onPress={handleBack} activeOpacity={0.7}>
-            <Text style={styles.backText}>最初に戻る</Text>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack} activeOpacity={0.8}>
+            <Text style={styles.backText}>完了</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -280,16 +280,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   backButton: {
+    width: '100%',
+    backgroundColor: colors.placeholder,
+    borderRadius: 32,
+    paddingVertical: 18,
     alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    paddingVertical: 17,
   },
   backText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
-    color: colors.textTertiary,
+    color: colors.textPrimary,
   },
 });

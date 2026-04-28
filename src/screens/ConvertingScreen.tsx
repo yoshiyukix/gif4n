@@ -5,7 +5,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../navigation/types';
 import { useConversionProcess } from '../hooks/useConversionProcess';
-import { QUALITY_PRESETS } from '../types';
 import { useSettings } from '../hooks/useSettings';
 import { colors } from '../theme';
 import CircularProgress from '../components/CircularProgress';
@@ -97,17 +96,6 @@ export default function ConvertingScreen({ route, navigation }: Props) {
             <Text style={styles.fileMeta}>
               {job?.preset ? `${job.preset.width}px · ${job.preset.fps} fps` : '–'}
             </Text>
-            {job?.preset &&
-              (() => {
-                const idx = QUALITY_PRESETS.findIndex(
-                  (p) => p.width === job.preset.width && p.fps === job.preset.fps,
-                );
-                return idx >= 0 ? (
-                  <Text style={styles.fileMeta}>
-                    試行 {idx + 1} / {QUALITY_PRESETS.length}
-                  </Text>
-                ) : null;
-              })()}
           </View>
         </View>
 
