@@ -17,4 +17,5 @@ export type StudioStackParamList = {
 };
 
 // 後方互換エイリアス（既存コードが RootStackParamList を参照している場合用）
+// Settings / Licenses を含む全画面を包括する
 export type RootStackParamList = StudioStackParamList;

@@ -58,6 +58,7 @@ export default function ConvertingScreen({ route, navigation }: Props) {
 
   const progress = job?.progressRate ?? 0;
 
+  // 変換未開始（running でない）なら前画面へ戻る。running 中はキャンセル信号を送る。
   const handleCancelPress = () => {
     if (job?.status === 'running') {
       cancel();

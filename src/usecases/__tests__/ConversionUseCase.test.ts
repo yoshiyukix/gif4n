@@ -304,17 +304,20 @@ describe('ConversionUseCase', () => {
         }),
       };
       const useCase = new ConversionUseCase(mock, new SizeEstimator());
+      const outputSizeResolver = jest.fn<Promise<number>, [string]>();
 
       const result = await useCase.run(source, trim, {
         onProgress: noop,
         signal: controller.signal,
-        outputSizeResolver: () => 0,
+        outputSizeResolver,
       });
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.reason).toBe('cancelled');
       }
+      // キャンセル後は outputSizeResolver を呼ばない
+      expect(outputSizeResolver).not.toHaveBeenCalled();
     });
   });
 
