@@ -3,13 +3,13 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { SettingsStackParamList } from '../navigation/types';
+import { RootStackParamList } from '../navigation/types';
 import { useSettings } from '../hooks/useSettings';
 import { AppSettings } from '../types';
 import { colors } from '../theme';
 import { version } from '../../package.json';
 
-type Props = NativeStackScreenProps<SettingsStackParamList, 'SettingsMain'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 const APP_VERSION = version;
 
@@ -33,7 +33,11 @@ export default function SettingsScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackButton}>
+          <Ionicons name="close" size={24} color={colors.textPrimary} />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Settings</Text>
+        <View style={styles.headerBackButton} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -104,10 +108,19 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 8,
     backgroundColor: colors.surface,
+  },
+  headerBackButton: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 28,

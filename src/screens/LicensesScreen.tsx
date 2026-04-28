@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { SettingsStackParamList } from '../navigation/types';
+import { RootStackParamList } from '../navigation/types';
 import licensesData from '../assets/licenses.json';
 import { colors } from '../theme';
 
@@ -22,7 +22,7 @@ type LicenseEntry = {
   licenseText: string;
 };
 
-type Props = NativeStackScreenProps<SettingsStackParamList, 'Licenses'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Licenses'>;
 
 export default function LicensesScreen({ navigation }: Props) {
   const [selected, setSelected] = useState<LicenseEntry | null>(null);

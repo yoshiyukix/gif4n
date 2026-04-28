@@ -163,6 +163,16 @@ export default function HomeScreen({ navigation }: Props) {
           videos.length > 0 ? <Text style={styles.count}>{videos.length}個の動画</Text> : null
         }
       />
+
+      <TouchableOpacity
+        style={[styles.fab, { bottom: insets.bottom + 20 }]}
+        onPress={() => navigation.navigate('Settings')}
+        activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel="設定を開く"
+      >
+        <Ionicons name="settings-outline" size={22} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -205,7 +215,7 @@ const styles = StyleSheet.create({
   },
 
   // Grid
-  gridContent: {},
+  gridContent: { paddingBottom: 110 },
   row: { gap: GAP },
   tile: {
     flex: 1,
@@ -241,5 +251,15 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: 14,
     marginVertical: 24,
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

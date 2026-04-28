@@ -84,29 +84,29 @@ describe('TrimScreen', () => {
     mockBytesPerSec = null;
   });
 
-  it('isPilotDone=false のとき Next ボタンが無効化される', () => {
+  it('isPilotDone=false のとき変換ボタンが無効化される', () => {
     mockIsPilotDone = false;
     const { queryByText } = renderScreen();
 
-    // isPilotDone=false のとき ActivityIndicator が表示され Next テキストは非表示
-    expect(queryByText('Next')).toBeNull();
+    // isPilotDone=false のとき ActivityIndicator が表示されボタン文言は非表示
+    expect(queryByText('GIF動画に変換')).toBeNull();
   });
 
-  it('isPilotDone=true のとき Next ボタンが表示される', () => {
+  it('isPilotDone=true のとき変換ボタンが表示される', () => {
     mockIsPilotDone = true;
     const { getByText } = renderScreen();
 
-    expect(getByText('Next')).toBeTruthy();
+    expect(getByText('GIF動画に変換')).toBeTruthy();
   });
 
-  it('isPilotDone=true で Next を押すと Converting 画面へ遷移する', async () => {
+  it('isPilotDone=true で変換ボタンを押すと Converting 画面へ遷移する', async () => {
     mockIsPilotDone = true;
     mockBytesPerSec = 200_000;
     mockEstimateStartIndex.mockReturnValue(1);
 
     const { getByText } = renderScreen();
 
-    fireEvent.press(getByText('Next'));
+    fireEvent.press(getByText('GIF動画に変換'));
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(
@@ -125,7 +125,7 @@ describe('TrimScreen', () => {
     mockEstimateStartIndex.mockReturnValue(2);
 
     const { getByText } = renderScreen();
-    fireEvent.press(getByText('Next'));
+    fireEvent.press(getByText('GIF動画に変換'));
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(
@@ -140,7 +140,7 @@ describe('TrimScreen', () => {
     mockBytesPerSec = null;
 
     const { getByText } = renderScreen();
-    fireEvent.press(getByText('Next'));
+    fireEvent.press(getByText('GIF動画に変換'));
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(
