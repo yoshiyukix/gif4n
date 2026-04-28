@@ -79,19 +79,8 @@ export default function TrimScreen({ route, navigation }: Props) {
         >
           <Ionicons name="chevron-back" size={24} color={colors.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Trim Video</Text>
-        <TouchableOpacity
-          onPress={handleNext}
-          disabled={!isPilotDone}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          style={styles.headerNextButton}
-        >
-          {isPilotDone ? (
-            <Text style={styles.headerNext}>Next</Text>
-          ) : (
-            <ActivityIndicator size="small" color={colors.primary} />
-          )}
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>トリミング</Text>
+        <View style={styles.headerNextButton} />
       </View>
 
       <ScrollView
@@ -145,7 +134,21 @@ export default function TrimScreen({ route, navigation }: Props) {
           />
         </View>
 
-        <View style={{ height: 16 }} />
+        {/* ─── 次へボタン ─── */}
+        <TouchableOpacity
+          onPress={handleNext}
+          disabled={!isPilotDone}
+          activeOpacity={0.8}
+          style={[styles.nextButton, !isPilotDone && styles.nextButtonDisabled]}
+        >
+          {isPilotDone ? (
+            <Text style={styles.nextButtonText}>GIF動画に変換</Text>
+          ) : (
+            <ActivityIndicator size="small" color="#ffffff" />
+          )}
+        </TouchableOpacity>
+
+        <View style={{ height: 24 }} />
       </ScrollView>
     </View>
   );
@@ -167,8 +170,34 @@ const styles = StyleSheet.create({
   },
   headerBack: { marginRight: 4 },
   headerTitle: { fontSize: 17, fontWeight: '600', color: colors.textPrimary },
-  headerNextButton: { width: 44, alignItems: 'flex-end', justifyContent: 'center' },
-  headerNext: { fontSize: 17, fontWeight: '600', color: colors.primary },
+  headerNextButton: { width: 44 },
+
+  // Next Button
+  nextButton: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.45,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  nextButtonDisabled: {
+    opacity: 0.5,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  nextButtonText: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#ffffff',
+    letterSpacing: 0.3,
+  },
 
   // Scroll
   scrollContent: { paddingBottom: 8 },
