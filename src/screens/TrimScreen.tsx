@@ -79,8 +79,6 @@ export default function TrimScreen({ route, navigation }: Props) {
         >
           <Ionicons name="chevron-back" size={24} color={colors.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>トリミング</Text>
-        <View style={styles.headerNextButton} />
       </View>
 
       <ScrollView
@@ -105,7 +103,8 @@ export default function TrimScreen({ route, navigation }: Props) {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View>
-              <Text style={styles.sectionTitle}>必要な範囲を選択してください</Text>
+              <Text style={styles.sectionTitle}>トリミング</Text>
+              <Text style={styles.sectionSubtitle}>必要な範囲を選択してください</Text>
             </View>
             <View style={styles.selectedBadge}>
               <Text style={styles.selectedText}>{formatSelected(selectedSec)}</Text>

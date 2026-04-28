@@ -1,6 +1,6 @@
 import ExpoModulesCore
 import AVFoundation
-import gifski
+@_implementationOnly import gifski
 
 // ─────────────────────────────────────────────────────────────
 // Gif4n Expo Native Module (iOS)

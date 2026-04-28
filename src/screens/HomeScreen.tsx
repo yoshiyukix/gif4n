@@ -131,7 +131,15 @@ export default function HomeScreen({ navigation }: Props) {
 
       {/* ─── Header ─────────────────── */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>GIF4n</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Settings')}
+          style={styles.headerButton}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel="設定を開く"
+        >
+          <Ionicons name="settings-outline" size={24} color={colors.primary} />
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={onPickFile}
           style={styles.headerButton}
@@ -164,15 +172,6 @@ export default function HomeScreen({ navigation }: Props) {
         }
       />
 
-      <TouchableOpacity
-        style={[styles.fab, { bottom: insets.bottom + 20 }]}
-        onPress={() => navigation.navigate('Settings')}
-        activeOpacity={0.85}
-        accessibilityRole="button"
-        accessibilityLabel="設定を開く"
-      >
-        <Ionicons name="settings-outline" size={22} color="#fff" />
-      </TouchableOpacity>
     </View>
   );
 }
@@ -251,15 +250,5 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: 14,
     marginVertical: 24,
-  },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
