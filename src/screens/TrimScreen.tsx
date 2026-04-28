@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -16,9 +15,6 @@ import { RootStackParamList } from '../navigation/types';
 import { VideoPreview } from '../components/VideoPreview';
 import { TrimSlider } from '../components/TrimSlider';
 import { useTrim } from '../hooks/useTrim';
-import { useTrimPilot } from '../hooks/useTrimPilot';
-
-import { useSettings } from '../hooks/useSettings';
 
 import { colors } from '../theme';
 
@@ -40,9 +36,6 @@ export default function TrimScreen({ route, navigation }: Props) {
   const [seekTo, setSeekTo] = useState<number | undefined>(undefined);
   const [isSeekDragging, setIsSeekDragging] = useState(false);
 
-  const { bytesPerSec, isPilotDone, estimateStartIndex } = useTrimPilot(source);
-  const { settings } = useSettings();
-
   async function handleNext() {
     const duration = trimRange.endSec - trimRange.startSec;
     if (duration < MIN_DURATION_SEC) {
@@ -59,11 +52,7 @@ export default function TrimScreen({ route, navigation }: Props) {
       // eslint-disable-next-line no-console
       console.warn('[TrimScreen] thumbnail failed', source.uri, e);
     }
-    const estimatedStartIndex =
-      bytesPerSec != null
-        ? estimateStartIndex(duration, settings.maxSizeMb * 1024 * 1024)
-        : undefined;
-    navigation.navigate('Converting', { source, trimRange, thumbnailUri, estimatedStartIndex });
+    navigation.navigate('Converting', { source, trimRange, thumbnailUri });
   }
 
   const selectedSec = trimRange.endSec - trimRange.startSec;
@@ -135,15 +124,11 @@ export default function TrimScreen({ route, navigation }: Props) {
         {/* ─── 次へボタン ─── */}
         <TouchableOpacity
           onPress={handleNext}
-          disabled={!isPilotDone}
+          disabled={selectedSec < MIN_DURATION_SEC}
           activeOpacity={0.8}
-          style={[styles.nextButton, !isPilotDone && styles.nextButtonDisabled]}
+          style={[styles.nextButton, selectedSec < MIN_DURATION_SEC && styles.nextButtonDisabled]}
         >
-          {isPilotDone ? (
-            <Text style={styles.nextButtonText}>GIF動画に変換</Text>
-          ) : (
-            <ActivityIndicator size="small" color="#ffffff" />
-          )}
+          <Text style={styles.nextButtonText}>GIF動画に変換</Text>
         </TouchableOpacity>
 
         <View style={{ height: 24 }} />

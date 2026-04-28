@@ -9,7 +9,6 @@ export type StudioStackParamList = {
     source: VideoSource;
     trimRange: TrimRange;
     thumbnailUri: string | null;
-    estimatedStartIndex?: number;
   };
   Result: { gifUri: string; sizeBytes: number; preset: QualityPreset };
   Settings: undefined;

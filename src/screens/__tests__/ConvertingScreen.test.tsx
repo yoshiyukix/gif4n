@@ -57,7 +57,6 @@ function makeRouteParams(overrides: Record<string, unknown> = {}) {
       source: mockSource,
       trimRange: mockTrimRange,
       thumbnailUri: null,
-      estimatedStartIndex: undefined,
       ...overrides,
     },
   };
@@ -94,6 +93,56 @@ describe('ConvertingScreen', () => {
     jest.clearAllMocks();
     mockIsLoaded = true;
     mockJob = null;
+  });
+
+  it('isLoaded=true のとき start(source, trimRange) が引数 2 つで呼ばれる', async () => {
+    renderScreen(null);
+
+    await waitFor(() => {
+      expect(mockStart).toHaveBeenCalledTimes(1);
+      expect(mockStart).toHaveBeenCalledWith(mockSource, mockTrimRange);
+    });
+  });
+
+  it('isLoaded=false のとき start は呼ばれない', () => {
+    mockIsLoaded = false;
+    renderScreen(null);
+
+    expect(mockStart).not.toHaveBeenCalled();
+  });
+
+  it('job.status === "piloting" のとき「推定中...」が表示される', () => {
+    const pilotingJob: ConversionJob = {
+      source: mockSource,
+      trim: mockTrimRange,
+      preset: QUALITY_PRESETS[0],
+      status: 'piloting',
+      progressRate: 0,
+      outputUri: null,
+      outputSizeBytes: null,
+    };
+
+    const { getByText } = renderScreen(pilotingJob);
+
+    expect(getByText('推定中...')).toBeTruthy();
+  });
+
+  it('job.status === "piloting" のときキャンセルボタンで cancel() が呼ばれる', () => {
+    const pilotingJob: ConversionJob = {
+      source: mockSource,
+      trim: mockTrimRange,
+      preset: QUALITY_PRESETS[0],
+      status: 'piloting',
+      progressRate: 0,
+      outputUri: null,
+      outputSizeBytes: null,
+    };
+
+    const { getByText } = renderScreen(pilotingJob);
+    fireEvent.press(getByText('キャンセル'));
+
+    expect(mockCancel).toHaveBeenCalled();
+    expect(mockGoBack).not.toHaveBeenCalled();
   });
 
   it('job.status === "done" のとき navigation.replace("Result", ...) が呼ばれる', async () => {

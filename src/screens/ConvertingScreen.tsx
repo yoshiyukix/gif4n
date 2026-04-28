@@ -12,7 +12,7 @@ import CircularProgress from '../components/CircularProgress';
 type Props = NativeStackScreenProps<RootStackParamList, 'Converting'>;
 
 export default function ConvertingScreen({ route, navigation }: Props) {
-  const { source, trimRange, thumbnailUri, estimatedStartIndex } = route.params;
+  const { source, trimRange, thumbnailUri } = route.params;
 
   const { settings, isLoaded } = useSettings();
   const { job, start, cancel } = useConversionProcess(settings.maxSizeMb * 1024 * 1024);
@@ -22,10 +22,10 @@ export default function ConvertingScreen({ route, navigation }: Props) {
     if (!isLoaded) return;
     if (started.current) return;
     started.current = true;
-    start(source, trimRange, estimatedStartIndex);
+    start(source, trimRange);
     // isLoaded が true になった瞬間に 1 回だけ変換を開始するため意図的に依存配列を省略している。
     // started.current ref によって二重起動を防いでおり、ConvertingScreen は画面遷移時に
-    // route.params が固定されるため source/trimRange/estimatedStartIndex の変化は発生しない。
+    // route.params が固定されるため source/trimRange の変化は発生しない。
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded]);
 
@@ -58,9 +58,9 @@ export default function ConvertingScreen({ route, navigation }: Props) {
 
   const progress = job?.progressRate ?? 0;
 
-  // 変換未開始（running でない）なら前画面へ戻る。running 中はキャンセル信号を送る。
+  // 変換未開始（piloting/running でない）なら前画面へ戻る。実行中はキャンセル信号を送る。
   const handleCancelPress = () => {
-    if (job?.status === 'running') {
+    if (job?.status === 'piloting' || job?.status === 'running') {
       cancel();
       return;
     }
@@ -77,11 +77,19 @@ export default function ConvertingScreen({ route, navigation }: Props) {
 
         {/* ステータステキスト */}
         <View style={styles.statusSection}>
-          <Text style={styles.heading}>変換中...</Text>
-          <Text style={styles.subHeading}>フレームを最適化しています...</Text>
+          <Text style={styles.heading}>
+            {job?.status === 'piloting' ? '推定中...' : '変換中...'}
+          </Text>
+          <Text style={styles.subHeading}>
+            {job?.status === 'piloting'
+              ? '最適な品質を算出しています...'
+              : 'フレームを最適化しています...'}
+          </Text>
           <View style={styles.chip}>
             <Ionicons name="flash" size={14} color={colors.accent} style={styles.chipIcon} />
-            <Text style={styles.chipText}>高速エンコード実行中</Text>
+            <Text style={styles.chipText}>
+              {job?.status === 'piloting' ? 'サイズ推定中' : '高速エンコード実行中'}
+            </Text>
           </View>
         </View>
 

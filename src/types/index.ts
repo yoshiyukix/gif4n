@@ -62,6 +62,7 @@ export const PILOT_PRESET_INDEX = 3 as const;
 
 export type ConversionStatus =
   | 'idle' // 未開始
+  | 'piloting' // パイロット推定中
   | 'running' // 変換中
   | 'done' // 完了
   | 'cancelled' // キャンセル済み
