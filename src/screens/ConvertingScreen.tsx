@@ -59,6 +59,14 @@ export default function ConvertingScreen({ route, navigation }: Props) {
 
   const progress = job?.progressRate ?? 0;
 
+  const handleCancelPress = () => {
+    if (job?.status === 'running') {
+      cancel();
+      return;
+    }
+    navigation.goBack();
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -106,7 +114,7 @@ export default function ConvertingScreen({ route, navigation }: Props) {
         <View style={styles.spacer} />
 
         {/* キャンセルボタン */}
-        <TouchableOpacity style={styles.cancelButton} onPress={cancel} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.cancelButton} onPress={handleCancelPress} activeOpacity={0.8}>
           <Text style={styles.cancelText}>キャンセル</Text>
         </TouchableOpacity>
       </View>

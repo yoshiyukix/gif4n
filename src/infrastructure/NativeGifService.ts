@@ -56,7 +56,7 @@ interface Gif4nNativeModule {
     fps: number;
     sessionId: string;
   }): Promise<string>;
-  cancelConversion(sessionId: string): Promise<void>;
+  cancelConversion(sessionId: string): void;
   /** Expo イベント購読（"onProgress" に対応） */
   addListener(
     eventName: string,
@@ -106,9 +106,9 @@ export class NativeGifService implements INativeGifService {
       }
     });
 
-    // キャンセル時にネイティブセッションを中断
+    // キャンセル時にネイティブセッションを中断（同期呼び出し: JS スレッドで即時実行）
     const abortHandler = () => {
-      module.cancelConversion(sessionId).catch(() => {});
+      try { module.cancelConversion(sessionId); } catch {}
     };
     signal.addEventListener('abort', abortHandler);
 
@@ -121,6 +121,9 @@ export class NativeGifService implements INativeGifService {
         fps: preset.fps,
         sessionId,
       });
+      if (signal.aborted) {
+        throw new AbortError();
+      }
       return outputUri;
     } finally {
       subscription.remove();

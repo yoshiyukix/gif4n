@@ -1,6 +1,6 @@
 import ExpoModulesCore
 import AVFoundation
-@_implementationOnly import gifski
+import gifski
 
 // ─────────────────────────────────────────────────────────────
 // Gif4n Expo Native Module (iOS)
@@ -12,6 +12,17 @@ import AVFoundation
 //   - 進捗イベントを "onProgress" として JS へ送信
 //   - キャンセル対応（activeSessions で管理）
 // ─────────────────────────────────────────────────────────────
+
+// gifski progress callback に渡すコンテキスト
+// @convention(c) クロージャからモジュールの isActive() をリアルタイム確認するために使用する
+fileprivate final class GifskiProgressContext {
+  let module: Gif4nModule
+  let sessionId: String
+  init(_ module: Gif4nModule, _ sessionId: String) {
+    self.module = module
+    self.sessionId = sessionId
+  }
+}
 
 public struct ConvertParams: Record {
   public init() {}
@@ -38,7 +49,12 @@ public class Gif4nModule: Module {
       return try self.convertVideoToGif(params: params)
     }
 
-    AsyncFunction("cancelConversion") { (sessionId: String) in
+    // cancelConversion は AsyncFunction ではなく同期 Function にする。
+    // AsyncFunction はモジュール専用のシリアルキューで実行されるため、
+    // convertToGif が gifski_finish() でキューをブロック中は cancelConversion が
+    // 実行できずデッドロックになる。Function は JS スレッドで即時実行されるため
+    // このブロッキングを回避できる。
+    Function("cancelConversion") { (sessionId: String) in
       self.markSession(sessionId, active: false)
     }
 
@@ -58,7 +74,7 @@ public class Gif4nModule: Module {
     activeSessions.removeValue(forKey: id)
   }
 
-  private func isActive(_ id: String) -> Bool {
+  fileprivate func isActive(_ id: String) -> Bool {
     lock.lock(); defer { lock.unlock() }
     return activeSessions[id] == true
   }
@@ -119,6 +135,20 @@ public class Gif4nModule: Module {
     var thrownError: Error? = nil
     var cancelled = false
 
+    // progress callback でキャンセルを検知する（gifski に abort C API はないため公式方式）
+    // cancelConversion() が activeSessions を更新した直後に gifski が callback を呼べば
+    // isActive() が false を返し 0 を返すことで GIFSKI_ABORTED で早期完了する。
+    // ローカルの cancelled フラグではなく isActive() をリアルタイム確認することが重要:
+    // フレームループ完走後にキャンセルが来ても gifski_finish 中に中断できる。
+    let progressCtx = GifskiProgressContext(self, params.sessionId)
+    let progressCtxPtr = Unmanaged.passRetained(progressCtx).toOpaque()
+    defer { Unmanaged<GifskiProgressContext>.fromOpaque(progressCtxPtr).release() }
+    gifski_set_progress_callback(handle, { userData in
+      guard let ptr = userData else { return 0 }
+      let ctx = Unmanaged<GifskiProgressContext>.fromOpaque(ptr).takeUnretainedValue()
+      return ctx.module.isActive(ctx.sessionId) ? 1 : 0
+    }, progressCtxPtr)
+
     // 出力ファイルを gifski に設定（frames 追加前に呼ぶ必要がある）
     let setOutputResult = outputPath.withCString { cPath in
       gifski_set_file_output(handle, cPath)
@@ -142,7 +172,7 @@ public class Gif4nModule: Module {
     let frameDuration = duration / Double(frameCount)
 
     for i in 0..<frameCount {
-      // キャンセル確認
+      // キャンセル確認（cancelled フラグを立てると progress callback が 0 を返し gifski が早期中断する）
       guard isActive(params.sessionId) else {
         cancelled = true
         break
@@ -227,9 +257,10 @@ public class Gif4nModule: Module {
     }
 
     // エンコード完了待ち（必ず呼ぶ。ハンドルがここで解放される）
+    // cancelled フラグが true の場合は progress callback が 0 を返し GIFSKI_ABORTED で早期完了する
     let finishResult = gifski_finish(handle)
 
-    if cancelled {
+    if cancelled || finishResult == GIFSKI_ABORTED {
       throw NSError(domain: "AbortError", code: 0,
                     userInfo: [NSLocalizedDescriptionKey: "cancelled"])
     }

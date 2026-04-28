@@ -131,7 +131,7 @@ export default function HomeScreen({ navigation }: Props) {
 
       {/* ─── Header ─────────────────── */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Studio</Text>
+        <Text style={styles.headerTitle}>GIF4n</Text>
         <TouchableOpacity
           onPress={onPickFile}
           style={styles.headerButton}

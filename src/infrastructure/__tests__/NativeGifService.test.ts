@@ -145,6 +145,20 @@ describe('NativeGifService', () => {
         service.convert(makeSource(), makeTrim(), makePreset(), () => {}, controller.signal),
       ).rejects.toThrow('native error');
     });
+
+    it('convertToGif 正常完了後に signal.aborted が true なら AbortError を投げる', async () => {
+      const controller = new AbortController();
+      // convertToGif が解決するタイミングで abort する
+      mockNativeModule.convertToGif.mockImplementation(() => {
+        controller.abort();
+        return Promise.resolve('file:///tmp/out.gif');
+      });
+      const service = new NativeGifService();
+
+      await expect(
+        service.convert(makeSource(), makeTrim(), makePreset(), () => {}, controller.signal),
+      ).rejects.toMatchObject({ name: 'AbortError' });
+    });
   });
 
   describe('convertPilot', () => {

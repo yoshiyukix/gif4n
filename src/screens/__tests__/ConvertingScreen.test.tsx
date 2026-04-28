@@ -184,12 +184,29 @@ describe('ConvertingScreen', () => {
     alertSpy.mockRestore();
   });
 
-  it('キャンセルボタン押下で cancel() が呼ばれる', () => {
-    renderScreen(null);
-
+  it('ジョブ未開始時のキャンセルボタン押下で navigation.goBack() が呼ばれる', () => {
     const { getByText } = renderScreen(null);
     fireEvent.press(getByText('キャンセル'));
 
+    expect(mockGoBack).toHaveBeenCalled();
+    expect(mockCancel).not.toHaveBeenCalled();
+  });
+
+  it('job.status === "running" のときキャンセルボタン押下で cancel() が呼ばれる', () => {
+    const runningJob: ConversionJob = {
+      source: mockSource,
+      trim: mockTrimRange,
+      preset: QUALITY_PRESETS[0],
+      status: 'running',
+      progressRate: 0.3,
+      outputUri: null,
+      outputSizeBytes: null,
+    };
+
+    const { getByText } = renderScreen(runningJob);
+    fireEvent.press(getByText('キャンセル'));
+
     expect(mockCancel).toHaveBeenCalled();
+    expect(mockGoBack).not.toHaveBeenCalled();
   });
 });

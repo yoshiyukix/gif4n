@@ -293,6 +293,29 @@ describe('ConversionUseCase', () => {
         expect(result.reason).toBe('cancelled');
       }
     });
+
+    it('convert が URI を返した直後に signal.aborted が true なら cancelled を返す', async () => {
+      const controller = new AbortController();
+      // convert は正常に URI を返すが、呼び出し後に abort する
+      const mock: jest.Mocked<IConversionNativeService> = {
+        convert: jest.fn().mockImplementation(() => {
+          controller.abort();
+          return Promise.resolve('file:///tmp/out.gif');
+        }),
+      };
+      const useCase = new ConversionUseCase(mock, new SizeEstimator());
+
+      const result = await useCase.run(source, trim, {
+        onProgress: noop,
+        signal: controller.signal,
+        outputSizeResolver: () => 0,
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.reason).toBe('cancelled');
+      }
+    });
   });
 
   // ────────────────────────────

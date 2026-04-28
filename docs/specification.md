@@ -458,7 +458,7 @@ npm run licenses
 | ------------------------------- | ---------------------------------------------------------------------------------- |
 | 全 preset で最大サイズ超過      | ConvertingScreen で Alert 表示、TrimScreen へ戻る                                  |
 | ネイティブモジュール実行エラー  | エラーメッセージを ConversionResult に含めて ConvertingScreen で Alert 表示        |
-| キャンセル                      | AbortSignal でネイティブ変換セッションを中断、TrimScreen へ戻る（goBack）          |
+| キャンセル                      | 変換実行中は AbortSignal でネイティブ変換セッションを中断。未開始時は即時に TrimScreen へ戻る（goBack）。JS 層は `convertToGif` 正常完了後にも `signal.aborted` を確認し cancelled を返す。Swift 層は `gifski_set_progress_callback` で `cancelled` フラグを監視し、フラグが立つと 0 を返して `gifski_finish` を GIFSKI_ABORTED で早期完了させる |
 | 権限拒否                        | 設定画面へ誘導するアラートを表示                                                   |
 | 非対応フォーマット動画選択      | HomeScreen で Alert 表示（シネマティックモード・スパーシャルビデオ等）             |
 | サムネイル生成失敗（PhotoData） | キャッシュへコピーしてから生成を試行。失敗時は null を返し黒タイルにフォールバック |

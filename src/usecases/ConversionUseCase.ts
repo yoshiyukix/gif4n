@@ -84,6 +84,10 @@ export class ConversionUseCase implements IConversionUseCase {
         return { ok: false, reason: 'native_error', message };
       }
 
+      if (signal.aborted) {
+        return { ok: false, reason: 'cancelled', message: 'キャンセルされました' };
+      }
+
       const sizeBytes = await outputSizeResolver(outputUri);
 
       if (sizeBytes <= maxSizeBytes) {
