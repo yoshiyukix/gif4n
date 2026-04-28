@@ -87,6 +87,23 @@ describe('TrimScreen', () => {
     expect(Object.keys(callArgs)).not.toContain('estimatedStartIndex');
   });
 
+  it('選択時間が MIN_DURATION_SEC 未満のとき変換ボタンを押しても遷移しない', () => {
+    const { useTrim: mockUseTrim } = jest.requireMock('../../hooks/useTrim') as {
+      useTrim: jest.Mock;
+    };
+    mockUseTrim.mockReturnValueOnce({
+      trimRange: { startSec: 0, endSec: 0.3 }, // 0.5 秒未満
+      setStart: jest.fn(),
+      setEnd: jest.fn(),
+    });
+
+    const { getByText } = renderScreen();
+    fireEvent.press(getByText('GIF動画に変換'));
+
+    // disabled なので navigate は呼ばれない
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
   it('戻るボタンを押すと goBack が呼ばれる', () => {
     const { UNSAFE_getAllByType } = renderScreen();
 

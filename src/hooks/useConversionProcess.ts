@@ -58,24 +58,18 @@ export function useConversionProcess(maxSizeBytes: number): UseConversionProcess
         outputSizeBytes: null,
       });
 
-      (async () => {
-        // --- Pilot ---
+      /** パイロット変換を実行し startIndexOverride を返す。キャンセル時は undefined を返す。 */
+      async function runPilotPhase(): Promise<number | undefined> {
         const bytesPerSec = await pilotUseCase.run(source, abort.signal);
-        if (abort.signal.aborted) {
-          setJob((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
-          return;
-        }
-
+        if (abort.signal.aborted) return undefined;
         const trimDurationSec = trim.endSec - trim.startSec;
-        const startIndexOverride =
-          bytesPerSec != null
-            ? Math.max(
-                0,
-                pilotUseCase.estimateStartIndex(bytesPerSec, trimDurationSec, maxSizeBytes),
-              )
-            : undefined;
+        return bytesPerSec != null
+          ? Math.max(0, pilotUseCase.estimateStartIndex(bytesPerSec, trimDurationSec, maxSizeBytes))
+          : undefined;
+      }
 
-        // Phase 2: 本変換
+      /** 本変換を実行し job を更新する。 */
+      async function runConversionPhase(startIndexOverride: number | undefined): Promise<void> {
         setJob((prev) => (prev ? { ...prev, status: 'running', progressRate: 0 } : null));
 
         const result = await conversionUseCase.run(source, trim, {
@@ -102,17 +96,28 @@ export function useConversionProcess(maxSizeBytes: number): UseConversionProcess
         } else if (result.reason === 'cancelled') {
           setJob((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
         } else {
+          // この else 分岐では result.reason は 'too_large' | 'native_error' に絞られる
+          const errorReason = result.reason;
           setJob((prev) =>
             prev
               ? {
                   ...prev,
                   status: 'error',
                   errorMessage: result.message,
-                  errorReason: result.reason as 'too_large' | 'native_error',
+                  errorReason,
                 }
               : null,
           );
         }
+      }
+
+      (async () => {
+        const startIndexOverride = await runPilotPhase();
+        if (abort.signal.aborted) {
+          setJob((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
+          return;
+        }
+        await runConversionPhase(startIndexOverride);
       })().catch((e: unknown) => {
         if (abort.signal.aborted) {
           setJob((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
