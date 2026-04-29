@@ -3,6 +3,7 @@ import {
   View,
   Text,
   Alert,
+  AppState,
   FlatList,
   TouchableOpacity,
   StyleSheet,
@@ -59,23 +60,38 @@ export default function HomeScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const [videos, setVideos] = useState<MediaLibrary.Asset[]>([]);
   const [granted, setGranted] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const videoImportService = useVideoImport();
 
-  useEffect(() => {
-    MediaLibrary.requestPermissionsAsync().then((perm) => {
-      setGranted(perm.granted);
-      if (perm.granted) loadVideos();
-    });
-  }, []);
-
-  async function loadVideos() {
+  const loadVideos = useCallback(async () => {
     const { assets } = await MediaLibrary.getAssetsAsync({
       mediaType: MediaLibrary.MediaType.video,
       first: VIDEO_FETCH_LIMIT,
       sortBy: MediaLibrary.SortBy.creationTime,
     });
     setVideos(assets);
-  }
+  }, []);
+
+  useEffect(() => {
+    MediaLibrary.requestPermissionsAsync().then((perm) => {
+      setGranted(perm.granted);
+      if (perm.granted) loadVideos();
+    });
+  }, [loadVideos]);
+
+  useEffect(() => {
+    if (!granted) return;
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') loadVideos();
+    });
+    return () => sub.remove();
+  }, [granted, loadVideos]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadVideos();
+    setRefreshing(false);
+  }, [loadVideos]);
 
   const onPressVideo = useCallback(
     async (asset: MediaLibrary.Asset) => {
@@ -160,6 +176,8 @@ export default function HomeScreen({ navigation }: Props) {
         contentContainerStyle={styles.gridContent}
         removeClippedSubviews
         showsVerticalScrollIndicator={false}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
         ListEmptyComponent={
           <View style={styles.empty}>
             <Text style={styles.emptyText}>
