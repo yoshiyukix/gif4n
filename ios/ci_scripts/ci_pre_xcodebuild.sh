@@ -28,7 +28,7 @@ fi
 # Move to the repo root and install pnpm dependencies
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 echo "Installing pnpm dependencies..."
-corepack enable
+npm install -g pnpm
 pnpm install --frozen-lockfile
 
 # Run pod install
