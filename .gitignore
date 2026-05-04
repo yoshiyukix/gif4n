@@ -21,6 +21,10 @@ expo-env.d.ts
 # Metro
 .metro-health-check*
 
+# package manager lockfiles (pnpm のみ使用すること)
+package-lock.json
+yarn.lock
+
 # debug
 npm-debug.*
 yarn-debug.*

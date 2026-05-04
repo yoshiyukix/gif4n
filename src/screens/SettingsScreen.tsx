@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,15 +19,13 @@ const MAX_SIZE_OPTIONS: { label: string; value: AppSettings['maxSizeMb'] }[] = [
   { label: '10 MB', value: 10 },
 ];
 
-const PRIVACY_POLICY = `このアプリは、動画・GIFデータを外部サーバーへ送信しません。すべての変換処理はお使いの端末上で完結します。
-
-カメラロールへのアクセス権限は、動画の選択および変換後のGIF保存にのみ使用します。`;
+const PRIVACY_POLICY_URL = 'https://products.kotaya.org/gif4n/privacy-policy/';
 
 export default function SettingsScreen({ navigation }: Props) {
   const { settings, updateSettings } = useSettings();
 
   function handlePrivacyPolicy() {
-    Alert.alert('プライバシーポリシー', PRIVACY_POLICY, [{ text: '閉じる' }]);
+    Linking.openURL(PRIVACY_POLICY_URL);
   }
 
   return (

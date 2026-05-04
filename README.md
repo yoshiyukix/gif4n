@@ -39,18 +39,20 @@ Home（動画選択）
 
 ## セットアップ
 
+> **前提**: Node.js 24.x と [Corepack](https://nodejs.org/api/corepack.html) が必要です。初回のみ `corepack enable` を実行してください（Node.js に同梱）。
+
 ```bash
 # 依存関係のインストール
-npm install
+pnpm install
 
 # Metro バンドラー起動
-npm start
+pnpm start
 
 # iOS シミュレーターで起動
-npm run ios
+pnpm run ios
 
 # Android エミュレーターで起動
-npm run android
+pnpm run android
 ```
 
 ## iOS 実機での動作確認
@@ -84,7 +86,7 @@ open ios/*.xcworkspace
 
 Xcode でターゲットデバイスを iPhone に変更し、▶ ボタンで実行。
 
-> **注意**: `npm run ios` はシミュレーター起動のみで、実機では `npx expo run:ios --device` を使用してください。
+> **注意**: `pnpm run ios` はシミュレーター起動のみで、実機では `npx expo run:ios --device` を使用してください。
 
 ## iOS 実機で Metro なし（Release）動作確認
 
@@ -120,7 +122,7 @@ npx expo run:ios --device --configuration Release
 
 ```bash
 # 初回のみ
-npm install -g eas-cli
+pnpm add -g eas-cli
 eas login
 
 # production プロファイルで iOS Release ビルド
@@ -135,13 +137,13 @@ eas build --platform ios --profile production
 
 ```bash
 # 全テスト実行
-npm test
+pnpm test
 
 # ウォッチモード
-npm run test:watch
+pnpm run test:watch
 
 # 型チェック
-npm run typecheck
+pnpm run typecheck
 ```
 
 ## プロジェクト構成

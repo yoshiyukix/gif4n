@@ -93,7 +93,7 @@ gif4n/
 │   │   ├── StudioNavigator.tsx
 │   │   └── types.ts
 │   ├── assets/
-│   │   └── licenses.json      ← npm run licenses で自動生成
+│   │   └── licenses.json      ← pnpm run licenses で自動生成
 │   ├── utils/
 │   │   └── mediaUtils.ts      ← normalizeMediaLibraryUri など共通ユーティリティ
 │   └── types/
@@ -406,7 +406,7 @@ HomeScreen
 ### ライセンス情報の生成（S-005）
 
 ```bash
-npm run licenses
+pnpm run licenses
 # scripts/generate-licenses.js を実行し src/assets/licenses.json を生成する
 # license-checker-rseidelsohn で package.json の全依存を走査し
 # { name, version, license, licenseText }[] 形式の JSON をバンドル内に包含する

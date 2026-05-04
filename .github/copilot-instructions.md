@@ -49,8 +49,8 @@ TDD サイクルを厳守する:
 ## よく使うコマンド
 
 ```bash
-npm run ios        # iOS シミュレーター
-npm run android    # Android エミュレーター
-npm test           # テスト実行
-npm run typecheck  # 型チェック
+pnpm run ios        # iOS シミュレーター
+pnpm run android    # Android エミュレーター
+pnpm test           # テスト実行
+pnpm run typecheck  # 型チェック
 ```

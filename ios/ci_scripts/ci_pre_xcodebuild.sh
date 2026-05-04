@@ -25,10 +25,11 @@ if ! command -v pod &>/dev/null; then
   brew install cocoapods
 fi
 
-# Move to the repo root and install npm dependencies
+# Move to the repo root and install pnpm dependencies
 cd "$CI_PRIMARY_REPOSITORY_PATH"
-echo "Installing npm dependencies..."
-npm ci
+echo "Installing pnpm dependencies..."
+corepack enable
+pnpm install --frozen-lockfile
 
 # Run pod install
 echo "Running pod install..."
