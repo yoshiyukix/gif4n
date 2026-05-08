@@ -19,7 +19,7 @@ const MAX_SIZE_OPTIONS: { label: string; value: AppSettings['maxSizeMb'] }[] = [
   { label: '10 MB', value: 10 },
 ];
 
-const PRIVACY_POLICY_URL = 'https://products.kotaya.org/gif4n/privacy-policy/';
+const PRIVACY_POLICY_URL = 'https://chirotechnia.com/gif4n/privacy-policy/';
 
 export default function SettingsScreen({ navigation }: Props) {
   const { settings, updateSettings } = useSettings();
