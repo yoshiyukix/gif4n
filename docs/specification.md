@@ -428,6 +428,7 @@ pnpm run licenses
 
 - 外部ネットワーク通信を一切行わない（すべてオンデバイス処理）
 - カメラロールアクセス権限は `expo-media-library` が初回アクセス時にシステムダイアログで要求する
+- iOS purpose string は `NSPhotoLibraryUsageDescription` に「カメラロール内の動画を選択してGIFに変換するため、写真へのアクセスを許可してください。」を使用する
 
 ### エラーハンドリング
 

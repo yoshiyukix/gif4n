@@ -11,7 +11,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.gif4n.app"
+      "bundleIdentifier": "com.gif4n.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "カメラロール内の動画を選択してGIFに変換するため、写真へのアクセスを許可してください。",
+        "NSPhotoLibraryAddUsageDescription": "カメラロールにGIFを保存するため、写真へのアクセスを許可してください。"
+      }
     },
     "android": {
       "package": "com.gif4n.app",

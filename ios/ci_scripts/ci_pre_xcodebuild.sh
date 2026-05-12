@@ -28,7 +28,7 @@ fi
 # Move to the repo root and install pnpm dependencies
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 echo "Installing pnpm dependencies..."
-npm install -g pnpm
+npm install -g pnpm # Xcode Cloud does not have pnpm installed by default
 pnpm install --frozen-lockfile
 
 # Run pod install
