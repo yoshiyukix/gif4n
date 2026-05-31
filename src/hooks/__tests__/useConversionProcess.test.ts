@@ -77,9 +77,9 @@ describe('useConversionProcess', () => {
       preset: { width: 620, fps: 15 },
     });
 
-    const { ConversionUseCase } = jest.requireMock(
-      '../../usecases/ConversionUseCase',
-    ) as { ConversionUseCase: jest.Mock };
+    const { ConversionUseCase } = jest.requireMock('../../usecases/ConversionUseCase') as {
+      ConversionUseCase: jest.Mock;
+    };
     ConversionUseCase.mockImplementation(() => ({
       run: mockConversionRun,
     }));

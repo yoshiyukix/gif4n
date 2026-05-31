@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -15,6 +16,8 @@ import { RootStackParamList } from '../navigation/types';
 import { VideoPreview } from '../components/VideoPreview';
 import { TrimSlider } from '../components/TrimSlider';
 import { useTrim } from '../hooks/useTrim';
+import { useVideoImport } from '../hooks/useVideoImport';
+import { VideoSource } from '../types';
 
 import { colors } from '../theme';
 
@@ -28,8 +31,85 @@ function formatSelected(sec: number): string {
 }
 
 export default function TrimScreen({ route, navigation }: Props) {
-  const { source } = route.params;
   const insets = useSafeAreaInsets();
+  const videoImportService = useVideoImport();
+  const [source, setSource] = useState<VideoSource | null>(() =>
+    'source' in route.params ? route.params.source : null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    const params = route.params;
+
+    if ('source' in params) {
+      setSource(params.source);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const { asset } = params;
+    setSource(null);
+    videoImportService
+      .importAsset(asset)
+      .then((preparedSource) => {
+        if (!cancelled) setSource(preparedSource);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        // eslint-disable-next-line no-console
+        console.warn('[TrimScreen] importAsset failed', asset.uri, e);
+        Alert.alert(
+          'この動画は変換できません',
+          'シネマティックモード・スパーシャルビデオなど一部の形式には対応していません。別の動画をお試しください。',
+          [{ text: 'OK', onPress: () => navigation.goBack() }],
+        );
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigation, route.params, videoImportService]);
+
+  if (!source) {
+    return <TrimLoadingScreen insetsTop={insets.top} navigation={navigation} />;
+  }
+
+  return <TrimContent source={source} insetsTop={insets.top} navigation={navigation} />;
+}
+
+type TrimLoadingScreenProps = {
+  insetsTop: number;
+  navigation: Props['navigation'];
+};
+
+function TrimLoadingScreen({ insetsTop, navigation }: TrimLoadingScreenProps) {
+  return (
+    <View style={[styles.root, { paddingTop: insetsTop }]}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={styles.headerBack}
+        >
+          <Ionicons name="chevron-back" size={24} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.loading}>
+        <ActivityIndicator color={colors.primary} />
+        <Text style={styles.loadingText}>動画を準備中...</Text>
+      </View>
+    </View>
+  );
+}
+
+type TrimContentProps = {
+  source: VideoSource;
+  insetsTop: number;
+  navigation: Props['navigation'];
+};
+
+function TrimContent({ source, insetsTop, navigation }: TrimContentProps) {
   const { trimRange, setStart, setEnd } = useTrim(source.durationSec || 60);
   const [currentTimeSec, setCurrentTimeSec] = useState(0);
   const [scrollEnabled, setScrollEnabled] = useState(true);
@@ -58,7 +138,7 @@ export default function TrimScreen({ route, navigation }: Props) {
   const selectedSec = trimRange.endSec - trimRange.startSec;
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top }]}>
+    <View style={[styles.root, { paddingTop: insetsTop }]}>
       {/* ─── カスタムヘッダー ─── */}
       <View style={styles.header}>
         <TouchableOpacity
@@ -187,6 +267,16 @@ const styles = StyleSheet.create({
 
   // Video
   videoWrapper: {},
+  loading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  loadingText: {
+    fontSize: 15,
+    color: colors.textSecondary,
+  },
 
   // Section
   section: {

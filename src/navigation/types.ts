@@ -1,10 +1,10 @@
-import { VideoSource, TrimRange, QualityPreset } from '../types';
+import { VideoSource, VideoAssetReference, TrimRange, QualityPreset } from '../types';
 
 // ─── Studio（動画→GIF変換）スタック ────────────────────────────────
 
 export type StudioStackParamList = {
   Home: undefined;
-  Trim: { source: VideoSource };
+  Trim: { source: VideoSource } | { asset: VideoAssetReference };
   Converting: {
     source: VideoSource;
     trimRange: TrimRange;

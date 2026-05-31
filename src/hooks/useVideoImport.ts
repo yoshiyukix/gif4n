@@ -1,15 +1,9 @@
 import { useMemo } from 'react';
-import * as MediaLibrary from 'expo-media-library';
 import { VideoImportService } from '../infrastructure/VideoImportService';
-import { VideoSource } from '../types';
-
-type ImportableAsset = Pick<
-  MediaLibrary.Asset,
-  'id' | 'filename' | 'duration' | 'width' | 'height' | 'uri'
->;
+import { VideoAssetReference, VideoSource } from '../types';
 
 export interface UseVideoImportResult {
-  importAsset(asset: ImportableAsset): Promise<VideoSource>;
+  importAsset(asset: VideoAssetReference): Promise<VideoSource>;
   importFileUri(fileUri: string, filename: string, fileSize: number): Promise<VideoSource>;
 }
 

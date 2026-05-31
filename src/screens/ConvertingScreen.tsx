@@ -111,7 +111,11 @@ export default function ConvertingScreen({ route, navigation }: Props) {
         <View style={styles.spacer} />
 
         {/* キャンセルボタン */}
-        <TouchableOpacity style={styles.cancelButton} onPress={handleCancelPress} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={handleCancelPress}
+          activeOpacity={0.8}
+        >
           <Text style={styles.cancelText}>キャンセル</Text>
         </TouchableOpacity>
       </View>

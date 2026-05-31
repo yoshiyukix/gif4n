@@ -1,15 +1,12 @@
 import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system/legacy';
 import { createVideoPlayer } from 'expo-video';
-import { VideoSource } from '../types';
+import { VideoAssetReference, VideoSource } from '../types';
 import { normalizeMediaLibraryUri } from '../utils/mediaUtils';
 
 export { normalizeMediaLibraryUri } from '../utils/mediaUtils';
 
-type ImportableAsset = Pick<
-  MediaLibrary.Asset,
-  'id' | 'filename' | 'duration' | 'width' | 'height' | 'uri'
->;
+type ImportableAsset = VideoAssetReference;
 
 export interface IVideoImportService {
   importAsset(asset: ImportableAsset): Promise<VideoSource>;
