@@ -116,6 +116,8 @@ PODS:
     - ReactCommon
   - ExpoSharing (55.0.18):
     - ExpoModulesCore
+  - ExpoStoreReview (55.0.14):
+    - ExpoModulesCore
   - ExpoVideo (55.0.15):
     - ExpoModulesCore
   - ExpoVideoThumbnails (55.0.14):
@@ -2878,6 +2880,7 @@ DEPENDENCIES:
   - "ExpoModulesCore (from `../node_modules/.pnpm/expo-modules-core@55.0.24_react-native@0.83.4_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-modules-core`)"
   - "ExpoModulesJSI (from `../node_modules/.pnpm/expo-modules-core@55.0.24_react-native@0.83.4_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-modules-core`)"
   - "ExpoSharing (from `../node_modules/.pnpm/expo-sharing@55.0.18_expo@55.0.19_react-native@0.83.4_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-sharing/ios`)"
+  - "ExpoStoreReview (from `../node_modules/.pnpm/expo-store-review@55.0.14_expo@55.0.19_react-native@0.83.4_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0_/node_modules/expo-store-review/ios`)"
   - "ExpoVideo (from `../node_modules/.pnpm/expo-video@55.0.15_expo@55.0.19_react-native@0.83.4_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-video/ios`)"
   - "ExpoVideoThumbnails (from `../node_modules/.pnpm/expo-video-thumbnails@55.0.14_expo@55.0.19/node_modules/expo-video-thumbnails/ios`)"
   - "fast_float (from `../node_modules/.pnpm/react-native@0.83.4_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0/node_modules/react-native/third-party-podspecs/fast_float.podspec`)"
@@ -3001,6 +3004,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/.pnpm/expo-modules-core@55.0.24_react-native@0.83.4_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-modules-core"
   ExpoSharing:
     :path: "../node_modules/.pnpm/expo-sharing@55.0.18_expo@55.0.19_react-native@0.83.4_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-sharing/ios"
+  ExpoStoreReview:
+    :path: "../node_modules/.pnpm/expo-store-review@55.0.14_expo@55.0.19_react-native@0.83.4_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0_/node_modules/expo-store-review/ios"
   ExpoVideo:
     :path: "../node_modules/.pnpm/expo-video@55.0.15_expo@55.0.19_react-native@0.83.4_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-video/ios"
   ExpoVideoThumbnails:
@@ -3186,6 +3191,7 @@ SPEC CHECKSUMS:
   ExpoModulesCore: 1ce30cfe9929142e1cd58ac74b8d248e123c7e66
   ExpoModulesJSI: 9b60671a31c30bc8e24b25632e7cb475a84b9016
   ExpoSharing: 5acc9d78894386d31b862b12ed1cebe7dce74e68
+  ExpoStoreReview: 067788aa30f0460a59b681b2c850747de6abe5cb
   ExpoVideo: 434d1e32486309359b8eff4880d636fd8c0c0ba1
   ExpoVideoThumbnails: 4e7d245fc770bcf831dd954ec68977aaf480d98f
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6

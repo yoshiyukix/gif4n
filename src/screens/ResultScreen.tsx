@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,9 @@ import { RootStackParamList } from '../navigation/types';
 import { GifPreview } from '../components/GifPreview';
 import { SaveToast } from '../components/SaveToast';
 import { useMediaActions } from '../hooks/useMediaActions';
+import { AsyncStorageReviewPromptStore } from '../infrastructure/ReviewPromptStore';
+import { StoreReviewRequester } from '../infrastructure/StoreReviewRequester';
+import { ReviewPromptPolicyUseCase } from '../usecases/ReviewPromptPolicyUseCase';
 
 import { colors } from '../theme';
 
@@ -28,9 +31,30 @@ export default function ResultScreen({ route, navigation }: Props) {
   const sizeMB = (sizeBytes / (1024 * 1024)).toFixed(2);
   const insets = useSafeAreaInsets();
   const { isSaving, saveGif, shareGif } = useMediaActions();
+  const hasTrackedReviewPrompt = useRef(false);
+  const reviewPromptPolicy = useRef<ReviewPromptPolicyUseCase | null>(null);
+
+  if (!reviewPromptPolicy.current) {
+    reviewPromptPolicy.current = new ReviewPromptPolicyUseCase(
+      new AsyncStorageReviewPromptStore(),
+      new StoreReviewRequester(),
+    );
+  }
 
   const [toast, setToast] = useState<ToastState | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
+
+  useEffect(() => {
+    if (hasTrackedReviewPrompt.current) return;
+    hasTrackedReviewPrompt.current = true;
+
+    const abort = new AbortController();
+    void reviewPromptPolicy.current?.handleConversionSuccess(abort.signal);
+
+    return () => {
+      abort.abort();
+    };
+  }, []);
 
   async function handleSave() {
     try {

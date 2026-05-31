@@ -1,49 +1,37 @@
 import { useState, useEffect } from 'react';
-import * as MediaLibrary from 'expo-media-library';
-import * as VideoThumbnails from 'expo-video-thumbnails';
-import * as FileSystem from 'expo-file-system/legacy';
-import { normalizeMediaLibraryUri } from '../utils/mediaUtils';
+import type { VideoAssetReference } from '../types';
+import { videoThumbnailService } from '../infrastructure/VideoThumbnailService';
 
-type AssetLike = Pick<MediaLibrary.Asset, 'id' | 'uri'>;
+type AssetLike = Pick<VideoAssetReference, 'id' | 'uri'>;
 
 /**
  * 動画アセットのサムネイル URI を非同期で生成して返す hook。
  * 権限エラーを避けるため、アクセス元に関わらず必ずキャッシュへコピーしてからサムネイルを生成する。
  * アンマウント時またはアセット変更時に処理を中断する。
  */
-export function useVideoThumbnail(asset: AssetLike): string | null {
+export function useVideoThumbnail(asset: AssetLike, enabled = true): string | null {
+  const { id, uri } = asset;
   const [thumbUri, setThumbUri] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
+    setThumbUri(null);
+    if (!enabled) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
     (async () => {
-      const info = await MediaLibrary.getAssetInfoAsync(asset as MediaLibrary.Asset);
-      const localUri = normalizeMediaLibraryUri(info.localUri ?? '');
-      if (!localUri) {
-        // eslint-disable-next-line no-console
-        console.warn('[useVideoThumbnail] no localUri', asset.uri);
-        return;
-      }
-      const ext = localUri.split('.').pop() ?? 'mov';
-      const safeId = asset.id.replace(/\//g, '_');
-      const tempUri = `${FileSystem.cacheDirectory}thumb-${safeId}.${ext}`;
-      try {
-        await FileSystem.copyAsync({ from: localUri, to: tempUri });
-        const { uri } = await VideoThumbnails.getThumbnailAsync(tempUri, { time: 0 });
-        if (!cancelled) setThumbUri(uri);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('[useVideoThumbnail] thumbnail failed', asset.uri, e);
-      } finally {
-        FileSystem.deleteAsync(tempUri, { idempotent: true }).catch(() => {});
-      }
+      const nextUri = await videoThumbnailService.getVisibleThumbnail({ id, uri });
+      if (!cancelled) setThumbUri(nextUri);
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [asset]);
+  }, [enabled, id, uri]);
 
   return thumbUri;
 }

@@ -16,6 +16,16 @@ export interface VideoSource {
   fileSizeBytes: number;
 }
 
+/** フォトライブラリ上の動画を指す軽量な参照 */
+export interface VideoAssetReference {
+  id: string;
+  filename: string;
+  duration: number;
+  width: number;
+  height: number;
+  uri: string;
+}
+
 // ────────────────────────────────────────────────
 // TrimRange
 // ────────────────────────────────────────────────

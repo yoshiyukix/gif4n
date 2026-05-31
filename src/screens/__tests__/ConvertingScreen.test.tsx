@@ -2,7 +2,7 @@ import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import { ConversionJob, QUALITY_PRESETS } from '../../types';
-import { useConversionProcess } from '../../hooks/useConversionProcess';
+import { useConversionSession } from '../../hooks/useConversionSession';
 import { useSettings } from '../../hooks/useSettings';
 
 // ─── モック ──────────────────────────────────────────────────────
@@ -14,8 +14,8 @@ let mockJob: ConversionJob | null = null;
 const mockSettings = { maxSizeMb: 10 };
 let mockIsLoaded = true;
 
-jest.mock('../../hooks/useConversionProcess', () => ({
-  useConversionProcess: jest.fn(),
+jest.mock('../../hooks/useConversionSession', () => ({
+  useConversionSession: jest.fn(),
 }));
 jest.mock('../../hooks/useSettings', () => ({
   useSettings: jest.fn(),
@@ -26,7 +26,7 @@ jest.mock('react-native-safe-area-context', () => ({
   SafeAreaView: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-const mockUseConversionProcess = useConversionProcess as jest.Mock;
+const mockUseConversionSession = useConversionSession as jest.Mock;
 const mockUseSettings = useSettings as jest.Mock;
 
 // ─── テスト用フィクスチャ ─────────────────────────────────────────
@@ -68,7 +68,7 @@ const ConvertingScreen = require('../ConvertingScreen').default;
 
 function renderScreen(job: ConversionJob | null = null) {
   mockJob = job;
-  mockUseConversionProcess.mockReturnValue({
+  mockUseConversionSession.mockReturnValue({
     job: mockJob,
     start: mockStart,
     cancel: mockCancel,

@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StudioStackParamList } from './types';
 import HomeScreen from '../screens/HomeScreen';
+import PrepareVideoScreen from '../screens/PrepareVideoScreen';
 import TrimScreen from '../screens/TrimScreen';
 import ConvertingScreen from '../screens/ConvertingScreen';
 import ResultScreen from '../screens/ResultScreen';
@@ -14,6 +15,11 @@ export function StudioNavigator() {
   return (
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="PrepareVideo"
+        component={PrepareVideoScreen}
+        options={{ headerShown: false, gestureEnabled: false }}
+      />
       <Stack.Screen
         name="Trim"
         component={TrimScreen}

@@ -41,3 +41,4 @@ yarn-error.*
 *.tsbuildinfo
 
 tmp/
+.pnpm-store/

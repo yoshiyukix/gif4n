@@ -108,7 +108,9 @@ export class NativeGifService implements INativeGifService {
 
     // キャンセル時にネイティブセッションを中断（同期呼び出し: JS スレッドで即時実行）
     const abortHandler = () => {
-      try { module.cancelConversion(sessionId); } catch {}
+      try {
+        module.cancelConversion(sessionId);
+      } catch {}
     };
     signal.addEventListener('abort', abortHandler);
 

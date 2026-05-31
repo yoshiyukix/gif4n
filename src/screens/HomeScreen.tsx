@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Image,
   StatusBar,
   ListRenderItemInfo,
+  ViewToken,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -17,8 +18,8 @@ import { Ionicons } from '@expo/vector-icons';
 import * as MediaLibrary from 'expo-media-library';
 import * as DocumentPicker from 'expo-document-picker';
 import { RootStackParamList } from '../navigation/types';
-import { useVideoImport } from '../hooks/useVideoImport';
 import { useVideoThumbnail } from '../hooks/useVideoThumbnail';
+import { VideoAssetReference } from '../types';
 import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -26,6 +27,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 const NUM_COLS = 3;
 const GAP = 3;
 const VIDEO_FETCH_LIMIT = 200;
+const THUMBNAIL_PRELOAD_ROWS = 2;
 
 function fmtDuration(sec: number): string {
   const m = Math.floor(sec / 60);
@@ -37,10 +39,11 @@ function fmtDuration(sec: number): string {
 type TileProps = {
   asset: MediaLibrary.Asset;
   onPress: (asset: MediaLibrary.Asset) => void;
+  shouldLoadThumbnail: boolean;
 };
 
-const VideoTile = memo(({ asset, onPress }: TileProps) => {
-  const thumbUri = useVideoThumbnail(asset);
+const VideoTile = memo(({ asset, onPress, shouldLoadThumbnail }: TileProps) => {
+  const thumbUri = useVideoThumbnail(asset, shouldLoadThumbnail);
 
   return (
     <TouchableOpacity style={styles.tile} onPress={() => onPress(asset)} activeOpacity={0.8}>
@@ -56,12 +59,25 @@ const VideoTile = memo(({ asset, onPress }: TileProps) => {
   );
 });
 
+function toVideoAssetReference(asset: MediaLibrary.Asset): VideoAssetReference {
+  return {
+    id: asset.id,
+    filename: asset.filename,
+    duration: asset.duration,
+    width: asset.width,
+    height: asset.height,
+    uri: asset.uri,
+  };
+}
+
 export default function HomeScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const [videos, setVideos] = useState<MediaLibrary.Asset[]>([]);
   const [granted, setGranted] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const videoImportService = useVideoImport();
+  const [thumbnailAssetIds, setThumbnailAssetIds] = useState<Set<string>>(() => new Set());
+  const videosRef = useRef<MediaLibrary.Asset[]>([]);
+  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 25 });
 
   const loadVideos = useCallback(async () => {
     const { assets } = await MediaLibrary.getAssetsAsync({
@@ -69,6 +85,7 @@ export default function HomeScreen({ navigation }: Props) {
       first: VIDEO_FETCH_LIMIT,
       sortBy: MediaLibrary.SortBy.creationTime,
     });
+    videosRef.current = assets;
     setVideos(assets);
   }, []);
 
@@ -94,20 +111,12 @@ export default function HomeScreen({ navigation }: Props) {
   }, [loadVideos]);
 
   const onPressVideo = useCallback(
-    async (asset: MediaLibrary.Asset) => {
-      try {
-        const source = await videoImportService.importAsset(asset);
-        navigation.navigate('Trim', { source });
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('[HomeScreen] importAsset failed', asset.uri, e);
-        Alert.alert(
-          'この動画は変換できません',
-          'シネマティックモード・スパーシャルビデオなど一部の形式には対応していません。別の動画をお試しください。',
-        );
-      }
+    (asset: MediaLibrary.Asset) => {
+      navigation.navigate('PrepareVideo', {
+        request: { kind: 'asset-reference', asset: toVideoAssetReference(asset) },
+      });
     },
-    [navigation, videoImportService],
+    [navigation],
   );
 
   const onPickFile = useCallback(async () => {
@@ -118,27 +127,52 @@ export default function HomeScreen({ navigation }: Props) {
       });
       if (result.canceled || !result.assets?.length) return;
       const file = result.assets[0];
-      const source = await videoImportService.importFileUri(
-        file.uri,
-        file.name ?? 'video.mp4',
-        file.size ?? 0,
-      );
-      navigation.navigate('Trim', { source });
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[HomeScreen] importFileUri failed', e);
+      navigation.navigate('PrepareVideo', {
+        request: {
+          kind: 'file',
+          fileUri: file.uri,
+          filename: file.name ?? 'video.mp4',
+          fileSize: file.size ?? 0,
+        },
+      });
+    } catch {
       Alert.alert(
         'この動画は変換できません',
         'ファイルにアクセスできないか、対応していない動画形式です。別のファイルをお試しください。',
       );
     }
-  }, [navigation, videoImportService]);
+  }, [navigation]);
 
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<MediaLibrary.Asset>) => (
-      <VideoTile asset={item} onPress={onPressVideo} />
+      <VideoTile
+        asset={item}
+        onPress={onPressVideo}
+        shouldLoadThumbnail={thumbnailAssetIds.has(item.id)}
+      />
     ),
-    [onPressVideo],
+    [onPressVideo, thumbnailAssetIds],
+  );
+
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: ViewToken<MediaLibrary.Asset>[] }) => {
+      const nextIds = new Set<string>();
+      const preloadItemCount = NUM_COLS * THUMBNAIL_PRELOAD_ROWS;
+      const currentVideos = videosRef.current;
+
+      for (const viewable of viewableItems) {
+        const index = viewable.index ?? -1;
+        const start = Math.max(0, index - preloadItemCount);
+        const end = Math.min(currentVideos.length - 1, index + preloadItemCount);
+
+        for (let i = start; i <= end; i += 1) {
+          const asset = currentVideos[i];
+          if (asset) nextIds.add(asset.id);
+        }
+      }
+
+      setThumbnailAssetIds(nextIds);
+    },
   );
 
   return (
@@ -170,6 +204,7 @@ export default function HomeScreen({ navigation }: Props) {
         data={videos}
         renderItem={renderItem}
         keyExtractor={(a) => a.id}
+        extraData={thumbnailAssetIds}
         numColumns={NUM_COLS}
         columnWrapperStyle={styles.row}
         ItemSeparatorComponent={() => <View style={{ height: GAP }} />}
@@ -178,6 +213,8 @@ export default function HomeScreen({ navigation }: Props) {
         showsVerticalScrollIndicator={false}
         refreshing={refreshing}
         onRefresh={onRefresh}
+        onViewableItemsChanged={onViewableItemsChanged.current}
+        viewabilityConfig={viewabilityConfig.current}
         ListEmptyComponent={
           <View style={styles.empty}>
             <Text style={styles.emptyText}>
@@ -189,7 +226,6 @@ export default function HomeScreen({ navigation }: Props) {
           videos.length > 0 ? <Text style={styles.count}>{videos.length}個の動画</Text> : null
         }
       />
-
     </View>
   );
 }
