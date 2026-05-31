@@ -146,6 +146,7 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
 				077B57F9CD8D99AA81EACF2C /* [CP] Embed Pods Frameworks */,
+				F62C7B4A5D3347B8A2C4196E /* Generate Hermes dSYM */,
 			);
 			buildRules = (
 			);
@@ -324,6 +325,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-gif4n/Pods-gif4n-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F62C7B4A5D3347B8A2C4196E /* Generate Hermes dSYM */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermesvm.framework/hermesvm",
+			);
+			name = "Generate Hermes dSYM";
+			outputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/hermesvm.framework.dSYM",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\n\nHERMES_BINARY=\"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermesvm.framework/hermesvm\"\nHERMES_DSYM=\"${DWARF_DSYM_FOLDER_PATH}/hermesvm.framework.dSYM\"\n\nif [ ! -f \"$HERMES_BINARY\" ]; then\n  echo \"hermesvm.framework not found, skipping dSYM generation\"\n  exit 0\nfi\n\nrm -rf \"$HERMES_DSYM\"\nmkdir -p \"${DWARF_DSYM_FOLDER_PATH}\"\n\n# App Store Connect expects a dSYM whose UUID matches the embedded Hermes framework.\nif ! xcrun dsymutil \"$HERMES_BINARY\" -o \"$HERMES_DSYM\" >/dev/null 2>&1; then\n  echo \"warning: Failed to generate hermesvm.framework dSYM\"\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
