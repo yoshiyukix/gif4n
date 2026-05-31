@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -10,10 +10,12 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as StoreReview from 'expo-store-review';
 import { RootStackParamList } from '../navigation/types';
 import { GifPreview } from '../components/GifPreview';
 import { SaveToast } from '../components/SaveToast';
 import { useMediaActions } from '../hooks/useMediaActions';
+import { useReviewPrompt } from '../hooks/useReviewPrompt';
 
 import { colors } from '../theme';
 
@@ -28,9 +30,46 @@ export default function ResultScreen({ route, navigation }: Props) {
   const sizeMB = (sizeBytes / (1024 * 1024)).toFixed(2);
   const insets = useSafeAreaInsets();
   const { isSaving, saveGif, shareGif } = useMediaActions();
+  const { recordConversionSuccess, shouldAttemptReviewPrompt, markReviewPromptAttempted } =
+    useReviewPrompt();
+  const hasTrackedReviewPrompt = useRef(false);
 
   const [toast, setToast] = useState<ToastState | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
+
+  useEffect(() => {
+    if (hasTrackedReviewPrompt.current) return;
+    hasTrackedReviewPrompt.current = true;
+
+    let active = true;
+    let frameId: number | null = null;
+
+    void (async () => {
+      await recordConversionSuccess();
+      const shouldAttempt = await shouldAttemptReviewPrompt();
+      if (!active || !shouldAttempt) return;
+
+      frameId = requestAnimationFrame(() => {
+        void (async () => {
+          try {
+            const isAvailable = await StoreReview.isAvailableAsync();
+            if (isAvailable) {
+              await StoreReview.requestReview();
+            }
+          } catch {
+            // レビュー UI の表示可否は OS 判断に委ね、失敗時も静かに握りつぶす
+          } finally {
+            await markReviewPromptAttempted();
+          }
+        })();
+      });
+    })();
+
+    return () => {
+      active = false;
+      if (frameId !== null) cancelAnimationFrame(frameId);
+    };
+  }, [markReviewPromptAttempted, recordConversionSuccess, shouldAttemptReviewPrompt]);
 
   async function handleSave() {
     try {
