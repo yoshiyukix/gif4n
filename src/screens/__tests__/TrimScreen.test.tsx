@@ -10,10 +10,14 @@ jest.mock('../../hooks/useTrim', () => ({
 }));
 jest.mock('../../components/VideoPreview', () => ({ VideoPreview: 'VideoPreview' }));
 jest.mock('../../components/TrimSlider', () => ({ TrimSlider: 'TrimSlider' }));
-jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Ionicons' }));
-jest.mock('expo-video-thumbnails', () => ({
-  getThumbnailAsync: jest.fn().mockResolvedValue({ uri: 'file:///tmp/thumb.jpg' }),
+const mockGetConversionPreviewThumbnail = jest.fn();
+jest.mock('../../infrastructure/VideoThumbnailService', () => ({
+  videoThumbnailService: {
+    getConversionPreviewThumbnail: (...args: unknown[]) =>
+      mockGetConversionPreviewThumbnail(...args),
+  },
 }));
+jest.mock('@expo/vector-icons', () => ({ Ionicons: 'Ionicons' }));
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: jest.fn().mockReturnValue({ top: 0 }),
 }));
@@ -52,6 +56,7 @@ function renderScreen() {
 describe('TrimScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetConversionPreviewThumbnail.mockResolvedValue('file:///tmp/thumb.jpg');
   });
 
   it('パイロット待機なしで変換ボタンが表示される', () => {
@@ -66,6 +71,7 @@ describe('TrimScreen', () => {
     fireEvent.press(getByText('GIF動画に変換'));
 
     await waitFor(() => {
+      expect(mockGetConversionPreviewThumbnail).toHaveBeenCalledWith(mockSource, 0);
       expect(mockNavigate).toHaveBeenCalledWith(
         'Converting',
         expect.objectContaining({

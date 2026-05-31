@@ -3,11 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'rea
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import * as VideoThumbnails from 'expo-video-thumbnails';
 import { RootStackParamList } from '../navigation/types';
 import { VideoPreview } from '../components/VideoPreview';
 import { TrimSlider } from '../components/TrimSlider';
 import { useTrim } from '../hooks/useTrim';
+import { videoThumbnailService } from '../infrastructure/VideoThumbnailService';
 import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Trim'>;
@@ -35,15 +35,10 @@ export default function TrimScreen({ route, navigation }: Props) {
       return;
     }
     let thumbnailUri: string | null = null;
-    try {
-      const result = await VideoThumbnails.getThumbnailAsync(source.uri, {
-        time: trimRange.startSec * 1000,
-      });
-      thumbnailUri = result.uri;
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[TrimScreen] thumbnail failed', source.uri, e);
-    }
+    thumbnailUri = await videoThumbnailService.getConversionPreviewThumbnail(
+      source,
+      trimRange.startSec * 1000,
+    );
     navigation.navigate('Converting', { source, trimRange, thumbnailUri });
   }
 
