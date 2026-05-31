@@ -2,40 +2,52 @@ import { useState, useCallback, useRef, useMemo } from 'react';
 import * as FileSystem from 'expo-file-system/legacy';
 import { NativeGifService } from '../infrastructure/NativeGifService';
 import { SizeEstimator } from '../usecases/SizeEstimator';
-import { ConversionUseCase } from '../usecases/ConversionUseCase';
+import { ConversionUseCase, type OutputSizeResolver } from '../usecases/ConversionUseCase';
 import { PilotEstimationUseCase } from '../usecases/PilotEstimationUseCase';
 import { VideoSource, TrimRange, ConversionJob, QUALITY_PRESETS } from '../types';
 
-async function outputSizeResolver(uri: string): Promise<number> {
+async function defaultOutputSizeResolver(uri: string): Promise<number> {
   const info = await FileSystem.getInfoAsync(uri);
   return info.exists ? (info.size ?? 0) : 0;
 }
 
-export interface UseConversionProcessResult {
+export interface ConversionSessionDependencies {
+  pilotUseCase: Pick<PilotEstimationUseCase, 'run' | 'estimateStartIndex'>;
+  conversionUseCase: Pick<ConversionUseCase, 'run'>;
+  outputSizeResolver: OutputSizeResolver;
+}
+
+export interface UseConversionSessionOptions {
+  maxSizeBytes: number;
+  dependencies?: ConversionSessionDependencies;
+}
+
+export interface UseConversionSessionResult {
   job: ConversionJob | null;
-  /** パイロット推定 → 本変換を直列実行する。外部から startIndexOverride を渡す必要はない。 */
   start: (source: VideoSource, trim: TrimRange) => void;
   cancel: () => void;
 }
 
-/**
- * NativeGifService + PilotEstimationUseCase + ConversionUseCase を内部生成し、
- * 「パイロット推定 → 最適プリセット選択 → GIF 変換」を一貫して提供する wiring hook。
- *
- * Presentation 層が Infrastructure / UseCase を直接依存しないようにするためのラッパー。
- *
- * @param maxSizeBytes 最大ファイルサイズ（バイト）
- */
-export function useConversionProcess(maxSizeBytes: number): UseConversionProcessResult {
+function createDefaultDependencies(): ConversionSessionDependencies {
+  const nativeService = new NativeGifService();
+  const estimator = new SizeEstimator();
+
+  return {
+    pilotUseCase: new PilotEstimationUseCase(nativeService),
+    conversionUseCase: new ConversionUseCase(nativeService, estimator),
+    outputSizeResolver: defaultOutputSizeResolver,
+  };
+}
+
+export function useConversionSession(
+  options: UseConversionSessionOptions,
+): UseConversionSessionResult {
+  const { maxSizeBytes, dependencies } = options;
   const [job, setJob] = useState<ConversionJob | null>(null);
   const abortRef = useRef<AbortController | null>(null);
-
-  const nativeService = useMemo(() => new NativeGifService(), []);
-  const estimator = useMemo(() => new SizeEstimator(), []);
-  const pilotUseCase = useMemo(() => new PilotEstimationUseCase(nativeService), [nativeService]);
-  const conversionUseCase = useMemo(
-    () => new ConversionUseCase(nativeService, estimator),
-    [nativeService, estimator],
+  const resolvedDependencies = useMemo(
+    () => dependencies ?? createDefaultDependencies(),
+    [dependencies],
   );
 
   const cancel = useCallback(() => {
@@ -47,7 +59,6 @@ export function useConversionProcess(maxSizeBytes: number): UseConversionProcess
       const abort = new AbortController();
       abortRef.current = abort;
 
-      // Phase 1: パイロット推定中
       setJob({
         source,
         trim,
@@ -58,24 +69,30 @@ export function useConversionProcess(maxSizeBytes: number): UseConversionProcess
         outputSizeBytes: null,
       });
 
-      /** パイロット変換を実行し startIndexOverride を返す。キャンセル時は undefined を返す。 */
       async function runPilotPhase(): Promise<number | undefined> {
-        const bytesPerSec = await pilotUseCase.run(source, abort.signal);
+        const bytesPerSec = await resolvedDependencies.pilotUseCase.run(source, abort.signal);
         if (abort.signal.aborted) return undefined;
         const trimDurationSec = trim.endSec - trim.startSec;
+
         return bytesPerSec != null
-          ? Math.max(0, pilotUseCase.estimateStartIndex(bytesPerSec, trimDurationSec, maxSizeBytes))
+          ? Math.max(
+              0,
+              resolvedDependencies.pilotUseCase.estimateStartIndex(
+                bytesPerSec,
+                trimDurationSec,
+                maxSizeBytes,
+              ),
+            )
           : undefined;
       }
 
-      /** 本変換を実行し job を更新する。 */
       async function runConversionPhase(startIndexOverride: number | undefined): Promise<void> {
         setJob((prev) => (prev ? { ...prev, status: 'running', progressRate: 0 } : null));
 
-        const result = await conversionUseCase.run(source, trim, {
+        const result = await resolvedDependencies.conversionUseCase.run(source, trim, {
           onProgress: (rate) => setJob((prev) => (prev ? { ...prev, progressRate: rate } : null)),
           signal: abort.signal,
-          outputSizeResolver,
+          outputSizeResolver: resolvedDependencies.outputSizeResolver,
           onPresetChange: (preset) => setJob((prev) => (prev ? { ...prev, preset } : null)),
           maxSizeBytes,
           startIndexOverride,
@@ -93,25 +110,29 @@ export function useConversionProcess(maxSizeBytes: number): UseConversionProcess
                 }
               : null,
           );
-        } else if (result.reason === 'cancelled') {
-          setJob((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
-        } else {
-          // この else 分岐では result.reason は 'too_large' | 'native_error' に絞られる
-          const errorReason = result.reason;
-          setJob((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  status: 'error',
-                  errorMessage: result.message,
-                  errorReason,
-                }
-              : null,
-          );
+          return;
         }
+
+        if (result.reason === 'cancelled') {
+          setJob((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
+          return;
+        }
+
+        const errorReason = result.reason as 'too_large' | 'native_error';
+
+        setJob((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: 'error',
+                errorMessage: result.message,
+                errorReason,
+              }
+            : null,
+        );
       }
 
-      (async () => {
+      void (async () => {
         const startIndexOverride = await runPilotPhase();
         if (abort.signal.aborted) {
           setJob((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
@@ -123,6 +144,7 @@ export function useConversionProcess(maxSizeBytes: number): UseConversionProcess
           setJob((prev) => (prev ? { ...prev, status: 'cancelled' } : null));
           return;
         }
+
         const message = e instanceof Error ? e.message : String(e);
         setJob((prev) =>
           prev
@@ -131,7 +153,7 @@ export function useConversionProcess(maxSizeBytes: number): UseConversionProcess
         );
       });
     },
-    [pilotUseCase, conversionUseCase, maxSizeBytes],
+    [maxSizeBytes, resolvedDependencies],
   );
 
   return { job, start, cancel };

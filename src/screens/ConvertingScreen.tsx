@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { RootStackParamList } from '../navigation/types';
-import { useConversionProcess } from '../hooks/useConversionProcess';
+import { useConversionSession } from '../hooks/useConversionSession';
 import { useSettings } from '../hooks/useSettings';
 import { colors } from '../theme';
 import CircularProgress from '../components/CircularProgress';
@@ -13,9 +13,10 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Converting'>;
 
 export default function ConvertingScreen({ route, navigation }: Props) {
   const { source, trimRange, thumbnailUri } = route.params;
-
   const { settings, isLoaded } = useSettings();
-  const { job, start, cancel } = useConversionProcess(settings.maxSizeMb * 1024 * 1024);
+  const { job, start, cancel } = useConversionSession({
+    maxSizeBytes: settings.maxSizeMb * 1024 * 1024,
+  });
   const started = useRef(false);
 
   useEffect(() => {
