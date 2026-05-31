@@ -61,7 +61,7 @@
     "expo-modules-core": "55.0.24",
     "expo-sharing": "~55.0.18",
     "expo-status-bar": "~55.0.5",
-    "expo-store-review": "^56.0.3",
+    "expo-store-review": "~55.0.13",
     "expo-video": "~55.0.15",
     "expo-video-thumbnails": "~55.0.14",
     "gif4n-sdk": "file:./modules/gif4n-sdk",
