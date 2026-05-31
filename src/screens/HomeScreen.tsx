@@ -18,7 +18,6 @@ import { Ionicons } from '@expo/vector-icons';
 import * as MediaLibrary from 'expo-media-library';
 import * as DocumentPicker from 'expo-document-picker';
 import { RootStackParamList } from '../navigation/types';
-import { useVideoImport } from '../hooks/useVideoImport';
 import { useVideoThumbnail } from '../hooks/useVideoThumbnail';
 import { VideoAssetReference } from '../types';
 import { colors } from '../theme';
@@ -79,7 +78,6 @@ export default function HomeScreen({ navigation }: Props) {
   const [thumbnailAssetIds, setThumbnailAssetIds] = useState<Set<string>>(() => new Set());
   const videosRef = useRef<MediaLibrary.Asset[]>([]);
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 25 });
-  const videoImportService = useVideoImport();
 
   const loadVideos = useCallback(async () => {
     const { assets } = await MediaLibrary.getAssetsAsync({
@@ -114,7 +112,9 @@ export default function HomeScreen({ navigation }: Props) {
 
   const onPressVideo = useCallback(
     (asset: MediaLibrary.Asset) => {
-      navigation.navigate('Trim', { asset: toVideoAssetReference(asset) });
+      navigation.navigate('PrepareVideo', {
+        request: { kind: 'asset-reference', asset: toVideoAssetReference(asset) },
+      });
     },
     [navigation],
   );
@@ -127,21 +127,21 @@ export default function HomeScreen({ navigation }: Props) {
       });
       if (result.canceled || !result.assets?.length) return;
       const file = result.assets[0];
-      const source = await videoImportService.importFileUri(
-        file.uri,
-        file.name ?? 'video.mp4',
-        file.size ?? 0,
-      );
-      navigation.navigate('Trim', { source });
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn('[HomeScreen] importFileUri failed', e);
+      navigation.navigate('PrepareVideo', {
+        request: {
+          kind: 'file',
+          fileUri: file.uri,
+          filename: file.name ?? 'video.mp4',
+          fileSize: file.size ?? 0,
+        },
+      });
+    } catch {
       Alert.alert(
         'この動画は変換できません',
         'ファイルにアクセスできないか、対応していない動画形式です。別のファイルをお試しください。',
       );
     }
-  }, [navigation, videoImportService]);
+  }, [navigation]);
 
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<MediaLibrary.Asset>) => (

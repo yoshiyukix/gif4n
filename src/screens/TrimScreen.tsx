@@ -1,13 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,9 +8,6 @@ import { RootStackParamList } from '../navigation/types';
 import { VideoPreview } from '../components/VideoPreview';
 import { TrimSlider } from '../components/TrimSlider';
 import { useTrim } from '../hooks/useTrim';
-import { useVideoImport } from '../hooks/useVideoImport';
-import { VideoSource } from '../types';
-
 import { colors } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Trim'>;
@@ -32,84 +21,7 @@ function formatSelected(sec: number): string {
 
 export default function TrimScreen({ route, navigation }: Props) {
   const insets = useSafeAreaInsets();
-  const videoImportService = useVideoImport();
-  const [source, setSource] = useState<VideoSource | null>(() =>
-    'source' in route.params ? route.params.source : null,
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-    const params = route.params;
-
-    if ('source' in params) {
-      setSource(params.source);
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    const { asset } = params;
-    setSource(null);
-    videoImportService
-      .importAsset(asset)
-      .then((preparedSource) => {
-        if (!cancelled) setSource(preparedSource);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        // eslint-disable-next-line no-console
-        console.warn('[TrimScreen] importAsset failed', asset.uri, e);
-        Alert.alert(
-          'この動画は変換できません',
-          'シネマティックモード・スパーシャルビデオなど一部の形式には対応していません。別の動画をお試しください。',
-          [{ text: 'OK', onPress: () => navigation.goBack() }],
-        );
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [navigation, route.params, videoImportService]);
-
-  if (!source) {
-    return <TrimLoadingScreen insetsTop={insets.top} navigation={navigation} />;
-  }
-
-  return <TrimContent source={source} insetsTop={insets.top} navigation={navigation} />;
-}
-
-type TrimLoadingScreenProps = {
-  insetsTop: number;
-  navigation: Props['navigation'];
-};
-
-function TrimLoadingScreen({ insetsTop, navigation }: TrimLoadingScreenProps) {
-  return (
-    <View style={[styles.root, { paddingTop: insetsTop }]}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          style={styles.headerBack}
-        >
-          <Ionicons name="chevron-back" size={24} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.loading}>
-        <ActivityIndicator color={colors.primary} />
-        <Text style={styles.loadingText}>動画を準備中...</Text>
-      </View>
-    </View>
-  );
-}
-
-type TrimContentProps = {
-  source: VideoSource;
-  insetsTop: number;
-  navigation: Props['navigation'];
-};
-
-function TrimContent({ source, insetsTop, navigation }: TrimContentProps) {
+  const { source } = route.params;
   const { trimRange, setStart, setEnd } = useTrim(source.durationSec || 60);
   const [currentTimeSec, setCurrentTimeSec] = useState(0);
   const [scrollEnabled, setScrollEnabled] = useState(true);
@@ -138,8 +50,7 @@ function TrimContent({ source, insetsTop, navigation }: TrimContentProps) {
   const selectedSec = trimRange.endSec - trimRange.startSec;
 
   return (
-    <View style={[styles.root, { paddingTop: insetsTop }]}>
-      {/* ─── カスタムヘッダー ─── */}
+    <View style={[styles.root, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -155,7 +66,6 @@ function TrimContent({ source, insetsTop, navigation }: TrimContentProps) {
         showsVerticalScrollIndicator={false}
         scrollEnabled={scrollEnabled}
       >
-        {/* ─── 動画プレビュー ─── */}
         <View style={styles.videoWrapper}>
           <VideoPreview
             uri={source.uri}
@@ -168,7 +78,6 @@ function TrimContent({ source, insetsTop, navigation }: TrimContentProps) {
           />
         </View>
 
-        {/* ─── トリミングセクション ─── */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View>
@@ -201,7 +110,6 @@ function TrimContent({ source, insetsTop, navigation }: TrimContentProps) {
           />
         </View>
 
-        {/* ─── 次へボタン ─── */}
         <TouchableOpacity
           onPress={handleNext}
           disabled={selectedSec < MIN_DURATION_SEC}
@@ -219,8 +127,6 @@ function TrimContent({ source, insetsTop, navigation }: TrimContentProps) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.surface },
-
-  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -234,8 +140,6 @@ const styles = StyleSheet.create({
   headerBack: { marginRight: 4 },
   headerTitle: { fontSize: 17, fontWeight: '600', color: colors.textPrimary },
   headerNextButton: { width: 44 },
-
-  // Next Button
   nextButton: {
     marginHorizontal: 16,
     marginBottom: 8,
@@ -258,55 +162,62 @@ const styles = StyleSheet.create({
   nextButtonText: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#ffffff',
-    letterSpacing: 0.3,
+    color: '#fff',
   },
-
-  // Scroll
-  scrollContent: { paddingBottom: 8 },
-
-  // Video
-  videoWrapper: {},
-  loading: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
+  scrollContent: {
+    paddingBottom: 24,
   },
-  loadingText: {
-    fontSize: 15,
-    color: colors.textSecondary,
-  },
-
-  // Section
-  section: {
-    backgroundColor: colors.cardBackground,
-    borderRadius: 16,
+  videoWrapper: {
+    marginTop: 18,
     marginHorizontal: 16,
-    marginBottom: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
+    borderRadius: 24,
+    overflow: 'hidden',
+    backgroundColor: colors.cardBackground,
+  },
+  section: {
+    marginTop: 24,
+    marginHorizontal: 16,
+    padding: 16,
+    borderRadius: 24,
+    backgroundColor: colors.cardBackground,
+    gap: 16,
   },
   sectionHeader: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    marginBottom: 12,
+    alignItems: 'center',
+    gap: 12,
   },
   sectionTitle: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: '700',
     color: colors.textPrimary,
-    marginBottom: 2,
   },
   sectionSubtitle: {
+    marginTop: 4,
     fontSize: 13,
     color: colors.textSecondary,
-    flexShrink: 1,
-    maxWidth: 180,
   },
-  selectedBadge: { alignItems: 'flex-end' },
-  selectedText: { fontSize: 22, fontWeight: '700', color: colors.primary },
-  selectedLabel: { fontSize: 13, fontWeight: '600', color: colors.primary },
+  selectedBadge: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 76,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 16,
+    backgroundColor: colors.accentSubtle,
+  },
+  selectedText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.accent,
+  },
+  selectedLabel: {
+    marginTop: 2,
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    color: colors.accent,
+  },
 });
